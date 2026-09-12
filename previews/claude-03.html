@@ -1,0 +1,170 @@
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'"><title>Quicksilver</title><style>
+:root{color-scheme:light;--bg:#fcfafb;--fg:#1a151e;--muted:#6b6070;--accent:#8a2e63;--ok:#2f7d53;--warn:#a8690c;--err:#b5372f;--shadow:#1a151e2e;background:#e9e5e9;color:var(--fg)}
+:root[data-theme=dark]{color-scheme:dark;--bg:#221c27;--fg:#efe9f0;--muted:#a497aa;--accent:#e88cc0;--ok:#56c98a;--warn:#e8a63e;--err:#ff7c6e;--shadow:#0009;background:#14111a}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;width:100%}body{font-family:system-ui,sans-serif}
+.preview-stage{min-height:350px;display:flex;align-items:center;justify-content:center;padding:40px 18px;position:relative;isolation:isolate}
+.preview-stage>.pill{max-width:100%;flex-shrink:1}
+#frame-error{position:fixed;bottom:5px;left:8px;background:var(--bg);color:var(--err);font:12px system-ui;padding:6px}
+[hidden]{display:none!important}:root[data-paused=true] *{animation-play-state:paused!important}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+.pill-3{position:relative;box-sizing:border-box;width:260px;min-height:64px;max-height:64px;padding:0;overflow:visible;color:var(--fg);font:500 13px/1.35 -apple-system,"SF Pro Text","PingFang HK","PingFang TC",system-ui,sans-serif;--p3-tint:var(--accent);--p3-ripple:calc(var(--lv,0)*1);transform-origin:50% 100%;transition:max-height .32s cubic-bezier(.2,.8,.2,1),opacity .2s ease,transform .32s cubic-bezier(.2,.8,.2,1)}
+.pill-3__goo{position:absolute;inset:0;width:260px;height:64px;display:block;filter:drop-shadow(0 6px 14px var(--shadow));transition:opacity .28s ease}
+.pill-3__body{fill:var(--bg)}
+.pill-3__b{fill:var(--p3-tint);transition:fill .3s ease}
+.pill-3__beads{transform-origin:31px 32px}
+.pill-3__card{position:absolute;inset:6px 10px;border-radius:20px;background:var(--bg);box-shadow:0 6px 14px var(--shadow),inset 0 0 0 1px color-mix(in srgb,var(--p3-tint) 28%,transparent);opacity:0;transition:opacity .28s ease,border-radius .28s ease}
+.pill-3__content{position:relative;display:flex;align-items:center;gap:8px;min-height:64px;padding:12px 18px 12px 24px;box-sizing:border-box}
+.pill-3__glyph{flex:0 0 18px;width:18px;height:18px;display:grid;place-items:center;opacity:.001;transition:opacity .25s ease}
+.pill-3__glyph svg{display:block;overflow:visible}
+.pill-3__ring{stroke:var(--p3-tint);opacity:0}
+.pill-3__check{stroke:var(--ok);stroke-dasharray:16;stroke-dashoffset:16}
+.pill-3__x{stroke:var(--err);stroke-dasharray:24;stroke-dashoffset:24}
+.pill-3__label{flex:0 0 auto;padding-left:22px;color:var(--fg);white-space:nowrap;letter-spacing:.01em;transition:color .3s ease,padding .28s ease}
+.pill-3__label::after{content:attr(data-label)}
+.pill-3__text{flex:1 1 auto;min-width:0;color:var(--muted);font-weight:400;display:none;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;opacity:0;transition:opacity .25s ease .08s}
+.pill-3__text::after{content:attr(data-text)}
+
+/* ---- liquid motion (only while the drop is liquid) ---- */
+@keyframes pill3-drift{0%{transform:rotate(0) translate(0,0)}50%{transform:rotate(180deg) translate(1.5px,0)}100%{transform:rotate(360deg) translate(0,0)}}
+@keyframes pill3-pump{0%{transform:translateX(0)}100%{transform:translateX(196px)}}
+@keyframes pill3-orbit{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+@keyframes pill3-rise{0%{opacity:0;transform:translateY(18px) scale(.6,.35)}60%{opacity:1;transform:translateY(-2px) scale(1.04,1.06)}100%{opacity:1;transform:none}}
+@keyframes pill3-melt{0%{opacity:1;transform:none}100%{opacity:0;transform:translateY(14px) scale(1.06,.2)}}
+@keyframes pill3-shudder{0%,100%{transform:translateX(0)}20%{transform:translateX(-5px)}45%{transform:translateX(4px)}70%{transform:translateX(-2px)}}
+@keyframes pill3-spin{to{transform:rotate(360deg)}}
+
+.pill-3[data-state="idle-appear"]{animation:pill3-rise .42s cubic-bezier(.2,.9,.25,1.2) both}
+.pill-3[data-state="idle-appear"] .pill-3__label,.pill-3[data-state="listening"] .pill-3__label{color:var(--fg)}
+.pill-3[data-state="listening"] .pill-3__beads{animation:pill3-drift 6s linear infinite}
+.pill-3[data-state="listening"] .pill-3__b{fill:var(--accent)}
+.pill-3[data-state="listening"] .pill-3__b1{opacity:calc(.75 + var(--lv,0)*.25)}
+
+.pill-3[data-state="transcribing"]{--p3-tint:var(--muted)}
+.pill-3[data-state="transcribing"] .pill-3__beads{animation:pill3-pump 1.4s cubic-bezier(.45,0,.2,1) infinite alternate}
+.pill-3[data-state="transcribing"] .pill-3__label{color:var(--muted)}
+
+.pill-3[data-state="transforming"]{--p3-tint:var(--warn)}
+.pill-3[data-state="transforming"] .pill-3__beads{animation:pill3-orbit 1.1s linear infinite}
+
+.pill-3[data-state="searching"]{--p3-tint:var(--accent)}
+.pill-3[data-state="searching"] .pill-3__beads{animation:pill3-orbit 2.2s linear infinite}
+.pill-3[data-state="searching"] .pill-3__glyph{opacity:1}
+.pill-3[data-state="searching"] .pill-3__ring{opacity:1;stroke-dasharray:32 18;transform-origin:12px 12px;animation:pill3-spin 1.6s linear infinite}
+.pill-3[data-state="searching"] .pill-3__label{padding-left:0}
+
+/* ---- the drop sets into glass ---- */
+.pill-3[data-state="done"],.pill-3[data-state="failed"]{max-height:112px}
+.pill-3[data-state="done"] .pill-3__goo,.pill-3[data-state="failed"] .pill-3__goo{opacity:0}
+.pill-3[data-state="done"] .pill-3__card,.pill-3[data-state="failed"] .pill-3__card{opacity:1;border-radius:16px}
+.pill-3[data-state="done"] .pill-3__content,.pill-3[data-state="failed"] .pill-3__content{flex-wrap:wrap;align-items:flex-start;padding:14px 18px}
+.pill-3[data-state="done"] .pill-3__label,.pill-3[data-state="failed"] .pill-3__label{padding-left:0;font-size:11px;text-transform:uppercase;letter-spacing:.06em;line-height:18px}
+.pill-3[data-state="done"] .pill-3__glyph,.pill-3[data-state="failed"] .pill-3__glyph{opacity:1}
+.pill-3[data-state="done"] .pill-3__text,.pill-3[data-state="failed"] .pill-3__text{flex-basis:100%;opacity:1;-webkit-line-clamp:3;color:var(--fg)}
+.pill-3[data-state="done"]{--p3-tint:var(--ok)}
+.pill-3[data-state="done"] .pill-3__label{color:var(--ok)}
+.pill-3[data-state="done"] .pill-3__check{transition:stroke-dashoffset .35s ease .12s;stroke-dashoffset:0}
+.pill-3[data-state="failed"]{--p3-tint:var(--err);animation:pill3-shudder .38s ease-out both}
+.pill-3[data-state="failed"] .pill-3__label{color:var(--err)}
+.pill-3[data-state="failed"] .pill-3__text{color:var(--muted)}
+.pill-3[data-state="failed"] .pill-3__x{transition:stroke-dashoffset .3s ease .1s;stroke-dashoffset:0}
+
+.pill-3[data-state="cancel"],.pill-3[data-state="hide"]{animation:pill3-melt .26s ease-in both;pointer-events:none}
+
+/* ---- reduced motion: no ripple, no orbit; level becomes bead opacity only ---- */
+@media (prefers-reduced-motion:reduce){
+  .pill-3,.pill-3 *{animation:none!important;transition-duration:.01ms!important}
+  .pill-3[data-state="idle-appear"],.pill-3[data-state="cancel"],.pill-3[data-state="hide"]{opacity:1}
+  .pill-3[data-state="cancel"],.pill-3[data-state="hide"]{opacity:0}
+  .pill-3 .pill-3__b1{opacity:calc(.5 + var(--lv,0)*.5)}
+  .pill-3 .pill-3__ring{stroke-dasharray:none}
+}</style></head><body><div class="preview-stage"><div class="pill pill-3" data-state="listening" style="--lv:0" role="status" aria-live="polite">
+  <svg class="pill-3__goo" viewBox="0 0 260 64" width="260" height="64" aria-hidden="true">
+    <defs>
+      <filter id="pill3-goo" x="-10%" y="-30%" width="120%" height="160%" color-interpolation-filters="sRGB">
+        <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur"/>
+        <feColorMatrix in="blur" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -10" result="goo"/>
+        <feTurbulence type="fractalNoise" baseFrequency="0.018 0.06" numOctaves="2" seed="7" result="noise"/>
+        <feDisplacementMap id="pill3-disp" in="goo" in2="noise" scale="2" xChannelSelector="R" yChannelSelector="G"/>
+      </filter>
+    </defs>
+    <g filter="url(#pill3-goo)">
+      <rect class="pill-3__body" x="10" y="12" width="240" height="40" rx="20"/>
+      <g class="pill-3__beads">
+        <circle class="pill-3__b pill-3__b1" cx="27" cy="32" r="11"/>
+        <circle class="pill-3__b pill-3__b2" cx="36" cy="30" r="9"/>
+        <circle class="pill-3__b pill-3__b3" cx="32" cy="36" r="8"/>
+      </g>
+    </g>
+  </svg>
+  <div class="pill-3__card"></div>
+  <div class="pill-3__content">
+    <span class="pill-3__glyph" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="18" height="18"><circle class="pill-3__ring" cx="12" cy="12" r="8" fill="none" stroke-width="1.6"/><path class="pill-3__check" d="M7 12.5l3.2 3.2L17 9" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path class="pill-3__x" d="M8 8l8 8M16 8l-8 8" fill="none" stroke-width="2" stroke-linecap="round"/></svg>
+    </span>
+    <span class="pill-3__label" data-label></span>
+    <span class="pill-3__text" data-text></span>
+  </div>
+</div></div><p id="frame-error" hidden>此示範未能更新狀態。</p><script>window.pill3_tick = function (level, state) {
+  var root = document.querySelector('.pill-3');
+  if (!root) return;
+  var m = root._p3 || (root._p3 = { lv: -1, st: '', sm: 0, disp: root.querySelector('#pill3-disp'), b1: root.querySelector('.pill-3__b1'), b2: root.querySelector('.pill-3__b2'), b3: root.querySelector('.pill-3__b3'), rm: matchMedia('(prefers-reduced-motion: reduce)').matches });
+  if (state && state !== m.st) { m.st = state; root.setAttribute('data-state', state); }
+  var l = Math.max(0, Math.min(1, +level || 0));
+  m.sm += (l - m.sm) * (l > m.sm ? 0.55 : 0.18);          /* fast attack, slow release */
+  if (Math.abs(m.sm - m.lv) < 0.01) return;               /* skip DOM writes when nothing moved */
+  m.lv = m.sm;
+  root.style.setProperty('--lv', m.lv.toFixed(3));
+  if (m.rm || (state !== 'listening' && state !== 'idle-appear')) { if (m.disp) m.disp.setAttribute('scale', '0'); return; }
+  if (m.disp) m.disp.setAttribute('scale', (2 + m.lv * 16).toFixed(1));
+  /* breathe the three beads apart with level so the metaball necks stretch */
+  var r = 11 + m.lv * 7, sp = 6 + m.lv * 10;
+  if (m.b1) { m.b1.setAttribute('r', r.toFixed(1)); m.b1.setAttribute('cx', (30 - sp * 0.5).toFixed(1)); }
+  if (m.b2) { m.b2.setAttribute('r', (r * 0.85).toFixed(1)); m.b2.setAttribute('cx', (30 + sp).toFixed(1)); m.b2.setAttribute('cy', (32 - sp * 0.4).toFixed(1)); }
+  if (m.b3) { m.b3.setAttribute('r', (r * 0.7).toFixed(1)); m.b3.setAttribute('cx', (30 + sp * 0.4).toFixed(1)); m.b3.setAttribute('cy', (32 + sp * 0.6).toFixed(1)); }
+};
+/* Host sets text via: el.querySelector('[data-label]').dataset.label = 'Listening'; el.querySelector('[data-text]').dataset.text = preview; */</script><script>
+(()=>{
+ const ID="claude-03",KIND="claude",N=3;
+ const allowed=['appear','listening','transcribing','transforming','searching','done','failed'];
+ let latest=null,scheduled=false,previous='',scenario='',revision=-1;
+ const root=document.querySelector(KIND==='codex'?'#inflow-studies':'.pill');
+ const samples={dictate:'將呢個 function 改成 async。',rewrite:'我聽日覆你。',search:'上網查下 exponential backoff。'};
+ const result='Exponential backoff：每次重試前逐步增加等待時間。';
+ function apply(){
+  scheduled=false;if(!latest||!root)return;const m=latest;
+  document.documentElement.dataset.theme=m.theme;
+  document.documentElement.dataset.paused=String(!m.active||!m.motion);
+  document.documentElement.style.setProperty('--level',m.level.toFixed(3));
+  if(KIND==='codex'){
+   root.dataset.theme=m.theme;root.dataset.motion=m.motion&&m.active?'on':'off';
+   root.style.setProperty('--if-energy',String(.7+m.level*.6));root.style.setProperty('--level',m.level.toFixed(3));
+   if(scenario!==m.scenario){const s=root.querySelector('.if-scenario');s.value=m.scenario;s.dispatchEvent(new Event('change'));}
+   if(previous!==m.state||scenario!==m.scenario||revision!==m.revision){const s=root.querySelector('.if-state');s.value=m.state==='appear'?'ready':m.state;s.dispatchEvent(new Event('change'));}
+  }else{
+   let state=m.state;if(state==='appear')state=N===4?'idle':[2,3,5,6,8,9,10].includes(N)?'idle-appear':'appear';
+   root.dataset.state=state;root.dataset.kind=m.scenario==='search'?'search':'text';root.style.setProperty('--level',m.level.toFixed(3));
+   if(previous!==m.state||scenario!==m.scenario||revision!==m.revision){
+    const text=m.scenario==='rewrite'&&m.state==='done'?'I’ll get back to you tomorrow.':samples[m.scenario];
+    if(N===1)window.pill1_setPreview?.(m.scenario==='search'?result:text,root.dataset.kind,'Exponential backoff · 示範');
+    if(N===2){root.dataset.mode=m.scenario==='search'?'search':'text';window.pill2_setText?.(text);window.pill2_setSearch?.('Exponential backoff · 示範',result);}
+    if(N===5){root.dataset.text=text;root.dataset.title='Exponential backoff · 示範';root.dataset.body=result;}
+    if(N===10)window.pill10_command?.(m.scenario==='search'?'search':m.scenario==='rewrite'?'transform':'none');
+   }
+   try{const tick=window['pill'+N+'_tick'];if(typeof tick==='function')tick(m.level,state);}
+   catch(error){document.getElementById('frame-error').hidden=false;}
+  }
+  previous=m.state;scenario=m.scenario;revision=m.revision;
+ }
+ addEventListener('message',event=>{
+  const m=event.data;if(event.source!==parent||!m||m.type!=='pill-state'||!allowed.includes(m.state))return;
+  if(!['light','dark'].includes(m.theme)||!['dictate','rewrite','search'].includes(m.scenario))return;
+  if(typeof m.level!=='number'||!Number.isFinite(m.level))return;
+  latest={...m,level:Math.max(0,Math.min(1,m.level)),active:!!m.active,motion:!!m.motion};
+  if(!scheduled){scheduled=true;requestAnimationFrame(apply);}
+ });
+ const stage=KIND==='codex'?root?.querySelector('.if-study:not([style]) .if-scene'):document.querySelector('.preview-stage');
+ const sizeTarget=KIND==='codex'?[...root.querySelectorAll('.if-scene')].find(el=>el.offsetHeight):stage;
+ if(sizeTarget)new ResizeObserver(()=>parent.postMessage({type:'pill-size',id:ID,height:Math.ceil(sizeTarget.getBoundingClientRect().height)},'*')).observe(sizeTarget);
+ if(parent!==window)parent.postMessage({type:'pill-ready',id:ID},'*');
+})();</script></body></html>

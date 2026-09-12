@@ -1,0 +1,238 @@
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'"><title>Ribbon</title><style>
+:root{color-scheme:light;--bg:#fcfafb;--fg:#1a151e;--muted:#6b6070;--accent:#8a2e63;--ok:#2f7d53;--warn:#a8690c;--err:#b5372f;--shadow:#1a151e2e;background:#e9e5e9;color:var(--fg)}
+:root[data-theme=dark]{color-scheme:dark;--bg:#221c27;--fg:#efe9f0;--muted:#a497aa;--accent:#e88cc0;--ok:#56c98a;--warn:#e8a63e;--err:#ff7c6e;--shadow:#0009;background:#14111a}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;width:100%}body{font-family:system-ui,sans-serif}
+.preview-stage{min-height:350px;display:flex;align-items:center;justify-content:center;padding:40px 18px;position:relative;isolation:isolate}
+.preview-stage>.pill{max-width:100%;flex-shrink:1}
+#frame-error{position:fixed;bottom:5px;left:8px;background:var(--bg);color:var(--err);font:12px system-ui;padding:6px}
+[hidden]{display:none!important}:root[data-paused=true] *{animation-play-state:paused!important}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+.pill-1{
+  --p1-hair: color-mix(in srgb, var(--fg) 10%, transparent);
+  --p1-ease: cubic-bezier(.2,.8,.2,1);
+  box-sizing:border-box;position:relative;display:inline-flex;flex-direction:column;align-items:stretch;
+  min-width:220px;max-width:260px;min-height:44px;border-radius:22px;overflow:hidden;
+  color:var(--fg);
+  background:color-mix(in srgb, var(--bg) 88%, transparent);
+  -webkit-backdrop-filter:blur(24px) saturate(160%);backdrop-filter:blur(24px) saturate(160%);
+  box-shadow:0 0 0 1px var(--p1-hair), 0 10px 28px var(--shadow), 0 1px 2px var(--shadow);
+  font:500 13px/1.3 -apple-system,"SF Pro Text",system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;
+  transition:max-width .38s var(--p1-ease), border-radius .38s var(--p1-ease), opacity .2s ease, transform .38s var(--p1-ease);
+  animation:pill-1-appear .32s var(--p1-ease) both;
+}
+.pill-1__body{display:flex;align-items:center;gap:10px;height:44px;padding:0 16px 0 12px}
+.pill-1__svg{flex:none;display:block;overflow:visible}
+.pill-1__ribbon,.pill-1__trail{fill:none;stroke-width:2.25;stroke-linecap:round;stroke-linejoin:round;
+  transition:stroke .3s ease, opacity .3s ease}
+.pill-1__ribbon{stroke:var(--fg)}
+.pill-1__trail{stroke:var(--accent);stroke-width:2;opacity:.35}
+.pill-1__label{display:flex;flex-direction:column;justify-content:center;min-width:0;line-height:1.25}
+.pill-1__state{display:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--fg)}
+.pill-1__hint{display:none;font-size:11px;font-weight:400;color:var(--muted);white-space:nowrap}
+
+/* state: appear */
+.pill-1[data-state="appear"] .pill-1__s-appear{display:inline}
+.pill-1[data-state="appear"] .pill-1__ribbon{stroke:var(--muted);stroke-dasharray:100;stroke-dashoffset:100;
+  animation:pill-1-draw .5s var(--p1-ease) .1s forwards}
+.pill-1[data-state="appear"] .pill-1__trail{opacity:0}
+
+/* state: listening */
+.pill-1[data-state="listening"] .pill-1__s-listening,
+.pill-1[data-state="listening"] .pill-1__hint{display:inline}
+.pill-1[data-state="listening"] .pill-1__ribbon{stroke:var(--fg)}
+
+/* processing states share a dash sweep; direction/cadence encode the job */
+.pill-1[data-state="transcribing"] .pill-1__s-transcribing,
+.pill-1[data-state="transforming"] .pill-1__s-transforming,
+.pill-1[data-state="searching"] .pill-1__s-searching{display:inline;color:var(--muted)}
+.pill-1[data-state="transcribing"] .pill-1__ribbon,
+.pill-1[data-state="transforming"] .pill-1__ribbon,
+.pill-1[data-state="searching"] .pill-1__ribbon{stroke:var(--accent)}
+.pill-1[data-state="transcribing"] .pill-1__ribbon{stroke-dasharray:14 10;animation:pill-1-sweep .9s linear infinite}
+.pill-1[data-state="transforming"] .pill-1__ribbon{stroke-dasharray:5 6;animation:pill-1-sweep 1.1s linear infinite reverse}
+.pill-1[data-state="searching"] .pill-1__ribbon{stroke-dasharray:2 5;animation:pill-1-sweep .6s linear infinite}
+.pill-1[data-state="transcribing"] .pill-1__trail,
+.pill-1[data-state="transforming"] .pill-1__trail,
+.pill-1[data-state="searching"] .pill-1__trail{opacity:.18}
+
+/* state: done -> ribbon tweens into a check, capsule opens into a card */
+.pill-1[data-state="done"]{max-width:420px;border-radius:18px}
+.pill-1[data-state="done"] .pill-1__s-done{display:inline;color:var(--ok)}
+.pill-1[data-state="done"] .pill-1__ribbon{stroke:var(--ok);stroke-width:2.5;
+  transition:d .45s var(--p1-ease), stroke .3s ease, stroke-width .3s ease}
+.pill-1[data-state="done"] .pill-1__trail{opacity:0}
+.pill-1__preview{display:none;padding:0 16px 12px 16px;border-top:1px solid var(--p1-hair)}
+.pill-1[data-state="done"] .pill-1__preview,
+.pill-1[data-state="failed"] .pill-1__preview{display:block;animation:pill-1-rise .3s var(--p1-ease) both}
+.pill-1__text{padding-top:10px;font-weight:400;font-size:13px;line-height:1.4;color:var(--fg);
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+.pill-1__card{display:none;padding-top:10px}
+.pill-1[data-kind="search"] .pill-1__card{display:block}
+.pill-1[data-kind="search"] .pill-1__text{display:none}
+.pill-1__card-title{font-weight:600;font-size:13px;color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pill-1__card-body{margin-top:3px;font-weight:400;font-size:12px;line-height:1.4;color:var(--muted);
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+
+/* state: failed -> flat line in --err, brief shake */
+.pill-1[data-state="failed"]{max-width:360px;border-radius:18px;animation:pill-1-shake .4s var(--p1-ease)}
+.pill-1[data-state="failed"] .pill-1__s-failed{display:inline;color:var(--err)}
+.pill-1[data-state="failed"] .pill-1__ribbon{stroke:var(--err);transition:d .3s var(--p1-ease), stroke .2s ease}
+.pill-1[data-state="failed"] .pill-1__trail{opacity:0}
+.pill-1[data-state="failed"] .pill-1__text{color:var(--muted)}
+
+/* state: hidden (cancel / dismiss) */
+.pill-1[data-state="hidden"]{opacity:0;transform:translateY(8px) scale(.96);pointer-events:none}
+
+@keyframes pill-1-appear{from{opacity:0;transform:translateY(10px) scale(.94)}to{opacity:1;transform:none}}
+@keyframes pill-1-draw{to{stroke-dashoffset:0}}
+@keyframes pill-1-sweep{from{stroke-dashoffset:0}to{stroke-dashoffset:-24}}
+@keyframes pill-1-rise{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+@keyframes pill-1-shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}55%{transform:translateX(3px)}80%{transform:translateX(-1px)}}
+
+@media (prefers-reduced-motion: reduce){
+  .pill-1,.pill-1[data-state="failed"],.pill-1[data-state="appear"] .pill-1__ribbon,
+  .pill-1[data-state="transcribing"] .pill-1__ribbon,.pill-1[data-state="transforming"] .pill-1__ribbon,
+  .pill-1[data-state="searching"] .pill-1__ribbon,.pill-1__preview{animation:none}
+  .pill-1[data-state="appear"] .pill-1__ribbon{stroke-dashoffset:0}
+  .pill-1{transition:opacity .15s ease}
+  .pill-1[data-state="done"] .pill-1__ribbon,.pill-1[data-state="failed"] .pill-1__ribbon{transition:stroke .2s ease}
+  .pill-1[data-state="hidden"]{transform:none}
+}</style></head><body><div class="preview-stage"><div class="pill pill-1" data-state="listening" data-kind="text" role="status" aria-live="polite">
+  <div class="pill-1__body">
+    <svg class="pill-1__svg" viewBox="0 0 96 28" width="96" height="28" aria-hidden="true" focusable="false">
+      <path class="pill-1__trail" pathLength="100" d="M4 14 C8.89 14 13.78 14 18.67 14 C23.56 14 28.44 14 33.33 14 C38.22 14 43.11 14 48 14 C52.89 14 57.78 14 62.67 14 C67.56 14 72.44 14 77.33 14 C82.22 14 87.11 14 92 14"/>
+      <path class="pill-1__ribbon" pathLength="100" d="M4 14 C8.89 14 13.78 14 18.67 14 C23.56 14 28.44 14 33.33 14 C38.22 14 43.11 14 48 14 C52.89 14 57.78 14 62.67 14 C67.56 14 72.44 14 77.33 14 C82.22 14 87.11 14 92 14"/>
+    </svg>
+    <div class="pill-1__label">
+      <span class="pill-1__state pill-1__s-appear">Ready</span>
+      <span class="pill-1__state pill-1__s-listening">Listening</span>
+      <span class="pill-1__state pill-1__s-transcribing">Transcribing…</span>
+      <span class="pill-1__state pill-1__s-transforming">Rewriting selection…</span>
+      <span class="pill-1__state pill-1__s-searching">Searching the web…</span>
+      <span class="pill-1__state pill-1__s-done">Inserted</span>
+      <span class="pill-1__state pill-1__s-failed">Couldn't transcribe</span>
+      <span class="pill-1__hint">Release ⌥ to stop</span>
+    </div>
+  </div>
+  <div class="pill-1__preview">
+    <div class="pill-1__text">Add a retry with exponential backoff to the upload client.</div>
+    <div class="pill-1__card">
+      <div class="pill-1__card-title">Result title</div>
+      <div class="pill-1__card-body">Snippet of the web result appears here, clamped to three lines.</div>
+    </div>
+  </div>
+</div></div><p id="frame-error" hidden>此示範未能更新狀態。</p><script>(function(){
+  var MID=14, N=7, X0=4, X1=92;
+  var xs=[]; for(var i=0;i<N;i++) xs.push(X0+(X1-X0)*i/(N-1));
+  var env=[0.15,0.6,0.95,1,0.95,0.6,0.15];
+  var CHECK=[[36,14],[40.5,18.5],[45,23],[49,19],[53,15],[57,11],[61,7]];
+  var phase=0, lv=0, lvTrail=0, lastState=null;
+  var reduce=false; try{ reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(e){}
+  function f(v){ return Math.round(v*100)/100; }
+  function smooth(pts){ // Catmull-Rom -> M + 6 C (constant structure, tweenable)
+    var d='M'+f(pts[0][0])+' '+f(pts[0][1]);
+    for(var i=0;i<pts.length-1;i++){
+      var p0=pts[i-1]||pts[i], p1=pts[i], p2=pts[i+1], p3=pts[i+2]||p2;
+      d+=' C'+f(p1[0]+(p2[0]-p0[0])/6)+' '+f(p1[1]+(p2[1]-p0[1])/6)+' '+f(p2[0]-(p3[0]-p1[0])/6)+' '+f(p2[1]-(p3[1]-p1[1])/6)+' '+f(p2[0])+' '+f(p2[1]);
+    }
+    return d;
+  }
+  function straight(pts){ // collinear controls -> crisp polyline, same M + 6 C structure
+    var d='M'+f(pts[0][0])+' '+f(pts[0][1]);
+    for(var i=0;i<pts.length-1;i++){
+      var a=pts[i], b=pts[i+1], dx=b[0]-a[0], dy=b[1]-a[1];
+      d+=' C'+f(a[0]+dx/3)+' '+f(a[1]+dy/3)+' '+f(a[0]+dx*2/3)+' '+f(a[1]+dy*2/3)+' '+f(b[0])+' '+f(b[1]);
+    }
+    return d;
+  }
+  function wave(amp, ph){
+    var pts=[];
+    for(var i=0;i<N;i++){
+      var y=MID + (Math.sin(ph+i*1.05) + 0.25*Math.sin(ph*1.7+i*2.3)) * env[i] * amp;
+      pts.push([xs[i], y]);
+    }
+    return smooth(pts);
+  }
+  function flat(){ var pts=[]; for(var i=0;i<N;i++) pts.push([xs[i],MID]); return straight(pts); }
+  function setD(el,d){ if(el && el.getAttribute('d')!==d) el.setAttribute('d',d); }
+
+  window.pill1_tick=function(level, state){
+    var root=document.querySelector('.pill-1'); if(!root) return;
+    var ribbon=root.querySelector('.pill-1__ribbon'), trail=root.querySelector('.pill-1__trail');
+    if(root.getAttribute('data-state')!==state) root.setAttribute('data-state',state);
+    var entered = state!==lastState; lastState=state;
+    if(state==='done'){ if(entered){ setD(trail,flat()); setD(ribbon,straight(CHECK)); } return; }
+    if(state==='failed'){ if(entered){ setD(trail,flat()); setD(ribbon,flat()); } return; }
+    if(state==='hidden' || state==='appear'){ if(entered){ setD(ribbon,flat()); setD(trail,flat()); } return; }
+    level=Math.max(0,Math.min(1,+level||0));
+    var amp, dphase;
+    if(state==='listening'){
+      lv += (level-lv) * (level>lv ? 0.5 : 0.15);
+      lvTrail += (lv-lvTrail) * 0.08;
+      amp = 1.5 + lv*10.5;
+      dphase = 0.32 + lv*0.45;
+    } else { // transcribing / transforming / searching: calm carrier, dashes do the talking
+      lv += (0.2-lv)*0.1; lvTrail += (lv-lvTrail)*0.1;
+      amp = 3.5; dphase = 0.16;
+    }
+    if(reduce){ amp*=0.6; dphase*=0.25; }
+    phase += dphase; if(phase>6283) phase-=6283;
+    setD(ribbon, wave(amp, phase));
+    setD(trail, wave((state==='listening' ? 1.5+lvTrail*10.5 : 3.5)*0.7, phase-0.7));
+  };
+
+  // optional helper: host fills the preview before switching to done/failed
+  window.pill1_setPreview=function(text, kind, title){
+    var root=document.querySelector('.pill-1'); if(!root) return;
+    root.setAttribute('data-kind', kind==='search' ? 'search' : 'text');
+    var t=root.querySelector('.pill-1__text'); if(t) t.textContent=text||'';
+    var ct=root.querySelector('.pill-1__card-title'); if(ct) ct.textContent=title||'';
+    var cb=root.querySelector('.pill-1__card-body'); if(cb) cb.textContent=kind==='search' ? (text||'') : '';
+  };
+})();</script><script>
+(()=>{
+ const ID="claude-01",KIND="claude",N=1;
+ const allowed=['appear','listening','transcribing','transforming','searching','done','failed'];
+ let latest=null,scheduled=false,previous='',scenario='',revision=-1;
+ const root=document.querySelector(KIND==='codex'?'#inflow-studies':'.pill');
+ const samples={dictate:'將呢個 function 改成 async。',rewrite:'我聽日覆你。',search:'上網查下 exponential backoff。'};
+ const result='Exponential backoff：每次重試前逐步增加等待時間。';
+ function apply(){
+  scheduled=false;if(!latest||!root)return;const m=latest;
+  document.documentElement.dataset.theme=m.theme;
+  document.documentElement.dataset.paused=String(!m.active||!m.motion);
+  document.documentElement.style.setProperty('--level',m.level.toFixed(3));
+  if(KIND==='codex'){
+   root.dataset.theme=m.theme;root.dataset.motion=m.motion&&m.active?'on':'off';
+   root.style.setProperty('--if-energy',String(.7+m.level*.6));root.style.setProperty('--level',m.level.toFixed(3));
+   if(scenario!==m.scenario){const s=root.querySelector('.if-scenario');s.value=m.scenario;s.dispatchEvent(new Event('change'));}
+   if(previous!==m.state||scenario!==m.scenario||revision!==m.revision){const s=root.querySelector('.if-state');s.value=m.state==='appear'?'ready':m.state;s.dispatchEvent(new Event('change'));}
+  }else{
+   let state=m.state;if(state==='appear')state=N===4?'idle':[2,3,5,6,8,9,10].includes(N)?'idle-appear':'appear';
+   root.dataset.state=state;root.dataset.kind=m.scenario==='search'?'search':'text';root.style.setProperty('--level',m.level.toFixed(3));
+   if(previous!==m.state||scenario!==m.scenario||revision!==m.revision){
+    const text=m.scenario==='rewrite'&&m.state==='done'?'I’ll get back to you tomorrow.':samples[m.scenario];
+    if(N===1)window.pill1_setPreview?.(m.scenario==='search'?result:text,root.dataset.kind,'Exponential backoff · 示範');
+    if(N===2){root.dataset.mode=m.scenario==='search'?'search':'text';window.pill2_setText?.(text);window.pill2_setSearch?.('Exponential backoff · 示範',result);}
+    if(N===5){root.dataset.text=text;root.dataset.title='Exponential backoff · 示範';root.dataset.body=result;}
+    if(N===10)window.pill10_command?.(m.scenario==='search'?'search':m.scenario==='rewrite'?'transform':'none');
+   }
+   try{const tick=window['pill'+N+'_tick'];if(typeof tick==='function')tick(m.level,state);}
+   catch(error){document.getElementById('frame-error').hidden=false;}
+  }
+  previous=m.state;scenario=m.scenario;revision=m.revision;
+ }
+ addEventListener('message',event=>{
+  const m=event.data;if(event.source!==parent||!m||m.type!=='pill-state'||!allowed.includes(m.state))return;
+  if(!['light','dark'].includes(m.theme)||!['dictate','rewrite','search'].includes(m.scenario))return;
+  if(typeof m.level!=='number'||!Number.isFinite(m.level))return;
+  latest={...m,level:Math.max(0,Math.min(1,m.level)),active:!!m.active,motion:!!m.motion};
+  if(!scheduled){scheduled=true;requestAnimationFrame(apply);}
+ });
+ const stage=KIND==='codex'?root?.querySelector('.if-study:not([style]) .if-scene'):document.querySelector('.preview-stage');
+ const sizeTarget=KIND==='codex'?[...root.querySelectorAll('.if-scene')].find(el=>el.offsetHeight):stage;
+ if(sizeTarget)new ResizeObserver(()=>parent.postMessage({type:'pill-size',id:ID,height:Math.ceil(sizeTarget.getBoundingClientRect().height)},'*')).observe(sizeTarget);
+ if(parent!==window)parent.postMessage({type:'pill-ready',id:ID},'*');
+})();</script></body></html>

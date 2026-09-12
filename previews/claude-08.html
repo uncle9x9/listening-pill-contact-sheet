@@ -1,0 +1,321 @@
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'"><title>Cursor Anchor</title><style>
+:root{color-scheme:light;--bg:#fcfafb;--fg:#1a151e;--muted:#6b6070;--accent:#8a2e63;--ok:#2f7d53;--warn:#a8690c;--err:#b5372f;--shadow:#1a151e2e;background:#e9e5e9;color:var(--fg)}
+:root[data-theme=dark]{color-scheme:dark;--bg:#221c27;--fg:#efe9f0;--muted:#a497aa;--accent:#e88cc0;--ok:#56c98a;--warn:#e8a63e;--err:#ff7c6e;--shadow:#0009;background:#14111a}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;width:100%}body{font-family:system-ui,sans-serif}
+.preview-stage{min-height:350px;display:flex;align-items:center;justify-content:center;padding:40px 18px;position:relative;isolation:isolate}
+.preview-stage>.pill{max-width:100%;flex-shrink:1}
+#frame-error{position:fixed;bottom:5px;left:8px;background:var(--bg);color:var(--err);font:12px system-ui;padding:6px}
+[hidden]{display:none!important}:root[data-paused=true] *{animation-play-state:paused!important}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+.pill-8{
+  --lvl: var(--level, 0);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  width: 28px;
+  height: 28px;
+  font: 500 12px/1.4 -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+  color: var(--fg);
+  transform-origin: 14px 14px;
+  animation: pill8-appear 220ms cubic-bezier(.2,.9,.3,1.2);
+}
+@keyframes pill8-appear{
+  from{ transform: scale(.55); opacity: 0; }
+  to{ transform: scale(1); opacity: 1; }
+}
+
+.pill-8-anchor{
+  position: relative;
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+  z-index: 2;
+}
+
+/* base disc: HUD material dot, same in both themes via tokens */
+.pill-8-core{
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--bg);
+  box-shadow: 0 2px 10px var(--shadow), 0 0 0 1px color-mix(in srgb, var(--fg) 10%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pill-8-dot{
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--muted);
+  transition: background 160ms ease, transform 90ms ease;
+  transform: scale(calc(1 + var(--lvl) * 0.55));
+}
+
+/* progress ring: track + level arc, used for listening level AND
+   as an indeterminate-feeling breathing ring in transcribing/transforming */
+.pill-8-ring{
+  position: absolute;
+  inset: 0;
+  transform: rotate(-90deg);
+}
+.pill-8-ring-track{
+  fill: none;
+  stroke: color-mix(in srgb, var(--fg) 12%, transparent);
+  stroke-width: 1.6;
+}
+.pill-8-ring-level{
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  --circ: 72.25; /* 2*pi*11.5 */
+  stroke-dasharray: var(--circ);
+  stroke-dashoffset: calc(var(--circ) * (1 - var(--lvl)));
+  opacity: 0;
+  transition: stroke-dashoffset 60ms linear;
+}
+
+.pill-8-spinner{
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  animation: pill8-spin 900ms linear infinite;
+}
+.pill-8-spinner circle{
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-dasharray: 40 20;
+}
+@keyframes pill8-spin{ to{ transform: rotate(360deg); } }
+
+.pill-8-glyph{
+  position: absolute;
+  color: var(--fg);
+  opacity: 0;
+  transform: scale(.6);
+  transition: opacity 140ms ease, transform 140ms cubic-bezier(.2,.8,.3,1.3);
+}
+.pill-8-glyph-ok{ color: var(--ok); }
+.pill-8-glyph-err{ color: var(--err); }
+
+/* ---- state: idle-appear / listening ---- */
+.pill-8[data-state="listening"] .pill-8-ring-level{ opacity: 1; }
+.pill-8[data-state="listening"] .pill-8-dot{ background: var(--accent); }
+
+/* ---- state: transcribing / transforming ---- */
+.pill-8[data-state="transcribing"] .pill-8-spinner,
+.pill-8[data-state="transforming"] .pill-8-spinner{ opacity: 1; }
+.pill-8[data-state="transcribing"] .pill-8-dot,
+.pill-8[data-state="transforming"] .pill-8-dot{
+  background: var(--accent);
+  transform: scale(.85);
+  animation: pill8-pulse 1100ms ease-in-out infinite;
+}
+@keyframes pill8-pulse{
+  0%,100%{ opacity: .55; }
+  50%{ opacity: 1; }
+}
+.pill-8[data-state="transforming"] .pill-8-dot{ background: var(--warn); }
+
+/* ---- state: searching ---- */
+.pill-8[data-state="searching"] .pill-8-dot{ opacity: 0; }
+.pill-8[data-state="searching"] .pill-8-spinner{ opacity: 1; }
+.pill-8[data-state="searching"] .pill-8-glyph-search{ opacity: 1; transform: scale(1); }
+
+/* ---- state: done ---- */
+.pill-8[data-state="done"] .pill-8-dot{ opacity: 0; }
+.pill-8[data-state="done"] .pill-8-core{ box-shadow: 0 2px 10px var(--shadow), 0 0 0 1px color-mix(in srgb, var(--ok) 45%, transparent); }
+.pill-8[data-state="done"] .pill-8-glyph-ok{ opacity: 1; transform: scale(1); }
+
+/* ---- state: failed ---- */
+.pill-8[data-state="failed"] .pill-8-dot{ opacity: 0; }
+.pill-8[data-state="failed"] .pill-8-core{ box-shadow: 0 2px 10px var(--shadow), 0 0 0 1px color-mix(in srgb, var(--err) 50%, transparent); }
+.pill-8[data-state="failed"] .pill-8-glyph-err{ opacity: 1; transform: scale(1); }
+
+/* ---- the expanding card, anchored at the dot's right edge ---- */
+.pill-8-card{
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 28px;
+  width: 0;
+  max-width: 232px; /* 28 anchor + up to 232 card ~= 260 total */
+  overflow: hidden;
+  border-radius: 14px;
+  background: var(--bg);
+  box-shadow: 0 6px 20px var(--shadow), 0 0 0 1px color-mix(in srgb, var(--fg) 10%, transparent);
+  display: flex;
+  align-items: stretch;
+  transition: width 260ms cubic-bezier(.2,.85,.3,1.15), height 220ms cubic-bezier(.2,.85,.3,1.15), border-radius 220ms ease;
+  z-index: 1;
+}
+.pill-8-card-inner{
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1px;
+  padding: 4px 8px 4px 20px;
+}
+.pill-8-card-title{
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.pill-8-card-title::before{ content: "Result"; }
+.pill-8-card-body{
+  font-size: 12.5px;
+  color: var(--fg);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.pill-8-dismiss{
+  flex: 0 0 auto;
+  width: 26px;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 120ms ease, color 120ms ease;
+}
+.pill-8-card:hover .pill-8-dismiss{ opacity: 1; }
+.pill-8-dismiss:hover{ color: var(--fg); }
+
+/* card only opens for done / searching(with a query echo) / failed */
+.pill-8[data-state="done"] .pill-8-card,
+.pill-8[data-state="failed"] .pill-8-card,
+.pill-8[data-state="searching"] .pill-8-card{
+  width: 220px;
+  height: 40px;
+  border-radius: 16px;
+}
+.pill-8[data-state="done"] .pill-8-card-title::before{ content: "Transcribed"; }
+.pill-8[data-state="failed"] .pill-8-card-title::before{ content: "Failed"; }
+.pill-8[data-state="failed"] .pill-8-card-body{ color: var(--err); }
+.pill-8[data-state="searching"] .pill-8-card-title::before{ content: "上網查下…"; }
+.pill-8[data-state="searching"] .pill-8-card-body{ color: var(--muted); }
+
+/* idle-appear: bare dot, nothing else */
+.pill-8[data-state="idle-appear"] .pill-8-dot{ background: var(--muted); transform: scale(.7); }
+
+/* cancel/hide */
+.pill-8[data-state="hidden"]{
+  animation: pill8-hide 160ms ease forwards;
+  pointer-events: none;
+}
+@keyframes pill8-hide{
+  from{ transform: scale(1); opacity: 1; }
+  to{ transform: scale(.5); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce){
+  .pill-8, .pill-8-card, .pill-8-dot, .pill-8-glyph{ animation: none !important; transition-duration: 1ms !important; }
+  .pill-8-spinner{ animation: none !important; opacity: 0 !important; }
+  .pill-8[data-state="transcribing"] .pill-8-ring-level,
+  .pill-8[data-state="transforming"] .pill-8-ring-level{ opacity: 1; stroke-dashoffset: 0; }
+}
+</style></head><body><div class="preview-stage"><div class="pill pill-8" data-state="idle-appear" style="--level:0">
+  <div class="pill-8-anchor">
+    <svg class="pill-8-ring" viewBox="0 0 28 28" width="28" height="28" aria-hidden="true">
+      <circle class="pill-8-ring-track" cx="14" cy="14" r="11.5"></circle>
+      <circle class="pill-8-ring-level" cx="14" cy="14" r="11.5"></circle>
+    </svg>
+    <div class="pill-8-core">
+      <div class="pill-8-dot"></div>
+      <svg class="pill-8-spinner" viewBox="0 0 28 28" width="28" height="28" aria-hidden="true">
+        <circle cx="14" cy="14" r="9.5"></circle>
+      </svg>
+      <svg class="pill-8-glyph pill-8-glyph-search" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+        <circle cx="10.5" cy="10.5" r="6" fill="none" stroke="currentColor" stroke-width="2"></circle>
+        <line x1="15" y1="15" x2="20.5" y2="20.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"></line>
+      </svg>
+      <svg class="pill-8-glyph pill-8-glyph-ok" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+        <path d="M4 12.5 L9.5 18 L20 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path>
+      </svg>
+      <svg class="pill-8-glyph pill-8-glyph-err" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+        <line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"></line>
+        <line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"></line>
+      </svg>
+    </div>
+  </div>
+  <div class="pill-8-card">
+    <div class="pill-8-card-inner">
+      <div class="pill-8-card-title"></div>
+      <div class="pill-8-card-body">Result preview text renders here, up to a couple of lines before it clips with an ellipsis so the card never grows past its cap.</div>
+    </div>
+    <button class="pill-8-dismiss" type="button" aria-label="Dismiss">
+      <svg viewBox="0 0 24 24" width="10" height="10" aria-hidden="true"><line x1="5" y1="5" x2="19" y2="19" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"></line><line x1="19" y1="5" x2="5" y2="19" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"></line></svg>
+    </button>
+  </div>
+</div></div><p id="frame-error" hidden>此示範未能更新狀態。</p><script>function pill8_tick(level, state){
+  var els = document.querySelectorAll('.pill-8');
+  for (var i = 0; i < els.length; i++){
+    var el = els[i];
+    var clamped = Math.max(0, Math.min(1, level || 0));
+    el.style.setProperty('--level', clamped);
+    if (state && el.getAttribute('data-state') !== state){
+      el.setAttribute('data-state', state);
+    }
+  }
+}
+</script><script>
+(()=>{
+ const ID="claude-08",KIND="claude",N=8;
+ const allowed=['appear','listening','transcribing','transforming','searching','done','failed'];
+ let latest=null,scheduled=false,previous='',scenario='',revision=-1;
+ const root=document.querySelector(KIND==='codex'?'#inflow-studies':'.pill');
+ const samples={dictate:'將呢個 function 改成 async。',rewrite:'我聽日覆你。',search:'上網查下 exponential backoff。'};
+ const result='Exponential backoff：每次重試前逐步增加等待時間。';
+ function apply(){
+  scheduled=false;if(!latest||!root)return;const m=latest;
+  document.documentElement.dataset.theme=m.theme;
+  document.documentElement.dataset.paused=String(!m.active||!m.motion);
+  document.documentElement.style.setProperty('--level',m.level.toFixed(3));
+  if(KIND==='codex'){
+   root.dataset.theme=m.theme;root.dataset.motion=m.motion&&m.active?'on':'off';
+   root.style.setProperty('--if-energy',String(.7+m.level*.6));root.style.setProperty('--level',m.level.toFixed(3));
+   if(scenario!==m.scenario){const s=root.querySelector('.if-scenario');s.value=m.scenario;s.dispatchEvent(new Event('change'));}
+   if(previous!==m.state||scenario!==m.scenario||revision!==m.revision){const s=root.querySelector('.if-state');s.value=m.state==='appear'?'ready':m.state;s.dispatchEvent(new Event('change'));}
+  }else{
+   let state=m.state;if(state==='appear')state=N===4?'idle':[2,3,5,6,8,9,10].includes(N)?'idle-appear':'appear';
+   root.dataset.state=state;root.dataset.kind=m.scenario==='search'?'search':'text';root.style.setProperty('--level',m.level.toFixed(3));
+   if(previous!==m.state||scenario!==m.scenario||revision!==m.revision){
+    const text=m.scenario==='rewrite'&&m.state==='done'?'I’ll get back to you tomorrow.':samples[m.scenario];
+    if(N===1)window.pill1_setPreview?.(m.scenario==='search'?result:text,root.dataset.kind,'Exponential backoff · 示範');
+    if(N===2){root.dataset.mode=m.scenario==='search'?'search':'text';window.pill2_setText?.(text);window.pill2_setSearch?.('Exponential backoff · 示範',result);}
+    if(N===5){root.dataset.text=text;root.dataset.title='Exponential backoff · 示範';root.dataset.body=result;}
+    if(N===10)window.pill10_command?.(m.scenario==='search'?'search':m.scenario==='rewrite'?'transform':'none');
+   }
+   try{const tick=window['pill'+N+'_tick'];if(typeof tick==='function')tick(m.level,state);}
+   catch(error){document.getElementById('frame-error').hidden=false;}
+  }
+  previous=m.state;scenario=m.scenario;revision=m.revision;
+ }
+ addEventListener('message',event=>{
+  const m=event.data;if(event.source!==parent||!m||m.type!=='pill-state'||!allowed.includes(m.state))return;
+  if(!['light','dark'].includes(m.theme)||!['dictate','rewrite','search'].includes(m.scenario))return;
+  if(typeof m.level!=='number'||!Number.isFinite(m.level))return;
+  latest={...m,level:Math.max(0,Math.min(1,m.level)),active:!!m.active,motion:!!m.motion};
+  if(!scheduled){scheduled=true;requestAnimationFrame(apply);}
+ });
+ const stage=KIND==='codex'?root?.querySelector('.if-study:not([style]) .if-scene'):document.querySelector('.preview-stage');
+ const sizeTarget=KIND==='codex'?[...root.querySelectorAll('.if-scene')].find(el=>el.offsetHeight):stage;
+ if(sizeTarget)new ResizeObserver(()=>parent.postMessage({type:'pill-size',id:ID,height:Math.ceil(sizeTarget.getBoundingClientRect().height)},'*')).observe(sizeTarget);
+ if(parent!==window)parent.postMessage({type:'pill-ready',id:ID},'*');
+})();</script></body></html>

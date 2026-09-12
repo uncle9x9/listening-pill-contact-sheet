@@ -1,0 +1,227 @@
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'"><title>Halo</title><style>
+:root{color-scheme:light;--bg:#fcfafb;--fg:#1a151e;--muted:#6b6070;--accent:#8a2e63;--ok:#2f7d53;--warn:#a8690c;--err:#b5372f;--shadow:#1a151e2e;background:#e9e5e9;color:var(--fg)}
+:root[data-theme=dark]{color-scheme:dark;--bg:#221c27;--fg:#efe9f0;--muted:#a497aa;--accent:#e88cc0;--ok:#56c98a;--warn:#e8a63e;--err:#ff7c6e;--shadow:#0009;background:#14111a}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;width:100%}body{font-family:system-ui,sans-serif}
+.preview-stage{min-height:350px;display:flex;align-items:center;justify-content:center;padding:40px 18px;position:relative;isolation:isolate}
+.preview-stage>.pill{max-width:100%;flex-shrink:1}
+#frame-error{position:fixed;bottom:5px;left:8px;background:var(--bg);color:var(--err);font:12px system-ui;padding:6px}
+[hidden]{display:none!important}:root[data-paused=true] *{animation-play-state:paused!important}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ===== Halo (.pill-4) ===== */
+.pill-4{
+  --p4-level:0;                 /* 0..1, set by host / pill4_tick */
+  --p4-c: var(--fg);            /* current ring/dot colour */
+  --p4-ring-w: calc(1.5px + var(--p4-level) * 6px);
+  --p4-ring-o: calc(0.45 + var(--p4-level) * 0.55);
+  --p4-hair: color-mix(in srgb, var(--fg) 12%, transparent);
+  position:relative;
+  display:inline-flex;
+  align-items:center;
+  box-sizing:border-box;
+  height:56px;
+  max-width:260px;
+  padding:0 4px;
+  border-radius:28px;
+  background:var(--bg);
+  color:var(--fg);
+  box-shadow:0 0 0 1px var(--p4-hair), 0 10px 28px var(--shadow), 0 1px 2px var(--shadow);
+  font:13px/1.35 -apple-system,"SF Pro Text","PingFang HK","PingFang TC",system-ui,sans-serif;
+  overflow:hidden;
+  opacity:1;
+  transform:translateY(0) scale(1);
+  transition:opacity .22s ease, transform .28s cubic-bezier(.2,.9,.3,1.2);
+  user-select:none;
+  -webkit-user-select:none;
+}
+.pill-4 .p4-orb{flex:0 0 48px;width:48px;height:48px;display:grid;place-items:center}
+.pill-4 .p4-svg{display:block;overflow:visible}
+.pill-4 .p4-spin,.pill-4 .p4-spin2,.pill-4 .p4-orbit{transform-origin:24px 24px;transform-box:view-box}
+
+/* ring: thickness = level */
+.pill-4 .p4-ring{
+  stroke:var(--p4-c);
+  stroke-width:var(--p4-ring-w);
+  opacity:var(--p4-ring-o);
+  stroke-dasharray:100 0;      /* full circle */
+  stroke-dashoffset:0;
+  transition:stroke-width 60ms linear, opacity 60ms linear, stroke .25s ease, stroke-dasharray .35s ease;
+}
+.pill-4 .p4-ring2{stroke:var(--accent);stroke-width:1.5;opacity:0;stroke-dasharray:22 78;transition:opacity .25s ease}
+.pill-4 .p4-sat{fill:var(--accent);opacity:0;transition:opacity .25s ease}
+.pill-4 .p4-dot{
+  fill:var(--p4-c);
+  transform-origin:24px 24px;transform-box:view-box;
+  transform:scale(calc(1 + var(--p4-level) * .25));
+  transition:transform 60ms linear, fill .25s ease, opacity .2s ease;
+}
+.pill-4 .p4-check,.pill-4 .p4-x{
+  stroke:var(--p4-c);stroke-width:2.5;
+  stroke-dasharray:100;stroke-dashoffset:100;
+  transition:stroke-dashoffset .35s cubic-bezier(.3,.7,.2,1) .1s, stroke .25s ease;
+}
+
+/* text panel: collapsed by default, opens for searching/done/failed */
+.pill-4 .p4-body{
+  flex:0 1 auto;
+  max-width:0;
+  opacity:0;
+  padding-right:0;
+  overflow:hidden;
+  white-space:nowrap;
+  transition:max-width .3s cubic-bezier(.2,.8,.2,1), opacity .2s ease .05s, padding .3s ease;
+}
+.pill-4 .p4-cap{font-size:11px;font-weight:600;letter-spacing:.02em;color:var(--muted);text-transform:none}
+.pill-4 .p4-text{
+  color:var(--fg);
+  white-space:normal;
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+  max-height:2.7em;
+}
+
+/* ----- states ----- */
+.pill-4[data-state="idle"]{transform:translateY(6px) scale(.92);opacity:.9}
+.pill-4[data-state="idle"] .p4-ring{stroke-width:1px;opacity:.35}
+.pill-4[data-state="idle"] .p4-dot{animation:p4-breathe 1.8s ease-in-out infinite}
+
+.pill-4[data-state="listening"]{--p4-c:var(--fg)}
+
+.pill-4[data-state="transcribing"] .p4-ring{
+  stroke-width:2.5px;opacity:1;stroke-dasharray:30 70;
+}
+.pill-4[data-state="transcribing"] .p4-spin{animation:p4-sweep 1s linear infinite}
+.pill-4[data-state="transcribing"] .p4-dot{transform:scale(.8)}
+
+.pill-4[data-state="transforming"]{--p4-c:var(--accent)}
+.pill-4[data-state="transforming"] .p4-ring{stroke-width:2.5px;opacity:1;stroke-dasharray:30 70}
+.pill-4[data-state="transforming"] .p4-spin{animation:p4-sweep 1.2s linear infinite}
+.pill-4[data-state="transforming"] .p4-ring2{opacity:.9}
+.pill-4[data-state="transforming"] .p4-spin2{animation:p4-sweep 1.6s linear infinite reverse}
+.pill-4[data-state="transforming"] .p4-dot{transform:scale(.7)}
+
+.pill-4[data-state="searching"]{--p4-c:var(--accent)}
+.pill-4[data-state="searching"] .p4-ring{stroke-width:2px;opacity:1;stroke-dasharray:30 70}
+.pill-4[data-state="searching"] .p4-spin{animation:p4-sweep 1.8s linear infinite}
+.pill-4[data-state="searching"] .p4-sat{opacity:1}
+.pill-4[data-state="searching"] .p4-orbit{animation:p4-sweep 2.6s linear infinite}
+.pill-4[data-state="searching"] .p4-dot{transform:scale(.7)}
+.pill-4[data-state="searching"] .p4-body{max-width:196px;opacity:1;padding-right:12px}
+.pill-4[data-state="searching"] .p4-cap::before{content:"上網查下…"}
+
+.pill-4[data-state="done"]{--p4-c:var(--ok)}
+.pill-4[data-state="done"] .p4-ring{stroke-width:2px;opacity:.9;stroke-dasharray:100 0}
+.pill-4[data-state="done"] .p4-dot{opacity:0;transform:scale(.2)}
+.pill-4[data-state="done"] .p4-check{stroke-dashoffset:0}
+.pill-4[data-state="done"] .p4-body{max-width:196px;opacity:1;padding-right:12px}
+.pill-4[data-state="done"] .p4-cap::before{content:"完成"}
+
+.pill-4[data-state="failed"]{--p4-c:var(--err);animation:p4-nudge .32s ease-out}
+.pill-4[data-state="failed"] .p4-ring{stroke-width:2px;opacity:.9;stroke-dasharray:100 0}
+.pill-4[data-state="failed"] .p4-dot{opacity:0;transform:scale(.2)}
+.pill-4[data-state="failed"] .p4-x{stroke-dashoffset:0}
+.pill-4[data-state="failed"] .p4-body{max-width:196px;opacity:1;padding-right:12px}
+.pill-4[data-state="failed"] .p4-cap::before{content:"失敗"}
+.pill-4[data-state="failed"] .p4-text{color:var(--err)}
+
+.pill-4[data-state="hidden"]{opacity:0;transform:translateY(8px) scale(.85);pointer-events:none}
+.pill-4[data-state="hidden"] .p4-ring{stroke-width:0;opacity:0}
+
+/* ----- keyframes ----- */
+@keyframes p4-sweep{to{transform:rotate(360deg)}}
+@keyframes p4-breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.35)}}
+@keyframes p4-nudge{0%{transform:translateX(0)}25%{transform:translateX(-4px)}55%{transform:translateX(3px)}80%{transform:translateX(-1px)}100%{transform:translateX(0)}}
+
+/* ----- reduced motion: no rotation, no shake; use soft opacity pulse instead ----- */
+@media (prefers-reduced-motion: reduce){
+  .pill-4, .pill-4 *{transition-duration:.01ms !important}
+  .pill-4 .p4-spin,.pill-4 .p4-spin2,.pill-4 .p4-orbit{animation:none !important;transform:rotate(-90deg)}
+  .pill-4[data-state="transcribing"] .p4-ring,
+  .pill-4[data-state="transforming"] .p4-ring,
+  .pill-4[data-state="searching"] .p4-ring{animation:p4-pulse 1.4s ease-in-out infinite}
+  .pill-4[data-state="idle"] .p4-dot{animation:none}
+  .pill-4[data-state="failed"]{animation:none}
+  .pill-4 .p4-ring{transition:stroke-width 60ms linear, opacity 60ms linear !important}
+  .pill-4 .p4-dot{transition:transform 60ms linear !important}
+}
+@keyframes p4-pulse{0%,100%{opacity:.45}50%{opacity:1}}</style></head><body><div class="preview-stage"><div class="pill pill-4" data-state="listening" role="status" aria-live="polite" style="--p4-level:0">
+  <div class="p4-orb" aria-hidden="true">
+    <svg class="p4-svg" viewBox="0 0 48 48" width="48" height="48" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <g class="p4-spin">
+        <circle class="p4-ring" cx="24" cy="24" r="17" pathLength="100"/>
+      </g>
+      <g class="p4-spin2">
+        <circle class="p4-ring2" cx="24" cy="24" r="12" pathLength="100"/>
+      </g>
+      <g class="p4-orbit">
+        <circle class="p4-sat" cx="24" cy="7" r="2"/>
+      </g>
+      <circle class="p4-dot" cx="24" cy="24" r="4"/>
+      <path class="p4-check" d="M16.5 24.5 L22 30 L32 18.5" pathLength="100"/>
+      <path class="p4-x" d="M18 18 L30 30 M30 18 L18 30" pathLength="100"/>
+    </svg>
+  </div>
+  <div class="p4-body">
+    <div class="p4-cap"></div>
+    <div class="p4-text">已經幫你放入編輯器：「用 Swift 寫個 push-to-talk 錄音器」</div>
+  </div>
+</div></div><p id="frame-error" hidden>此示範未能更新狀態。</p><script>window.pill4_tick = function(level, state){
+  var el = document.querySelector('.pill-4');
+  if(!el) return;
+  // clamp + fast-attack / slow-release envelope (no timers; host drives ~30 Hz)
+  var v = Math.max(0, Math.min(1, +level || 0));
+  var prev = el.__p4lv || 0;
+  var sm = v > prev ? prev + (v - prev) * 0.65 : prev + (v - prev) * 0.22;
+  el.__p4lv = sm;
+  if(state && el.dataset.state !== state){ el.dataset.state = state; }
+  // only listening/idle feed the ring; other states own the ring via CSS
+  var s = el.dataset.state;
+  el.style.setProperty('--p4-level', (s === 'listening' || s === 'idle') ? sm.toFixed(3) : '0');
+};
+// host sets preview/error text: document.querySelector('.pill-4 .p4-text').textContent = "...";</script><script>
+(()=>{
+ const ID="claude-04",KIND="claude",N=4;
+ const allowed=['appear','listening','transcribing','transforming','searching','done','failed'];
+ let latest=null,scheduled=false,previous='',scenario='',revision=-1;
+ const root=document.querySelector(KIND==='codex'?'#inflow-studies':'.pill');
+ const samples={dictate:'將呢個 function 改成 async。',rewrite:'我聽日覆你。',search:'上網查下 exponential backoff。'};
+ const result='Exponential backoff：每次重試前逐步增加等待時間。';
+ function apply(){
+  scheduled=false;if(!latest||!root)return;const m=latest;
+  document.documentElement.dataset.theme=m.theme;
+  document.documentElement.dataset.paused=String(!m.active||!m.motion);
+  document.documentElement.style.setProperty('--level',m.level.toFixed(3));
+  if(KIND==='codex'){
+   root.dataset.theme=m.theme;root.dataset.motion=m.motion&&m.active?'on':'off';
+   root.style.setProperty('--if-energy',String(.7+m.level*.6));root.style.setProperty('--level',m.level.toFixed(3));
+   if(scenario!==m.scenario){const s=root.querySelector('.if-scenario');s.value=m.scenario;s.dispatchEvent(new Event('change'));}
+   if(previous!==m.state||scenario!==m.scenario||revision!==m.revision){const s=root.querySelector('.if-state');s.value=m.state==='appear'?'ready':m.state;s.dispatchEvent(new Event('change'));}
+  }else{
+   let state=m.state;if(state==='appear')state=N===4?'idle':[2,3,5,6,8,9,10].includes(N)?'idle-appear':'appear';
+   root.dataset.state=state;root.dataset.kind=m.scenario==='search'?'search':'text';root.style.setProperty('--level',m.level.toFixed(3));
+   if(previous!==m.state||scenario!==m.scenario||revision!==m.revision){
+    const text=m.scenario==='rewrite'&&m.state==='done'?'I’ll get back to you tomorrow.':samples[m.scenario];
+    if(N===1)window.pill1_setPreview?.(m.scenario==='search'?result:text,root.dataset.kind,'Exponential backoff · 示範');
+    if(N===2){root.dataset.mode=m.scenario==='search'?'search':'text';window.pill2_setText?.(text);window.pill2_setSearch?.('Exponential backoff · 示範',result);}
+    if(N===5){root.dataset.text=text;root.dataset.title='Exponential backoff · 示範';root.dataset.body=result;}
+    if(N===10)window.pill10_command?.(m.scenario==='search'?'search':m.scenario==='rewrite'?'transform':'none');
+   }
+   try{const tick=window['pill'+N+'_tick'];if(typeof tick==='function')tick(m.level,state);}
+   catch(error){document.getElementById('frame-error').hidden=false;}
+  }
+  previous=m.state;scenario=m.scenario;revision=m.revision;
+ }
+ addEventListener('message',event=>{
+  const m=event.data;if(event.source!==parent||!m||m.type!=='pill-state'||!allowed.includes(m.state))return;
+  if(!['light','dark'].includes(m.theme)||!['dictate','rewrite','search'].includes(m.scenario))return;
+  if(typeof m.level!=='number'||!Number.isFinite(m.level))return;
+  latest={...m,level:Math.max(0,Math.min(1,m.level)),active:!!m.active,motion:!!m.motion};
+  if(!scheduled){scheduled=true;requestAnimationFrame(apply);}
+ });
+ const stage=KIND==='codex'?root?.querySelector('.if-study:not([style]) .if-scene'):document.querySelector('.preview-stage');
+ const sizeTarget=KIND==='codex'?[...root.querySelectorAll('.if-scene')].find(el=>el.offsetHeight):stage;
+ if(sizeTarget)new ResizeObserver(()=>parent.postMessage({type:'pill-size',id:ID,height:Math.ceil(sizeTarget.getBoundingClientRect().height)},'*')).observe(sizeTarget);
+ if(parent!==window)parent.postMessage({type:'pill-ready',id:ID},'*');
+})();</script></body></html>

@@ -1,0 +1,1768 @@
+<!doctype html>
+<html lang="en" data-visualize-standalone>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<title>Inflow Three Studies</title>
+<style>:root {
+  color-scheme: light dark;
+  background-color: var(
+    --background,
+    var(--color-background-primary, light-dark(rgb(255 255 255), rgb(24 24 24)))
+  ) !important;
+
+  /* Agent-facing contract; keep in sync with SKILL.md. */
+  --background: var(
+    --color-background-primary,
+    light-dark(rgb(255 255 255), rgb(24 24 24))
+  );
+  --foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --card: color-mix(in oklab, var(--foreground) 5%, var(--background));
+  --card-foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --popover: var(
+    --color-background-secondary,
+    light-dark(rgb(255 255 255), rgb(45 45 45))
+  );
+  --popover-foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --primary: var(
+    --color-text-info,
+    light-dark(rgb(51 156 255), rgb(131 195 255))
+  );
+  --primary-foreground: var(
+    --color-text-inverse,
+    light-dark(rgb(255 255 255), rgb(13 13 13))
+  );
+  --secondary: var(
+    --color-background-secondary,
+    light-dark(rgb(255 255 255 / 96%), rgb(54 54 54 / 96%))
+  );
+  --secondary-foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --muted: color-mix(in srgb, var(--foreground) 10%, transparent);
+  --muted-foreground: var(
+    --color-text-secondary,
+    light-dark(rgb(26 28 31 / 49.4%), rgb(255 255 255 / 49.8%))
+  );
+  --accent: var(
+    --color-background-info,
+    light-dark(rgb(229 242 255), rgb(13 39 63))
+  );
+  --accent-foreground: var(
+    --color-text-info,
+    light-dark(rgb(51 156 255), rgb(131 195 255))
+  );
+  --destructive: var(
+    --color-text-warning,
+    light-dark(rgb(226 85 7), rgb(255 133 73))
+  );
+  --border: var(
+    --color-border-secondary,
+    light-dark(rgb(26 28 31 / 8%), rgb(255 255 255 / 8.2%))
+  );
+  --input: var(
+    --color-border-primary,
+    light-dark(
+      rgb(26 28 31 / 11.8%),
+      color-mix(in oklab, rgb(0 0 0) 10%, transparent)
+    )
+  );
+  --ring: var(
+    --color-ring-primary,
+    light-dark(rgb(51 156 255), rgb(131 195 255 / 76%))
+  );
+  --font-size-base: var(--font-text-md-size, 14px);
+  --blue: light-dark(rgb(51 156 255), rgb(51 156 255));
+  --orange: light-dark(rgb(226 85 7), rgb(251 106 34));
+  --green: light-dark(rgb(0 162 64), rgb(64 201 119));
+  --red: light-dark(rgb(224 46 42), rgb(255 103 100));
+  --purple: light-dark(rgb(146 79 247), rgb(173 123 249));
+  --yellow: light-dark(rgb(255 195 0), rgb(255 210 64));
+  --viz-series-1: var(--primary);
+  --viz-series-2: light-dark(rgb(243 136 59), rgb(245 154 86));
+  --viz-series-3: light-dark(rgb(93 201 119), rgb(116 213 139));
+  --viz-series-4: light-dark(rgb(235 119 177), rgb(240 143 192));
+  --viz-series-5: light-dark(rgb(155 121 236), rgb(170 145 239));
+  --viz-series-6: light-dark(rgb(58 185 177), rgb(90 203 194));
+
+  /* Internal implementation variables; not part of the agent contract. */
+  --font-sans: -apple-system, system-ui, "Segoe UI", sans-serif;
+  --font-mono:
+    ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono",
+    monospace;
+  --font-size-normal: max(11px, var(--font-size-base));
+  --font-size-tooltip: calc(var(--font-size-base) - 1px);
+  --font-size-small: max(11px, calc(var(--font-size-base) - 2px));
+  --font-size-h1: calc(var(--font-size-normal) * 1.7142857143);
+  --font-size-h2: calc(var(--font-size-normal) * 1.4285714286);
+  --font-size-h3: calc(var(--font-size-normal) * 1.2857142857);
+  --font-weight-normal: 430;
+  --font-weight-medium: 500;
+  --icon-size: 16px;
+  --line-height-normal: calc(var(--font-size-normal) * 1.5);
+  --line-height-tooltip: calc(var(--font-size-tooltip) * 1.4285714286);
+  --line-height-small: calc(var(--font-size-small) + 4px);
+  --corner-shape: round;
+  --radius: var(--border-radius-lg, 10px);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-2xl: calc(var(--radius) * 1.6);
+  --radius-full: 9999px;
+  --shadow-sm: 0 1px 2px -1px rgb(0 0 0 / 8%);
+  --checkmark-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 17 17'%3E%3Cpath d='M12.8961 3.64101C13.1297 3.41418 13.4984 3.37523 13.7779 3.56581C14.0571 3.75635 14.1554 4.11331 14.0299 4.41347L13.9615 4.53847L7.71151 13.7045C7.59411 13.8767 7.4063 13.9877 7.19881 14.0072C6.99136 14.0267 6.78564 13.9533 6.63826 13.806L2.88826 10.056L2.79842 9.9457C2.6192 9.67407 2.64927 9.30496 2.88826 9.06581C3.12738 8.82669 3.49647 8.79676 3.76815 8.97597L3.8785 9.06581L7.03084 12.2182L12.8053 3.74941L12.8961 3.64101Z'/%3E%3C/svg%3E");
+
+  /* Legacy aliases; not part of the current agent contract. */
+  --viz-bg: transparent;
+  --viz-panel: var(--card);
+  --viz-border: var(--border);
+  --viz-text: var(--foreground);
+  --viz-muted: var(--muted-foreground);
+  --viz-accent: var(--primary);
+  --viz-accent-text: var(--primary-foreground);
+  --viz-accent-bg: var(--accent);
+  --viz-font-size: var(--font-size-base);
+  --viz-warning: var(--destructive);
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html > body {
+  /* Preserve MCP aliases for older inline renderers without creating :root cycles. */
+  --color-background-primary: var(
+    --background,
+    light-dark(rgb(255 255 255), rgb(24 24 24))
+  );
+  --color-text-primary: var(
+    --foreground,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --color-border-secondary: var(
+    --border,
+    light-dark(rgb(26 28 31 / 8%), rgb(255 255 255 / 8.2%))
+  );
+
+  margin: 0;
+  padding: var(--visualize-paint-gutter, 0px);
+  color: var(--foreground);
+  background: transparent !important;
+  font-family: var(--font-sans) !important;
+  font-size: var(--font-size-normal);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-normal);
+}
+
+a {
+  color: color-mix(in srgb, var(--viz-accent) 80%, var(--viz-text) 20%);
+  cursor: pointer;
+  font-weight: var(--font-weight-medium, 500);
+  text-decoration: none;
+  text-underline-offset: 2px;
+}
+
+a:is(:hover, :focus-visible) {
+  text-decoration-line: underline;
+  text-decoration-style: dashed;
+  text-decoration-thickness: 0.5px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  margin-block: 0;
+}
+
+h1 {
+  font-size: var(--font-size-h1);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+}
+
+h2 {
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+}
+
+h3,
+h4,
+h5,
+h6 {
+  font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.3;
+}
+
+b,
+strong,
+th {
+  font-weight: var(--font-weight-medium);
+}
+
+code:not(pre code) {
+  display: inline;
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  corner-shape: var(--corner-shape);
+  background: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  overflow-wrap: anywhere;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  word-break: break-word;
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  color: var(--foreground);
+  font: inherit;
+  text-align: start;
+}
+
+.table :is(th, td) {
+  padding-block: 10px;
+  padding-inline: 0 24px;
+  overflow-wrap: anywhere;
+  border-bottom: 1px solid var(--border);
+  text-align: start;
+  vertical-align: top;
+}
+
+.table-responsive > .table :is(th, td) {
+  overflow-wrap: break-word;
+}
+
+.table :is(th, td):last-child {
+  padding-inline-end: 0;
+}
+
+.table :is(caption, thead th) {
+  font-weight: 600;
+}
+
+.table thead th {
+  padding-block: 8px;
+  border-bottom-color: color-mix(in srgb, var(--foreground) 16%, transparent);
+}
+
+.table tbody tr:last-child :is(th, td) {
+  border-bottom: 0;
+}
+
+.table.table-sm :is(th, td) {
+  padding-block: 6px;
+}
+
+.table.table-sm :is(th, td):not(:last-child) {
+  padding-inline-end: 16px;
+}
+
+.table :is(.text-end, [align="right"]) {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+
+.table :is(.text-center, [align="center"]) {
+  text-align: center;
+}
+
+.table .text-nowrap {
+  white-space: nowrap;
+}
+
+#widget {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  padding: 0;
+  background: transparent !important;
+}
+
+.card {
+  min-width: 0;
+  padding: 12px;
+  overflow: hidden;
+  overflow-wrap: break-word;
+  border-radius: var(--radius-2xl);
+  corner-shape: var(--corner-shape);
+  color: var(--card-foreground);
+  background: var(--card);
+}
+
+#widget > :not(.card, .progress) {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.tooltip {
+  position: fixed;
+  z-index: 50;
+  top: 0;
+  left: 0;
+  width: max-content;
+  max-width: min(
+    20rem,
+    var(--tooltip-available-width, calc(100vw - 10px)),
+    calc(100vw - 10px)
+  );
+  max-height: min(
+    var(--tooltip-available-height, calc(100vh - 10px)),
+    calc(100vh - 10px)
+  );
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  corner-shape: var(--corner-shape);
+  color: var(--popover-foreground);
+  background: var(--popover);
+  box-shadow: none;
+  font-size: var(--font-size-tooltip);
+  line-height: var(--line-height-tooltip);
+  overflow-wrap: break-word;
+  white-space: normal;
+  pointer-events: none;
+  user-select: none;
+}
+
+.viz-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(max(180px, 24%), 1fr));
+  gap: 10px;
+}
+
+.viz-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.viz-stat-value {
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+}
+
+.viz-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+hr {
+  width: 100%;
+  height: 1px;
+  margin-block: 6px;
+  border: 0;
+  background: var(--border);
+}
+
+.nav {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 4px;
+}
+
+.progress {
+  display: flex;
+  height: 8px;
+  margin-block: calc((var(--line-height-normal, 1.5em) - 8px) / 2);
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--muted);
+}
+
+.progress-bar:only-child {
+  border-radius: var(--radius-full);
+}
+
+.progress-bar {
+  height: 100%;
+  flex-shrink: 0;
+  border: 0;
+  background: var(--viz-series-1);
+}
+
+.viz-badge {
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  color: var(--accent-foreground);
+  background: var(--accent);
+  font-weight: var(--font-weight-medium);
+}
+
+small,
+.text-small,
+.viz-badge {
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+
+.text-muted {
+  color: var(--muted-foreground);
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.viz-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.viz-controls > .form-label {
+  display: grid;
+  min-width: min(100%, 260px);
+  flex: 1 1 280px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 2px 12px;
+  margin-bottom: 0;
+}
+
+.viz-controls > .form-label > :is(.form-control, .form-range, .form-select) {
+  grid-column: 1 / -1;
+}
+
+.btn,
+.nav-link,
+.form-check-input,
+.form-control,
+.form-range,
+.form-select {
+  font: inherit;
+}
+
+.btn,
+.nav-link {
+  appearance: button;
+  display: inline-flex;
+  inline-size: fit-content;
+  max-inline-size: 100%;
+  min-height: 28px;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin: 0;
+  padding: 0 8px;
+  -webkit-app-region: no-drag;
+  border: 1px solid var(--input);
+  border-radius: var(--radius-lg);
+  corner-shape: var(--corner-shape);
+  color: var(--secondary-foreground);
+  background: var(--secondary);
+  cursor: var(--cursor-interaction, pointer);
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+  user-select: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+.btn:is(.btn-block, .viz-tile) {
+  inline-size: 100%;
+}
+
+.btn.viz-tile {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+a.btn {
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btn:not(:disabled):hover,
+.nav-link:not(:disabled):not([aria-disabled="true"]):hover {
+  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.btn-primary {
+  border-color: transparent;
+  color: var(--primary-foreground);
+  background: var(--foreground);
+  background-clip: padding-box;
+}
+
+.btn-primary .text-muted {
+  color: color-mix(in srgb, var(--primary-foreground) 50%, transparent);
+}
+
+.btn-primary:not(:disabled):hover {
+  background: color-mix(in srgb, var(--foreground) 80%, transparent);
+  background-clip: padding-box;
+}
+
+.btn-ghost {
+  border-color: transparent;
+  color: var(--muted-foreground);
+  background: transparent;
+}
+
+.btn-ghost:not(:disabled):hover {
+  color: var(--foreground);
+  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.nav-pills .nav-link {
+  min-width: 0;
+  border-color: transparent;
+  color: var(--muted-foreground);
+  background: transparent;
+}
+
+.nav-justified .nav-link {
+  flex: 1 1 0;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.nav-pills .nav-link.active {
+  color: var(--foreground);
+  background: var(--muted);
+}
+
+.btn:disabled,
+.nav-link:disabled,
+.nav-link[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+[data-lucide] {
+  stroke-width: 1.6;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--foreground);
+}
+
+.form-control {
+  display: block;
+  width: 100%;
+  min-height: 28px;
+  padding: 0 8px;
+  outline: none;
+  border: 1px solid var(--input);
+  border-radius: var(--radius-lg);
+  corner-shape: var(--corner-shape);
+  color: var(--foreground);
+  background: var(--secondary);
+}
+
+.form-control::placeholder {
+  color: var(--muted-foreground);
+}
+
+.form-control[type="file"] {
+  padding: 0;
+  overflow: hidden;
+  cursor: var(--cursor-interaction, pointer);
+}
+
+.form-control[type="file"]::file-selector-button {
+  min-height: 26px;
+  margin-right: 8px;
+  padding: 0 8px;
+  border: 0;
+  border-right: 1px solid var(--input);
+  color: var(--secondary-foreground);
+  background: var(--secondary);
+  cursor: inherit;
+  font: inherit;
+}
+
+.form-control[type="file"]:not(:disabled):hover::file-selector-button {
+  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.form-control-color[type="color"] {
+  width: 40px;
+  height: 28px;
+  padding: 3px;
+  cursor: var(--cursor-interaction, pointer);
+}
+
+.form-control-color[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.form-control-color[type="color"]::-webkit-color-swatch {
+  border: 0;
+  border-radius: calc(var(--radius-lg) - 4px);
+  corner-shape: var(--corner-shape);
+}
+
+textarea.form-control {
+  height: auto;
+  min-height: 72px;
+  padding: 8px 10px;
+  resize: vertical;
+}
+
+.form-control:focus-visible {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-control:disabled,
+.form-select:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.form-select {
+  appearance: none;
+  display: block;
+  width: 100%;
+  min-height: 28px;
+  margin: 0;
+  padding: 0 32px 0 8px;
+  outline: none;
+  border: 1px solid var(--input);
+  border-radius: var(--radius-lg);
+  corner-shape: var(--corner-shape);
+  color: var(--foreground);
+  background-color: var(--secondary);
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--muted-foreground) 50%),
+    linear-gradient(135deg, var(--muted-foreground) 50%, transparent 50%);
+  background-position:
+    calc(100% - 14px) 50%,
+    calc(100% - 10px) 50%;
+  background-repeat: no-repeat;
+  background-size: 4px 4px;
+  cursor: var(--cursor-interaction, default);
+}
+
+.form-select:not(:disabled):hover {
+  background-color: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.form-select:focus-visible {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-check {
+  display: flex;
+  min-height: 20px;
+  align-items: center;
+  gap: 6px;
+}
+
+.form-check-input {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+  margin: 0;
+  border: 1px solid var(--input);
+  color: var(--primary-foreground);
+  background-color: transparent;
+  cursor: var(--cursor-interaction, default);
+  transition:
+    background-color 150ms,
+    border-color 150ms,
+    box-shadow 150ms;
+}
+
+.form-check:not(.form-switch) .form-check-input[type="checkbox"] {
+  border-color: var(--input);
+  border-radius: var(--radius-sm);
+  corner-shape: var(--corner-shape);
+  background-color: var(--secondary);
+  box-shadow: var(--shadow-sm);
+}
+
+.form-check:not(.form-switch)
+  .form-check-input:not(:disabled):not(:checked):hover {
+  background-color: var(--card);
+}
+
+.form-check:not(.form-switch) .form-check-input[type="checkbox"]:checked {
+  border-color: var(--primary);
+  background-color: var(--primary);
+}
+
+.form-check:not(.form-switch)
+  .form-check-input[type="checkbox"]:checked::before {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--primary-foreground);
+  content: "";
+  mask: var(--checkmark-image) center / 12px 12px no-repeat;
+}
+
+.form-check-input[type="radio"] {
+  width: 14px;
+  height: 14px;
+  border-radius: var(--radius-full);
+}
+
+.form-check-input[type="radio"]:checked {
+  border: 2px solid var(--primary);
+  background:
+    radial-gradient(circle, var(--primary-foreground) 0 2.5px, transparent 3px),
+    var(--primary);
+}
+
+.form-check:not(.form-switch) .form-check-input:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.form-check:not(.form-switch) .form-check-input:disabled {
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.form-check:not(.form-switch) .form-check-input:disabled + .form-check-label {
+  cursor: not-allowed;
+}
+
+.form-switch .form-check-input:disabled,
+.form-switch .form-check-input:disabled + .form-check-label {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.form-check-label {
+  color: var(--foreground);
+  cursor: var(--cursor-interaction, default);
+}
+
+.form-switch .form-check-input {
+  position: relative;
+  width: 32px;
+  height: 20px;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--muted);
+  box-shadow: none;
+  transition: background-color 200ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.form-switch .form-check-input::before {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 16px;
+  height: 16px;
+  box-sizing: border-box;
+  border: 1px solid light-dark(var(--primary-foreground), var(--foreground));
+  border-radius: var(--radius-full);
+  background: light-dark(var(--primary-foreground), var(--foreground));
+  box-shadow: var(--shadow-sm);
+  content: "";
+  transform: translate(2px, -50%);
+  transition: transform 200ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.form-switch .form-check-input:checked {
+  background: var(--primary);
+}
+
+.form-switch .form-check-input:checked::before {
+  transform: translate(14px, -50%);
+}
+
+.form-switch .form-check-input:focus-visible {
+  box-shadow: 0 0 0 2px var(--ring);
+}
+
+.form-range {
+  appearance: none;
+  display: block;
+  width: 100%;
+  height: 28px;
+  flex: 1;
+  margin: 0;
+  padding: 0;
+  outline: none;
+  border: 0;
+  accent-color: var(--primary);
+  background: linear-gradient(
+      color-mix(in srgb, var(--foreground) 7%, transparent),
+      color-mix(in srgb, var(--foreground) 7%, transparent)
+    )
+    center / 100% 2px no-repeat;
+}
+
+.form-range::-webkit-slider-runnable-track {
+  height: 28px;
+  background: transparent;
+}
+
+.form-range::-webkit-slider-thumb {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  margin-top: 4px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: light-dark(var(--primary-foreground), var(--foreground));
+}
+
+.form-range:focus-visible::-webkit-slider-thumb {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-range::-moz-range-track {
+  height: 28px;
+  background: transparent;
+}
+
+.form-range::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: light-dark(var(--primary-foreground), var(--foreground));
+}
+
+.form-range:focus-visible::-moz-range-thumb {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-range:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.btn:not(.btn-primary, .viz-tile):is(
+  [aria-pressed="true"],
+  [aria-selected="true"],
+  .is-selected
+) {
+  border-color: var(--primary);
+  color: var(--primary-foreground);
+  background: var(--primary);
+}
+
+.btn.viz-tile:is([aria-pressed="true"], [aria-selected="true"], .is-selected) {
+  border-color: var(--primary);
+  box-shadow: inset 0 0 0 1px var(--primary);
+}
+
+.btn:focus-visible,
+.nav-link:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+@media (pointer: coarse) {
+  .btn,
+  .nav-link,
+  .form-control,
+  .form-select {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* Keep small-screen WebKit from zooming when a text field receives focus. */
+  .form-control,
+  .form-select {
+    font-size: max(16px, var(--font-size-normal));
+  }
+
+  .form-control[type="file"]::file-selector-button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .form-control-color[type="color"] {
+    width: 44px;
+    height: 44px;
+  }
+
+  .form-control:is(
+    [type="date"],
+    [type="datetime-local"],
+    [type="month"],
+    [type="time"],
+    [type="week"]
+  ) {
+    min-width: 0;
+    max-width: 100%;
+    padding-block: 8px;
+  }
+
+  .form-check {
+    min-height: 44px;
+    padding-inline: 15px;
+  }
+
+  .form-check-input {
+    position: relative;
+  }
+
+  .form-check-input::after {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 44px;
+    height: 44px;
+    content: "";
+    transform: translate(-50%, -50%);
+  }
+
+  .form-check-label {
+    display: inline-flex;
+    min-width: 44px;
+    min-height: 44px;
+    align-items: center;
+  }
+
+  .form-range {
+    height: 44px;
+    touch-action: pan-y;
+  }
+
+  .form-range::-webkit-slider-runnable-track {
+    height: 44px;
+  }
+
+  .form-range::-moz-range-track {
+    height: 44px;
+  }
+
+  .form-range::-webkit-slider-thumb {
+    margin-top: 12px;
+  }
+}
+
+svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+#widget > svg {
+  width: 100%;
+}
+
+/* Model-authored chart rules can otherwise stretch icons after these styles load. */
+svg.lucide {
+  display: block;
+  width: var(--icon-size) !important;
+  height: var(--icon-size) !important;
+  flex: none;
+  margin: 0 !important;
+  stroke-width: 1.6;
+}
+
+.text-warning,
+.text-destructive {
+  color: var(--destructive);
+}
+
+html>body{padding:0}</style>
+</head>
+<body>
+<div id="inflow-studies" aria-label="Inflow 三款語音介面" data-theme="system" data-motion="on">
+  <div class="if-controls">
+    <div class="if-controls-left">
+      <button class="if-play" type="button"><i data-lucide="play" aria-hidden="true"></i><span>播放流程</span></button>
+      <label class="if-field"><span>情境</span><select class="if-scenario" aria-label="示範情境"><option value="dictate">粵英輸入</option><option value="rewrite">改寫成英文</option><option value="search">語音搜尋</option></select></label>
+      <label class="if-field"><span>狀態</span><select class="if-state" aria-label="預覽狀態"><option value="ready">準備</option><option value="listening" selected>聆聽</option><option value="transcribing">轉錄</option><option value="transforming">改寫</option><option value="searching">搜尋</option><option value="done">完成</option><option value="failed">失敗</option></select></label>
+    </div>
+    <span class="if-demo">模擬音訊</span>
+  </div>
+
+  <section class="if-study" data-concept="still" aria-label="Still 呼吸核">
+    <div class="if-caption"><div><span class="if-number">01</span><span class="if-name">STILL</span><span class="if-chinese">呼吸核</span></div><span class="if-note">聲音有回應，視線留喺文字。</span></div>
+    <div class="if-scene still-scene" data-state="listening">
+      <div class="if-app-chrome"><div class="if-app-name"><span class="if-app-dot"></span>備忘錄<span class="if-app-separator">/</span>今日工作</div><span class="if-app-shortcut">inflow</span></div>
+      <div class="still-document"><span class="if-document-label">下一步</span><p class="if-editor-line">將呢個 function 改成 async。<span class="if-caret"></span></p></div>
+      <div class="still-composition">
+        <div class="still-caption if-preview-text">將呢個 function 改成 async。</div>
+        <div class="still-pill">
+          <div class="still-symbol" aria-hidden="true"><div class="still-core"><span></span><span></span><span></span><span></span></div><i class="if-state-icon" data-lucide="check"></i></div>
+          <div class="still-copy"><span class="if-status">聆聽中</span><span class="if-substatus">放開右 ⌥ 完成</span></div>
+          <button class="if-dismiss" type="button" aria-label="取消 Still 示範"><i data-lucide="x" aria-hidden="true"></i></button>
+        </div>
+        <div class="if-recovery" hidden><button type="button" class="if-retry">再試一次 <i data-lucide="rotate-ccw" aria-hidden="true"></i></button></div>
+      </div>
+      <div class="if-scene-footer"><span class="if-state-description">即時音量回應</span><span class="if-theme-label">自動外觀</span></div>
+    </div>
+  </section>
+
+  <section class="if-study" data-concept="weave" aria-label="Weave 雙語織">
+    <div class="if-caption"><div><span class="if-number">02</span><span class="if-name">WEAVE</span><span class="if-chinese">雙語織</span></div><span class="if-note">一句粵語，容得落 English。</span></div>
+    <div class="if-scene weave-scene" data-state="listening">
+      <div class="if-app-chrome"><div class="if-app-name"><span class="if-app-dot"></span>編輯器<span class="if-app-separator">/</span>草稿</div><span class="if-app-shortcut">inflow</span></div>
+      <div class="weave-composition">
+        <div class="weave-paper">
+          <div class="weave-heading"><span class="weave-language"><span>粵</span><span class="weave-interlace">↔</span><span>EN</span></span><span class="weave-live-label">即時草稿</span></div>
+          <div class="weave-transcript"><span class="weave-word">將呢個</span> <span class="weave-word weave-english">function</span> <span class="weave-word">改成</span> <span class="weave-word weave-english">async</span><span class="weave-caret"></span></div>
+          <div class="weave-foot"><span class="if-status">聆聽中</span><div class="weave-thread" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div><button class="if-dismiss" type="button" aria-label="取消 Weave 示範"><i data-lucide="x" aria-hidden="true"></i></button></div>
+          <div class="weave-proof" hidden><span class="weave-proof-label">原句</span><span class="weave-original"></span></div>
+        </div>
+        <span class="weave-hint if-substatus">放開右 ⌥，確認整句</span>
+        <div class="if-recovery" hidden><button type="button" class="if-retry">再試一次 <i data-lucide="rotate-ccw" aria-hidden="true"></i></button></div>
+      </div>
+      <div class="if-scene-footer"><span class="if-state-description">粵英混合 · 保留原字</span><span class="if-theme-label">自動外觀</span></div>
+    </div>
+  </section>
+
+  <section class="if-study" data-concept="relay" aria-label="Relay 指令匣">
+    <div class="if-caption"><div><span class="if-number">03</span><span class="if-name">RELAY</span><span class="if-chinese">指令匣</span></div><span class="if-note">講完、睇清、再套用。</span></div>
+    <div class="if-scene relay-scene" data-state="listening">
+      <div class="if-app-chrome"><div class="if-app-name"><span class="if-app-dot"></span>郵件<span class="if-app-separator">/</span>撰寫中</div><span class="if-app-shortcut">inflow</span></div>
+      <div class="relay-composition">
+        <div class="relay-heard"><span class="relay-heard-label">你講嘅指令</span><div class="relay-heard-text">將呢個 function 改成 async。</div><i data-lucide="arrow-down" aria-hidden="true"></i></div>
+        <div class="relay-result" hidden>
+          <div class="relay-result-heading"><span class="relay-result-type">輸入預覽</span><span class="relay-result-badge">待確認</span></div>
+          <div class="relay-result-text"></div>
+          <div class="relay-result-bottom"><span class="relay-source">目前文字欄</span><button class="relay-apply" type="button"><span>套用</span><i data-lucide="arrow-up-right" aria-hidden="true"></i></button></div>
+        </div>
+        <div class="relay-pill">
+          <div class="relay-mark" aria-hidden="true"><i data-lucide="audio-lines"></i><span class="relay-scan"></span></div>
+          <div class="relay-body"><div class="relay-route"><span class="relay-intent">輸入文字</span><i data-lucide="chevron-right" aria-hidden="true"></i><span class="relay-target">目前游標</span></div><div class="if-status">聆聽中</div></div>
+          <button class="if-dismiss" type="button" aria-label="取消 Relay 示範"><i data-lucide="x" aria-hidden="true"></i></button>
+        </div>
+        <span class="relay-hint if-substatus">放開右 ⌥，先睇預覽</span>
+        <div class="if-recovery" hidden><button type="button" class="if-retry">再試一次 <i data-lucide="rotate-ccw" aria-hidden="true"></i></button></div>
+      </div>
+      <div class="if-scene-footer"><span class="if-state-description">指令與目的地，分開睇清</span><span class="if-theme-label">自動外觀</span></div>
+    </div>
+  </section>
+  <span class="if-sr" role="status" aria-live="polite"></span>
+</div>
+
+<style>
+#inflow-studies { --if-ink:light-dark(#252a2d,#eff1f2); --if-muted:light-dark(#646d72,#a2a9ae); --if-line:light-dark(#d8dddf,#363d42); --if-panel:light-dark(#ffffff,#252b30); --if-soft:light-dark(#f1f3f3,#1c2226); --if-shadow:light-dark(#21313d20,#00000060); color:var(--if-ink); font:400 14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; width:100%; background:transparent; }
+#inflow-studies * { box-sizing:border-box; }
+#inflow-studies[data-theme="light"] .if-scene { color-scheme:light; }
+#inflow-studies[data-theme="dark"] .if-scene { color-scheme:dark; }
+#inflow-studies .if-scene { color:var(--if-ink); }
+#inflow-studies button, #inflow-studies select { font:inherit; color:inherit; }
+#inflow-studies button { cursor:pointer; }
+#inflow-studies button:disabled { cursor:default; }
+#inflow-studies button svg { width:16px; height:16px; flex-shrink:0; }
+#inflow-studies [hidden] { display:none !important; }
+#inflow-studies .if-controls { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:22px; }
+#inflow-studies .if-controls-left { display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+#inflow-studies .if-play { display:inline-flex; gap:7px; align-items:center; background:var(--if-ink); color:var(--if-panel); border:0; border-radius:9px; min-height:36px; padding:7px 12px; font-weight:500; }
+#inflow-studies .if-play:hover { opacity:.85; }
+#inflow-studies .if-field { display:inline-flex; gap:6px; align-items:center; font-size:12px; color:var(--if-muted); }
+#inflow-studies select { max-width:140px; border:1px solid var(--if-line); border-radius:7px; padding:7px 22px 7px 8px; background:var(--if-panel); font-size:12px; min-height:36px; }
+#inflow-studies .if-demo { font-size:11px; color:var(--if-muted); white-space:nowrap; }
+#inflow-studies .if-study { margin-top:26px; }
+#inflow-studies .if-caption { display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:5px 16px; margin-bottom:10px; }
+#inflow-studies .if-caption>div { display:flex; gap:12px; align-items:baseline; }
+#inflow-studies .if-number { color:var(--if-muted); font:400 11px/1.5 ui-monospace,SFMono-Regular,monospace; }
+#inflow-studies .if-name { font-size:14px; font-weight:500; letter-spacing:.13em; }
+#inflow-studies .if-chinese { font-size:12px; color:var(--if-muted); }
+#inflow-studies .if-note { color:var(--if-muted); font-size:12px; }
+#inflow-studies .if-scene { --if-accent:light-dark(#137964,#79ddc0); --if-tint:light-dark(#cce9dd,#254c42); --if-ground:light-dark(#eaf0ed,#171f1d); --if-active:var(--if-accent); border:1px solid var(--if-line); border-radius:16px; background:radial-gradient(ellipse at 50% 125%,var(--if-tint),transparent 70%),var(--if-ground); overflow:hidden; position:relative; min-height:264px; }
+#inflow-studies .weave-scene { --if-accent:light-dark(#5b53b7,#b4acf4); --if-tint:light-dark(#e1def3,#39324f); --if-ground:light-dark(#f0eff7,#201e2b); }
+#inflow-studies .relay-scene { --if-accent:light-dark(#ab4a25,#ffb487); --if-tint:light-dark(#edd9c8,#463128); --if-ground:light-dark(#f4ede6,#28221e); min-height:326px; }
+#inflow-studies .if-scene[data-state="failed"] { --if-active:light-dark(#b6393f,#ff9499); }
+#inflow-studies .if-scene[data-state="done"] { --if-active:light-dark(#18705b,#85dfb8); }
+#inflow-studies .if-app-chrome { display:flex; align-items:center; justify-content:space-between; padding:13px 18px; gap:10px; color:var(--if-muted); font-size:11px; }
+#inflow-studies .if-app-name { display:flex; align-items:center; gap:8px; }
+#inflow-studies .if-app-dot { width:7px; height:7px; border-radius:50%; background:var(--if-muted); opacity:.55; }
+#inflow-studies .if-app-separator { opacity:.5; }
+#inflow-studies .if-app-shortcut { letter-spacing:.14em; font-weight:500; }
+#inflow-studies .if-scene-footer { display:flex; gap:12px; justify-content:space-between; padding:0 18px 13px; color:var(--if-muted); font-size:11px; }
+#inflow-studies .if-theme-label { white-space:nowrap; }
+#inflow-studies .if-dismiss { display:grid; place-items:center; background:transparent; color:var(--if-muted); border:0; border-radius:50%; padding:0; width:32px; height:32px; flex-shrink:0; }
+#inflow-studies .if-dismiss:hover { background:var(--if-soft); color:var(--if-ink); }
+#inflow-studies .if-status { font-size:13px; font-weight:500; }
+#inflow-studies .if-substatus { font-size:11px; color:var(--if-muted); }
+#inflow-studies .if-retry { display:flex; align-items:center; gap:6px; padding:5px 10px; margin:8px auto 0; border:1px solid var(--if-line); background:var(--if-panel); border-radius:8px; font-size:12px; }
+#inflow-studies .if-recovery { text-align:center; }
+#inflow-studies .if-sr { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); }
+
+#inflow-studies .still-document { padding:3px 28px 0; }
+#inflow-studies .if-document-label { font-size:11px; color:var(--if-muted); }
+#inflow-studies .if-editor-line { font-size:15px; margin:5px 0 0; color:var(--if-muted); }
+#inflow-studies .if-caret { display:inline-block; width:1px; height:17px; background:var(--if-accent); margin-left:3px; vertical-align:-3px; }
+#inflow-studies .still-composition { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:143px; padding:16px 16px 24px; }
+#inflow-studies .still-caption { font-size:12px; text-align:center; margin-bottom:10px; max-width:380px; overflow-wrap:anywhere; color:var(--if-muted); }
+#inflow-studies .still-pill { display:flex; align-items:center; gap:10px; width:252px; max-width:100%; min-height:62px; padding:8px 10px 8px 12px; border:1px solid light-dark(#ffffff,#46524d); background:var(--if-panel); border-radius:40px; box-shadow:0 12px 28px var(--if-shadow),0 2px 3px var(--if-shadow); }
+#inflow-studies .still-copy { display:flex; flex:1; flex-direction:column; gap:1px; }
+#inflow-studies .still-symbol { position:relative; display:grid; place-items:center; width:40px; height:40px; color:var(--if-active); flex-shrink:0; }
+#inflow-studies .still-core { width:38px; height:38px; position:relative; }
+#inflow-studies .still-core span { position:absolute; left:12px; top:4px; width:14px; height:30px; border:1.5px solid var(--if-active); border-radius:60% 40% 60% 40%; transform:rotate(var(--turn)); background:color-mix(in srgb,var(--if-active) 10%,transparent); animation:if-breathe 2.2s ease-in-out infinite; }
+#inflow-studies .still-core span:nth-child(1) { --turn:0deg; }
+#inflow-studies .still-core span:nth-child(2) { --turn:45deg; animation-delay:-.18s; }
+#inflow-studies .still-core span:nth-child(3) { --turn:90deg; animation-delay:-.36s; }
+#inflow-studies .still-core span:nth-child(4) { --turn:135deg; animation-delay:-.54s; }
+#inflow-studies .still-symbol>.if-state-icon { display:none; width:22px; height:22px; }
+#inflow-studies .still-scene[data-state="ready"] .still-core { transform:scale(.45); opacity:.65; }
+#inflow-studies .still-scene:is([data-state="transcribing"],[data-state="transforming"],[data-state="searching"]) .still-core { animation:if-spin 3s linear infinite; }
+#inflow-studies .still-scene:is([data-state="done"],[data-state="failed"]) .still-core { display:none; }
+#inflow-studies .still-scene:is([data-state="done"],[data-state="failed"]) .if-state-icon { display:block; }
+
+#inflow-studies .weave-composition { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:200px; padding:13px 20px 20px; }
+#inflow-studies .weave-paper { position:relative; width:366px; max-width:100%; background:var(--if-panel); border-radius:14px; border:1px solid light-dark(#ffffff,#484256); box-shadow:0 12px 32px var(--if-shadow),0 2px 3px var(--if-shadow); padding:14px 16px 7px; }
+#inflow-studies .weave-heading { display:flex; align-items:center; justify-content:space-between; gap:8px; font-size:11px; color:var(--if-muted); }
+#inflow-studies .weave-language { display:flex; gap:7px; align-items:center; color:var(--if-accent); font-weight:500; }
+#inflow-studies .weave-interlace { color:var(--if-muted); }
+#inflow-studies .weave-transcript { padding:17px 0 13px; font-size:17px; letter-spacing:.015em; min-height:60px; overflow-wrap:anywhere; }
+#inflow-studies .weave-english { color:var(--if-accent); font-family:ui-monospace,SFMono-Regular,monospace; font-size:.91em; background:color-mix(in srgb,var(--if-accent) 8%,var(--if-panel)); border-radius:4px; padding:1px 2px; }
+#inflow-studies .weave-caret { display:inline-block; width:2px; height:19px; vertical-align:-3px; margin-left:4px; background:var(--if-active); animation:if-caret 1.2s steps(2,end) infinite; }
+#inflow-studies .weave-foot { display:flex; align-items:center; gap:10px; border-top:1px solid var(--if-line); padding-top:5px; }
+#inflow-studies .weave-foot .if-status { font-size:11px; color:var(--if-active); }
+#inflow-studies .weave-foot .if-dismiss { margin-left:auto; }
+#inflow-studies .weave-thread { display:flex; gap:3px; align-items:center; height:18px; margin-left:2px; }
+#inflow-studies .weave-thread span { width:3px; height:3px; border-radius:3px; background:var(--if-active); animation:if-thread 1.5s ease-in-out infinite; }
+#inflow-studies .weave-thread span:nth-child(3n) { animation-delay:-.6s; }
+#inflow-studies .weave-thread span:nth-child(3n+1) { animation-delay:-.3s; }
+#inflow-studies .weave-hint { margin-top:10px; }
+#inflow-studies .weave-proof { border-top:1px solid var(--if-line); padding:8px 0 3px; display:flex; gap:8px; align-items:baseline; color:var(--if-muted); font-size:11px; }
+#inflow-studies .weave-proof-label { flex-shrink:0; }
+#inflow-studies .weave-scene:is([data-state="done"],[data-state="failed"],[data-state="ready"]) .weave-thread { opacity:.45; }
+#inflow-studies .weave-scene:is([data-state="done"],[data-state="failed"],[data-state="ready"]) .weave-caret { display:none; }
+
+#inflow-studies .relay-composition { display:flex; flex-direction:column; align-items:center; justify-content:flex-end; min-height:248px; padding:14px 20px 26px; }
+#inflow-studies .relay-pill { position:relative; z-index:2; display:flex; gap:11px; align-items:center; width:306px; max-width:100%; background:var(--if-panel); border:1px solid light-dark(#ffffff,#55453d); border-radius:15px; padding:9px 10px; box-shadow:0 12px 24px var(--if-shadow),0 2px 3px var(--if-shadow); }
+#inflow-studies .relay-mark { display:grid; place-items:center; width:40px; height:40px; flex-shrink:0; border-radius:11px; background:color-mix(in srgb,var(--if-active) 11%,var(--if-panel)); color:var(--if-active); position:relative; overflow:hidden; }
+#inflow-studies .relay-mark svg { width:22px; height:22px; }
+#inflow-studies .relay-scan { position:absolute; left:5px; right:5px; height:1px; top:8px; background:var(--if-active); opacity:.6; animation:if-scan 1.8s ease-in-out infinite; }
+#inflow-studies .relay-body { min-width:0; flex:1; }
+#inflow-studies .relay-route { display:flex; flex-wrap:wrap; align-items:center; gap:3px; font-size:11px; margin-bottom:3px; color:var(--if-muted); }
+#inflow-studies .relay-route svg { width:11px; height:11px; }
+#inflow-studies .relay-intent { color:var(--if-active); }
+#inflow-studies .relay-hint { margin-top:10px; }
+#inflow-studies .relay-heard { width:340px; max-width:100%; padding:4px 10px 17px; text-align:center; }
+#inflow-studies .relay-heard-label { font-size:11px; color:var(--if-muted); }
+#inflow-studies .relay-heard-text { font-size:17px; padding:9px 0 13px; overflow-wrap:anywhere; }
+#inflow-studies .relay-heard>svg { width:16px; height:16px; color:var(--if-accent); margin:auto; }
+#inflow-studies .relay-result { position:relative; width:340px; max-width:100%; background:var(--if-panel); border:1px solid var(--if-line); border-radius:12px; box-shadow:0 8px 18px var(--if-shadow); padding:12px 14px; margin-bottom:10px; animation:if-unfold .28s ease-out; }
+#inflow-studies .relay-result:after { content:""; position:absolute; left:50%; bottom:-6px; width:10px; height:10px; background:var(--if-panel); transform:translateX(-50%) rotate(45deg); border-right:1px solid var(--if-line); border-bottom:1px solid var(--if-line); }
+#inflow-studies .relay-result-heading { display:flex; justify-content:space-between; gap:10px; align-items:center; font-size:11px; color:var(--if-muted); }
+#inflow-studies .relay-result-badge { color:var(--if-active); }
+#inflow-studies .relay-result-text { font-size:14px; padding:11px 0; overflow-wrap:anywhere; }
+#inflow-studies .relay-result-bottom { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; }
+#inflow-studies .relay-source { font-size:11px; color:var(--if-muted); }
+#inflow-studies .relay-apply { display:inline-flex; align-items:center; gap:4px; background:var(--if-ink); color:var(--if-panel); border:0; padding:5px 9px; border-radius:7px; font-size:11px; }
+#inflow-studies .relay-apply:disabled { background:var(--if-soft); color:var(--if-muted); }
+#inflow-studies .relay-scene:is([data-state="done"],[data-state="failed"],[data-state="ready"]) .relay-scan { display:none; }
+#inflow-studies .if-scene:is([data-state="ready"],[data-state="done"],[data-state="failed"]) .still-core span,
+#inflow-studies .if-scene:is([data-state="ready"],[data-state="done"],[data-state="failed"]) .weave-thread span { animation:none; }
+@keyframes if-breathe { 0%,100% { transform:rotate(var(--turn)) scale(.66); } 45% { transform:rotate(calc(var(--turn) + 18deg)) scale(var(--if-energy,1.08)); } }
+@keyframes if-spin { to { transform:rotate(360deg); } }
+@keyframes if-thread { 0%,100% { transform:scaleY(1); opacity:.4; } 45% { transform:scaleY(3); opacity:1; } }
+@keyframes if-caret { 50% { opacity:0; } }
+@keyframes if-scan { 0%,100% { transform:translateY(0); opacity:.2; } 50% { transform:translateY(24px); opacity:.8; } }
+@keyframes if-unfold { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+#inflow-studies[data-motion="off"] *, #inflow-studies[data-motion="off"] *:before, #inflow-studies[data-motion="off"] *:after { animation:none !important; transition:none !important; }
+@media(prefers-reduced-motion:reduce) { #inflow-studies *, #inflow-studies *:before, #inflow-studies *:after { animation:none !important; transition:none !important; } }
+@media(max-width:520px) {
+  #inflow-studies .if-controls { gap:7px; }
+  #inflow-studies .if-controls-left { gap:8px; }
+  #inflow-studies .if-field { gap:4px; }
+  #inflow-studies .if-field>span { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); }
+  #inflow-studies .if-demo { width:100%; }
+  #inflow-studies .if-note { margin-left:29px; width:100%; }
+  #inflow-studies .if-caption { gap:4px; }
+  #inflow-studies .if-scene-footer { padding-left:14px; padding-right:14px; gap:6px; }
+  #inflow-studies .still-document { padding-left:20px; padding-right:20px; }
+  #inflow-studies .weave-composition, #inflow-studies .relay-composition { padding-left:14px; padding-right:14px; }
+  #inflow-studies .weave-paper { padding-left:13px; padding-right:13px; }
+  #inflow-studies .weave-transcript { font-size:16px; }
+  #inflow-studies .if-theme-label { display:none; }
+}
+@media(pointer:coarse) {
+  #inflow-studies button { min-height:44px; }
+  #inflow-studies .if-dismiss { width:44px; }
+  #inflow-studies select { font-size:16px; min-height:44px; max-width:146px; }
+  #inflow-studies .if-controls-left { gap:8px; }
+  #inflow-studies .if-play { padding:7px 9px; }
+}
+</style>
+
+<script>
+(() => {
+  const root = document.getElementById('inflow-studies');
+  const scenes = [...root.querySelectorAll('.if-scene')];
+  const stateSelect = root.querySelector('.if-state');
+  const scenarioSelect = root.querySelector('.if-scenario');
+  const play = root.querySelector('.if-play');
+  const live = root.querySelector('.if-sr');
+  const options = { theme: 'system', motion: true, energy: 1.08 };
+  const labels = { ready:'準備好', listening:'聆聽中', transcribing:'轉成文字中', transforming:'改寫中', searching:'搜尋中', done:'已完成', failed:'未能完成' };
+  const examples = {
+    dictate: { input:'將呢個 function 改成 async。', result:'將呢個 function 改成 async。', intent:'輸入文字', target:'目前游標', type:'輸入預覽' },
+    rewrite: { input:'我聽日覆你。', result:'I’ll get back to you tomorrow.', intent:'改寫英文', target:'已選文字', type:'改寫預覽' },
+    search: { input:'上網查下 exponential backoff。', result:'Exponential backoff：每次重試前逐步增加等待時間。', intent:'上網查下', target:'搜尋預覽', type:'搜尋結果 · 示範' }
+  };
+  let timers = [];
+  let playing = false;
+  const stop = () => {
+    timers.forEach(clearTimeout); timers = []; playing = false;
+    play.querySelector('span').textContent = '播放流程';
+    play.setAttribute('aria-pressed','false');
+  };
+  function setTranscript(el, text, partial) {
+    el.replaceChildren();
+    const segments = text.split(/(function|async|exponential backoff)/g);
+    segments.forEach(word => {
+      const span = document.createElement('span');
+      span.className = /^(function|async|exponential backoff)$/.test(word) ? 'weave-word weave-english' : 'weave-word';
+      span.textContent = word; el.append(span);
+    });
+    if (partial) { const caret = document.createElement('span'); caret.className='weave-caret'; el.append(caret); }
+  }
+  function renderScene(scene, state, fragment) {
+    const sample = examples[scenarioSelect.value];
+    const concept = scene.closest('.if-study').dataset.concept;
+    scene.dataset.state = state;
+    const done = state === 'done';
+    const failed = state === 'failed';
+    let status = labels[state];
+    if (done) status = concept === 'relay' ? '等你確認' : scenarioSelect.value === 'search' ? '已找到結果' : '文字已備妥';
+    scene.querySelector('.if-status').textContent = status;
+    scene.querySelector('.if-substatus').textContent = failed ? '原文仍然保留' : done ? (concept === 'relay' ? '確認後先套用' : '完成示範') : state === 'ready' ? '按播放流程試用' : state === 'listening' ? (concept === 'relay' ? '放開右 ⌥，先睇預覽' : '放開右 ⌥ 完成') : '正在處理呢一句';
+    scene.querySelector('.if-recovery').hidden = !failed;
+    const dismiss = scene.querySelector('.if-dismiss');
+    dismiss.disabled = state === 'ready';
+    dismiss.setAttribute('aria-label', `${done ? '關閉' : '取消'} ${concept} 示範`);
+    if (concept === 'still') {
+      scene.querySelector('.if-preview-text').textContent = state === 'ready' ? '準備聽你講' : failed ? '連線中斷，文字已保留' : done ? sample.result : fragment || sample.input;
+      scene.querySelector('.if-editor-line').firstChild.textContent = done && scenarioSelect.value !== 'search' ? sample.result : sample.input;
+      const icon = scene.querySelector('.if-state-icon');
+      icon.outerHTML = `<i class="if-state-icon" data-lucide="${failed ? 'circle-alert' : 'check'}" aria-hidden="true"></i>`;
+      scene.querySelector('.if-state-description').textContent = done ? '收斂為完成記號' : failed ? '失敗有文字，亦有重試' : '固定位置 · 呼吸回應';
+    } else if (concept === 'weave') {
+      setTranscript(scene.querySelector('.weave-transcript'),state === 'ready' ? '由你開口。' : done ? sample.result : fragment || sample.input, state === 'listening');
+      scene.querySelector('.weave-live-label').textContent = done ? '已確認文字' : failed ? '保留草稿' : state === 'ready' ? '準備輸入' : '即時草稿 · 示範';
+      scene.querySelector('.weave-proof').hidden = !(done && scenarioSelect.value === 'rewrite');
+      scene.querySelector('.weave-original').textContent = sample.input;
+      scene.querySelector('.if-state-description').textContent = failed ? '草稿保留，可重新處理' : '粵英混合 · 保留原字';
+    } else {
+      scene.querySelector('.relay-intent').textContent = sample.intent;
+      scene.querySelector('.relay-target').textContent = sample.target;
+      scene.querySelector('.relay-result').hidden = !done;
+      scene.querySelector('.relay-heard').hidden = done;
+      scene.querySelector('.relay-heard-label').textContent = state === 'ready' ? '下一句，交畀你。' : failed ? '已保留原句' : '你講嘅指令';
+      scene.querySelector('.relay-heard-text').textContent = state === 'ready' ? '講完，先睇預覽。' : fragment || sample.input;
+      scene.querySelector('.relay-result-type').textContent = sample.type;
+      scene.querySelector('.relay-result-text').textContent = sample.result;
+      scene.querySelector('.relay-result-badge').textContent = '待確認';
+      scene.querySelector('.relay-source').textContent = scenarioSelect.value === 'search' ? '模擬結果 · 尚未插入' : scenarioSelect.value === 'rewrite' ? `原句：${sample.input}` : '目的地：目前文字欄';
+      const apply = scene.querySelector('.relay-apply');
+      apply.disabled = false; apply.querySelector('span').textContent = scenarioSelect.value === 'search' ? '插入摘要' : '套用';
+      scene.querySelector('.if-state-description').textContent = failed ? '操作未套用 · 可以重試' : '指令與目的地，分開睇清';
+    }
+  }
+  function setState(state, fragment) {
+    stateSelect.value = state;
+    scenes.forEach(scene => renderScene(scene,state,fragment));
+    if (globalThis.lucide) lucide.createIcons();
+    if (!fragment) live.textContent = `${scenarioSelect.options[scenarioSelect.selectedIndex].text}：${labels[state]}`;
+  }
+  function start() {
+    stop(); playing = true;
+    play.querySelector('span').textContent = '停止示範'; play.setAttribute('aria-pressed','true');
+    const sample = examples[scenarioSelect.value];
+    setState('listening', sample.input.slice(0,3));
+    [0.3,0.62,1].forEach((portion,i) => timers.push(setTimeout(() => setState('listening', sample.input.slice(0,Math.ceil(sample.input.length*portion))), 650+i*950)));
+    timers.push(setTimeout(() => setState('transcribing'),3800));
+    if (scenarioSelect.value !== 'dictate') timers.push(setTimeout(() => setState(scenarioSelect.value === 'rewrite' ? 'transforming' : 'searching'),5200));
+    timers.push(setTimeout(() => { setState('done'); stop(); },scenarioSelect.value === 'dictate' ? 5600 : 7400));
+  }
+  play.addEventListener('click',() => { if (playing) { stop(); setState('ready'); } else start(); });
+  stateSelect.addEventListener('change',() => { stop(); setState(stateSelect.value); });
+  scenarioSelect.addEventListener('change',() => { stop(); setState('listening'); });
+  scenes.forEach(scene => {
+    scene.querySelector('.if-dismiss').addEventListener('click',() => { stop(); renderScene(scene,'ready'); if(globalThis.lucide) lucide.createIcons(); live.textContent = `${scene.closest('.if-study').getAttribute('aria-label')}：已關閉`; });
+    scene.querySelector('.if-retry').addEventListener('click',start);
+  });
+  root.querySelector('.relay-apply').addEventListener('click',e => {
+    const scene = root.querySelector('.relay-scene');
+    scene.querySelector('.if-status').textContent = '已套用';
+    scene.querySelector('.relay-result-badge').textContent = '已套用 · 示範';
+    scene.querySelector('.if-substatus').textContent = '示範完成';
+    e.currentTarget.querySelector('span').textContent = '已套用'; e.currentTarget.disabled = true;
+    live.textContent = 'Relay：已在示範中套用文字';
+  });
+  function renderOptions() {
+    root.dataset.theme = options.theme;
+    root.dataset.motion = options.motion ? 'on' : 'off';
+    root.style.setProperty('--if-energy',options.energy);
+    root.querySelectorAll('.if-theme-label').forEach(el => el.textContent = {system:'自動外觀',light:'淺色外觀',dark:'深色外觀'}[options.theme]);
+  }
+  renderOptions(); setState('listening');
+  if (globalThis.Tweak) {
+    const tweak = new Tweak({container:root,onChange:renderOptions});
+    tweak.addSelect(options,'theme',{label:'介面外觀',options:[{label:'跟隨系統',value:'system'},{label:'淺色',value:'light'},{label:'深色',value:'dark'}]});
+    tweak.addSlider(options,'energy',{label:'呼吸幅度',min:.8,max:1.3,step:.05});
+    tweak.addToggle(options,'motion',{label:'動態回應'});
+  }
+})();
+</script>
+
+<script src="https://unpkg.com/@floating-ui/core@1.7.3/dist/floating-ui.core.umd.min.js"></script>
+<script src="https://unpkg.com/@floating-ui/dom@1.7.4/dist/floating-ui.dom.umd.min.js"></script>
+<script>
+(() => {
+  if (window.FloatingUIDOM == null) {
+    return;
+  }
+  const { autoUpdate, computePosition, flip, offset, shift, size } =
+    window.FloatingUIDOM;
+  const tooltipPlacements = new Set(["top", "right", "bottom", "left"]);
+  const tooltipId = `codex-visualization-tooltip-${
+    window.crypto?.randomUUID?.() ?? Date.now().toString(36)
+  }`;
+  const tooltipGap = 5;
+  const hoverDelay = 700;
+  const skipDelay = 300;
+  let activeTrigger = null;
+  let pendingTrigger = null;
+  let tooltip = null;
+  let openTimeout = null;
+  let autoUpdateCleanup = null;
+  let positionRequest = 0;
+  let skipDelayUntil = 0;
+  let lastPointerWasTouch = false;
+  let pinnedByTouch = false;
+
+  const getTrigger = (target) =>
+    target?.nodeType === Node.ELEMENT_NODE
+      ? target.closest("[data-tooltip]")
+      : null;
+  const containsTarget = (trigger, target) =>
+    target?.nodeType != null && trigger.contains(target);
+  const getContent = (trigger) =>
+    trigger.getAttribute("data-tooltip")?.trim() ?? "";
+  const getPlacement = (trigger) => {
+    const placement = trigger.getAttribute("data-tooltip-placement");
+    return tooltipPlacements.has(placement) ? placement : "top";
+  };
+  const getTooltip = () => {
+    if (tooltip == null) {
+      tooltip = document.createElement("div");
+      tooltip.id = tooltipId;
+      tooltip.className = "tooltip";
+      tooltip.setAttribute("role", "tooltip");
+    }
+    return tooltip;
+  };
+  const setDescribedBy = (trigger, described) => {
+    const ids = new Set(
+      (trigger.getAttribute("aria-describedby") ?? "")
+        .split(/\s+/)
+        .filter(Boolean),
+    );
+    if (described) {
+      ids.add(tooltipId);
+    } else {
+      ids.delete(tooltipId);
+    }
+    if (ids.size === 0) {
+      trigger.removeAttribute("aria-describedby");
+    } else {
+      trigger.setAttribute("aria-describedby", [...ids].join(" "));
+    }
+  };
+  const clearOpenTimeout = () => {
+    if (openTimeout != null) {
+      window.clearTimeout(openTimeout);
+      openTimeout = null;
+    }
+    pendingTrigger = null;
+  };
+  const closeTooltip = (activateSkipDelay = true) => {
+    clearOpenTimeout();
+    pinnedByTouch = false;
+    positionRequest += 1;
+    autoUpdateCleanup?.();
+    autoUpdateCleanup = null;
+    if (activeTrigger == null) {
+      return;
+    }
+    setDescribedBy(activeTrigger, false);
+    activeTrigger = null;
+    tooltip?.remove();
+    if (activateSkipDelay) {
+      skipDelayUntil = Date.now() + skipDelay;
+    }
+  };
+  const updatePosition = (trigger, floating) => {
+    const request = ++positionRequest;
+    void computePosition(trigger, floating, {
+      middleware: [
+        offset(tooltipGap),
+        flip({ padding: tooltipGap }),
+        shift({ padding: tooltipGap }),
+        size({
+          padding: tooltipGap,
+          apply({ availableHeight, availableWidth, elements }) {
+            elements.floating.style.setProperty(
+              "--tooltip-available-width",
+              `${Math.max(0, availableWidth)}px`,
+            );
+            elements.floating.style.setProperty(
+              "--tooltip-available-height",
+              `${Math.max(0, availableHeight)}px`,
+            );
+          },
+        }),
+      ],
+      placement: getPlacement(trigger),
+      strategy: "fixed",
+    })
+      .then(({ x, y }) => {
+        if (activeTrigger !== trigger || request !== positionRequest) {
+          return;
+        }
+        const scale = window.devicePixelRatio || 1;
+        floating.style.transform = `translate(${Math.round(x * scale) / scale}px, ${Math.round(y * scale) / scale}px)`;
+        floating.style.visibility = "visible";
+      })
+      .catch(() => {
+        if (activeTrigger === trigger && request === positionRequest) {
+          closeTooltip(false);
+        }
+      });
+  };
+  const openTooltip = (trigger) => {
+    const content = getContent(trigger);
+    if (!trigger.isConnected || content.length === 0) {
+      return;
+    }
+    clearOpenTimeout();
+    if (activeTrigger === trigger) {
+      return;
+    }
+    closeTooltip();
+    const floating = getTooltip();
+    floating.textContent = content;
+    floating.style.visibility = "hidden";
+    floating.style.transform = "translate(0, 0)";
+    document.body.appendChild(floating);
+    activeTrigger = trigger;
+    setDescribedBy(trigger, true);
+    autoUpdateCleanup = autoUpdate(trigger, floating, () => {
+      updatePosition(trigger, floating);
+    });
+  };
+  const requestOpen = (trigger, immediate = false) => {
+    if (
+      getContent(trigger).length === 0 ||
+      activeTrigger === trigger ||
+      pendingTrigger === trigger
+    ) {
+      return;
+    }
+    clearOpenTimeout();
+    pendingTrigger = trigger;
+    const delay =
+      immediate || activeTrigger != null || Date.now() < skipDelayUntil
+        ? 0
+        : hoverDelay;
+    if (delay === 0) {
+      openTooltip(trigger);
+      return;
+    }
+    openTimeout = window.setTimeout(() => {
+      openTimeout = null;
+      pendingTrigger = null;
+      openTooltip(trigger);
+    }, delay);
+  };
+  const handlePointerOpen = (event) => {
+    if (event.pointerType === "touch") {
+      return;
+    }
+    const trigger = getTrigger(event.target);
+    if (trigger == null || containsTarget(trigger, event.relatedTarget)) {
+      return;
+    }
+    requestOpen(trigger);
+  };
+  const handlePointer = (event) => {
+    lastPointerWasTouch =
+      event.type === "pointerdown" && event.pointerType === "touch";
+  };
+  const handleTouchClick = (event) => {
+    const isTouch = event.pointerType === "touch" || lastPointerWasTouch;
+    lastPointerWasTouch = false;
+    if (!isTouch || event.detail === 0) {
+      return;
+    }
+    const trigger = getTrigger(event.target);
+    if (
+      trigger == null ||
+      !trigger.isConnected ||
+      getContent(trigger).length === 0 ||
+      (pinnedByTouch && activeTrigger === trigger)
+    ) {
+      if (pinnedByTouch) {
+        closeTooltip();
+      }
+      return;
+    }
+    openTooltip(trigger);
+    pinnedByTouch = activeTrigger === trigger;
+    window.setTimeout(() => {
+      if (activeTrigger === trigger && !trigger.isConnected) {
+        closeTooltip(false);
+      }
+    }, 0);
+  };
+  const handleLeave = (event) => {
+    if (pinnedByTouch) {
+      return;
+    }
+    const trigger = getTrigger(event.target);
+    if (trigger == null || containsTarget(trigger, event.relatedTarget)) {
+      return;
+    }
+    if (activeTrigger === trigger || pendingTrigger === trigger) {
+      closeTooltip();
+    }
+  };
+  const handleFocusIn = (event) => {
+    const trigger = getTrigger(event.target);
+    if (trigger?.matches(":focus-visible")) {
+      requestOpen(trigger, true);
+    }
+  };
+  const handleKeyDown = (event) => {
+    if (event.key === "Escape") {
+      closeTooltip();
+    }
+  };
+  const handleContextMenu = (event) => {
+    lastPointerWasTouch = false;
+    const trigger = getTrigger(event.target);
+    if (activeTrigger === trigger || pendingTrigger === trigger) {
+      closeTooltip();
+    }
+  };
+  const destroy = () => {
+    closeTooltip(false);
+    lastPointerWasTouch = false;
+    document.removeEventListener("pointerover", handlePointerOpen);
+    document.removeEventListener("pointerdown", handlePointer);
+    document.removeEventListener("pointercancel", handlePointer);
+    document.removeEventListener("click", handleTouchClick);
+    document.removeEventListener("pointerout", handleLeave);
+    document.removeEventListener("focusin", handleFocusIn);
+    document.removeEventListener("focusout", handleLeave);
+    document.removeEventListener("keydown", handleKeyDown);
+    document.removeEventListener("contextmenu", handleContextMenu);
+    tooltip = null;
+  };
+
+  document.addEventListener("pointerover", handlePointerOpen);
+  document.addEventListener("pointerdown", handlePointer);
+  document.addEventListener("pointercancel", handlePointer);
+  document.addEventListener("click", handleTouchClick);
+  document.addEventListener("pointerout", handleLeave);
+  document.addEventListener("focusin", handleFocusIn);
+  document.addEventListener("focusout", handleLeave);
+  document.addEventListener("keydown", handleKeyDown);
+  document.addEventListener("contextmenu", handleContextMenu);
+  window.addEventListener("pagehide", destroy, { once: true });
+})();
+</script>
+<script id="codex-visualization-tabs">
+(() => {
+  const selector = '.nav[role="tablist"] [role="tab"]';
+  const disabled = ':disabled,[aria-disabled="true"]';
+  const selectTab = (selected) => {
+    const panelId = selected.getAttribute("aria-controls");
+    for (const tab of selected.closest('[role="tablist"]').querySelectorAll('[role="tab"]')) {
+      const active = tab === selected;
+      tab.classList.toggle("active", active);
+      tab.setAttribute("aria-selected", String(active));
+      const id = tab.getAttribute("aria-controls");
+      const panel = id && document.getElementById(id);
+      if (panel != null) {
+        panel.hidden = id !== panelId;
+        if (!panel.hidden && selected.id) {
+          panel.setAttribute("aria-labelledby", selected.id);
+        }
+      }
+    }
+  };
+  const interact = (event) => {
+    const tab = event.target?.closest?.(selector);
+    if (event.defaultPrevented || tab == null || tab.matches(disabled)) {
+      return;
+    }
+    if (event.type === "click") {
+      selectTab(tab);
+      return;
+    }
+    const tabs = Array.from(
+      tab.closest('[role="tablist"]').querySelectorAll('[role="tab"]'),
+    ).filter((candidate) => !candidate.matches(disabled));
+    const current = tabs.indexOf(tab);
+    let next;
+    if (event.key === "ArrowRight" || event.key === "ArrowDown") {
+      next = (current + 1) % tabs.length;
+    } else if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
+      next = (current + tabs.length - 1) % tabs.length;
+    } else if (event.key === "Home") {
+      next = 0;
+    } else if (event.key === "End") {
+      next = tabs.length - 1;
+    } else {
+      return;
+    }
+    event.preventDefault();
+    tabs[next].focus();
+    selectTab(tabs[next]);
+  };
+
+  for (const list of document.querySelectorAll('.nav[role="tablist"]')) {
+    const selected =
+      list.querySelector('[role="tab"][aria-selected="true"]') ??
+      list.querySelector('[role="tab"].active') ??
+      list.querySelector('[role="tab"]');
+    if (selected != null) {
+      selectTab(selected);
+    }
+  }
+  document.addEventListener("click", interact);
+  document.addEventListener("keydown", interact);
+  window.addEventListener("pagehide", () => {
+    document.removeEventListener("click", interact);
+    document.removeEventListener("keydown", interact);
+  }, { once: true });
+})();
+</script>
+<script id="codex-visualization-lucide" async src="https://unpkg.com/lucide@1.17.0/dist/umd/lucide.js"></script>
+<script>
+(() => {
+  const initialize = () => {
+    globalThis.lucide?.createIcons({ attrs: { width: 16, height: 16 } });
+  };
+  if (globalThis.lucide != null) {
+    initialize();
+    return;
+  }
+  document
+    .getElementById("codex-visualization-lucide")
+    ?.addEventListener("load", initialize, { once: true });
+})();
+</script>
+
+<style>
+    html,body{margin:0!important;padding:0!important;min-height:350px;overflow:hidden;color-scheme:light dark}
+    #inflow-studies .if-controls,#inflow-studies .if-caption,#inflow-studies .if-scene-footer{display:none!important}
+    #inflow-studies .if-study{margin:0!important}
+    #inflow-studies .if-study:not([data-concept="weave"]){display:none!important}
+    #inflow-studies .if-scene{border:0!important;border-radius:0!important;min-height:350px;display:flex;flex-direction:column}
+    #inflow-studies .still-composition,#inflow-studies .weave-composition,#inflow-studies .relay-composition{flex:1}
+    #inflow-studies .weave-thread span{animation:none;transform:scaleY(calc(1 + var(--level,0) * 3))}
+    :root[data-paused=true] *{animation-play-state:paused!important}
+    </style><script>
+(()=>{
+ const ID="codex-weave",KIND="codex",N=0;
+ const allowed=['appear','listening','transcribing','transforming','searching','done','failed'];
+ let latest=null,scheduled=false,previous='',scenario='',revision=-1;
+ const root=document.querySelector(KIND==='codex'?'#inflow-studies':'.pill');
+ const samples={dictate:'將呢個 function 改成 async。',rewrite:'我聽日覆你。',search:'上網查下 exponential backoff。'};
+ const result='Exponential backoff：每次重試前逐步增加等待時間。';
+ function apply(){
+  scheduled=false;if(!latest||!root)return;const m=latest;
+  document.documentElement.dataset.theme=m.theme;
+  document.documentElement.dataset.paused=String(!m.active||!m.motion);
+  document.documentElement.style.setProperty('--level',m.level.toFixed(3));
+  if(KIND==='codex'){
+   root.dataset.theme=m.theme;root.dataset.motion=m.motion&&m.active?'on':'off';
+   root.style.setProperty('--if-energy',String(.7+m.level*.6));root.style.setProperty('--level',m.level.toFixed(3));
+   if(scenario!==m.scenario){const s=root.querySelector('.if-scenario');s.value=m.scenario;s.dispatchEvent(new Event('change'));}
+   if(previous!==m.state||scenario!==m.scenario||revision!==m.revision){const s=root.querySelector('.if-state');s.value=m.state==='appear'?'ready':m.state;s.dispatchEvent(new Event('change'));}
+  }else{
+   let state=m.state;if(state==='appear')state=N===4?'idle':[2,3,5,6,8,9,10].includes(N)?'idle-appear':'appear';
+   root.dataset.state=state;root.dataset.kind=m.scenario==='search'?'search':'text';root.style.setProperty('--level',m.level.toFixed(3));
+   if(previous!==m.state||scenario!==m.scenario||revision!==m.revision){
+    const text=m.scenario==='rewrite'&&m.state==='done'?'I’ll get back to you tomorrow.':samples[m.scenario];
+    if(N===1)window.pill1_setPreview?.(m.scenario==='search'?result:text,root.dataset.kind,'Exponential backoff · 示範');
+    if(N===2){root.dataset.mode=m.scenario==='search'?'search':'text';window.pill2_setText?.(text);window.pill2_setSearch?.('Exponential backoff · 示範',result);}
+    if(N===5){root.dataset.text=text;root.dataset.title='Exponential backoff · 示範';root.dataset.body=result;}
+    if(N===10)window.pill10_command?.(m.scenario==='search'?'search':m.scenario==='rewrite'?'transform':'none');
+   }
+   try{const tick=window['pill'+N+'_tick'];if(typeof tick==='function')tick(m.level,state);}
+   catch(error){document.getElementById('frame-error').hidden=false;}
+  }
+  previous=m.state;scenario=m.scenario;revision=m.revision;
+ }
+ addEventListener('message',event=>{
+  const m=event.data;if(event.source!==parent||!m||m.type!=='pill-state'||!allowed.includes(m.state))return;
+  if(!['light','dark'].includes(m.theme)||!['dictate','rewrite','search'].includes(m.scenario))return;
+  if(typeof m.level!=='number'||!Number.isFinite(m.level))return;
+  latest={...m,level:Math.max(0,Math.min(1,m.level)),active:!!m.active,motion:!!m.motion};
+  if(!scheduled){scheduled=true;requestAnimationFrame(apply);}
+ });
+ const stage=KIND==='codex'?root?.querySelector('.if-study:not([style]) .if-scene'):document.querySelector('.preview-stage');
+ const sizeTarget=KIND==='codex'?[...root.querySelectorAll('.if-scene')].find(el=>el.offsetHeight):stage;
+ if(sizeTarget)new ResizeObserver(()=>parent.postMessage({type:'pill-size',id:ID,height:Math.ceil(sizeTarget.getBoundingClientRect().height)},'*')).observe(sizeTarget);
+ if(parent!==window)parent.postMessage({type:'pill-ready',id:ID},'*');
+})();</script></body>
+</html>

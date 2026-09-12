@@ -1,0 +1,283 @@
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'"><title>Splitrail</title><style>
+:root{color-scheme:light;--bg:#fcfafb;--fg:#1a151e;--muted:#6b6070;--accent:#8a2e63;--ok:#2f7d53;--warn:#a8690c;--err:#b5372f;--shadow:#1a151e2e;background:#e9e5e9;color:var(--fg)}
+:root[data-theme=dark]{color-scheme:dark;--bg:#221c27;--fg:#efe9f0;--muted:#a497aa;--accent:#e88cc0;--ok:#56c98a;--warn:#e8a63e;--err:#ff7c6e;--shadow:#0009;background:#14111a}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;width:100%}body{font-family:system-ui,sans-serif}
+.preview-stage{min-height:350px;display:flex;align-items:center;justify-content:center;padding:40px 18px;position:relative;isolation:isolate}
+.preview-stage>.pill{max-width:100%;flex-shrink:1}
+#frame-error{position:fixed;bottom:5px;left:8px;background:var(--bg);color:var(--err);font:12px system-ui;padding:6px}
+[hidden]{display:none!important}:root[data-paused=true] *{animation-play-state:paused!important}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+.pill-10{
+  --p10-h:56px; --p10-w:232px;
+  --p10-hair:color-mix(in srgb, var(--fg) 14%, transparent);
+  --p10-fill:color-mix(in srgb, var(--fg) 8%, transparent);
+  --p10-dim:color-mix(in srgb, var(--fg) 34%, transparent);
+  position:relative; width:var(--p10-w); box-sizing:border-box;
+  color:var(--fg); text-align:left;
+  font:13px/1.35 -apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,"PingFang HK",sans-serif;
+  -webkit-font-smoothing:antialiased;
+  transition:width .34s cubic-bezier(.22,1,.36,1);
+  animation:p10-appear .26s cubic-bezier(.22,1,.36,1) both;
+}
+.pill-10[data-cmd="search"],.pill-10[data-cmd="transform"],
+.pill-10[data-state="searching"],.pill-10[data-state="done"],.pill-10[data-state="failed"]{--p10-w:260px}
+.pill-10[data-state="hidden"]{animation:p10-hide .18s ease-in both}
+
+@keyframes p10-appear{from{opacity:0;transform:translateY(10px) scale(.94)}to{opacity:1;transform:none}}
+@keyframes p10-hide{to{opacity:0;transform:translateY(6px) scale(.96)}}
+@keyframes p10-chop{0%{transform:scaleX(1) scaleY(1)}38%{transform:scaleX(1.035) scaleY(.9)}70%{transform:scaleX(.99) scaleY(1.03)}100%{transform:none}}
+@keyframes p10-spin{to{transform:rotate(360deg)}}
+@keyframes p10-blink{0%,45%{opacity:1}55%,100%{opacity:0}}
+@keyframes p10-shim{to{background-position:200% 0}}
+
+/* ---- rail ---- */
+.pill-10 .p10-shell{
+  position:relative; display:flex; align-items:center; height:var(--p10-h);
+  padding:0 10px 0 12px; border-radius:16px; overflow:hidden;
+  background:var(--bg); box-shadow:var(--shadow);
+  border:.5px solid var(--p10-hair);
+  transform-origin:50% 50%;
+}
+.pill-10[data-cmd="search"] .p10-shell,
+.pill-10[data-cmd="transform"] .p10-shell{animation:p10-chop .14s cubic-bezier(.3,1.4,.5,1) both}
+
+/* ---- command chip ---- */
+.pill-10 .p10-cmd{
+  display:flex; align-items:center; gap:5px; flex:none; overflow:hidden;
+  max-width:0; padding-right:0; opacity:0; transform:translateX(-8px);
+  color:var(--accent); font-weight:600; letter-spacing:.01em; white-space:nowrap;
+  transition:max-width .3s cubic-bezier(.22,1,.36,1),padding-right .3s cubic-bezier(.22,1,.36,1),opacity .2s ease,transform .3s cubic-bezier(.22,1,.36,1);
+}
+.pill-10[data-cmd="search"] .p10-cmd,.pill-10[data-cmd="transform"] .p10-cmd{max-width:106px;padding-right:9px;opacity:1;transform:none}
+.pill-10[data-cmd="transform"] .p10-cmd{color:var(--warn)}
+.pill-10 .p10-icon{display:flex}
+.pill-10 .p10-i{display:none}
+.pill-10[data-cmd="search"] .p10-i-globe{display:block}
+.pill-10[data-cmd="transform"] .p10-i-wand{display:block}
+.pill-10 .p10-cmdlabel{font-size:12px}
+
+/* ---- seam ---- */
+.pill-10 .p10-seam{
+  flex:none; width:1px; height:24px; margin-right:9px; background:var(--p10-hair);
+  transform:scaleY(0); transform-origin:50% 50%; opacity:0;
+  transition:transform .26s cubic-bezier(.22,1,.36,1),opacity .2s ease;
+}
+.pill-10[data-cmd="search"] .p10-seam,.pill-10[data-cmd="transform"] .p10-seam{transform:scaleY(1);opacity:1}
+
+/* ---- payload ---- */
+.pill-10 .p10-pay{position:relative;flex:1 1 auto;min-width:0;height:30px;display:flex;align-items:center}
+.pill-10 .p10-meter{display:flex;align-items:center;gap:3px;height:26px;transition:opacity .18s ease}
+.pill-10 .p10-bar{
+  display:block;width:3px;height:26px;border-radius:2px;background:var(--accent);
+  transform:scaleY(.1);transform-origin:50% 50%;will-change:transform;
+}
+.pill-10 .p10-bar:nth-child(1){opacity:.34}
+.pill-10 .p10-bar:nth-child(2){opacity:.46}
+.pill-10 .p10-bar:nth-child(3){opacity:.6}
+.pill-10 .p10-bar:nth-child(4){opacity:.72}
+.pill-10 .p10-bar:nth-child(5){opacity:.84}
+.pill-10 .p10-bar:nth-child(6){opacity:.93}
+
+.pill-10 .p10-text{
+  position:absolute;inset:0;display:flex;align-items:center;gap:2px;
+  opacity:0;transform:translateY(4px);pointer-events:none;
+  transition:opacity .18s ease,transform .24s cubic-bezier(.22,1,.36,1);
+}
+.pill-10 .p10-textin{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--fg)}
+.pill-10 .p10-caret{flex:none;width:1.5px;height:15px;background:var(--accent);animation:p10-blink 1.05s steps(1,end) infinite}
+
+.pill-10[data-state="transcribing"] .p10-meter,
+.pill-10[data-state="transforming"] .p10-meter,
+.pill-10[data-state="searching"] .p10-meter,
+.pill-10[data-state="done"] .p10-meter,
+.pill-10[data-state="failed"] .p10-meter{opacity:0}
+.pill-10[data-state="transcribing"] .p10-text,
+.pill-10[data-state="transforming"] .p10-text,
+.pill-10[data-state="searching"] .p10-text,
+.pill-10[data-state="done"] .p10-text,
+.pill-10[data-state="failed"] .p10-text{opacity:1;transform:none}
+.pill-10[data-state="done"] .p10-caret,.pill-10[data-state="failed"] .p10-caret{display:none}
+.pill-10[data-state="failed"] .p10-textin{color:var(--err)}
+
+/* level underline */
+.pill-10 .p10-scanwrap{position:absolute;left:0;right:0;bottom:-3px;height:2px;border-radius:2px;background:var(--p10-fill);overflow:hidden;opacity:0;transition:opacity .2s ease}
+.pill-10[data-state="listening"] .p10-scanwrap{opacity:1}
+.pill-10 .p10-scan{height:100%;background:var(--accent);transform:scaleX(0);transform-origin:0 50%;border-radius:2px;will-change:transform}
+
+/* ---- badge ---- */
+.pill-10 .p10-badge{flex:none;width:22px;height:22px;margin-left:8px;position:relative;opacity:0;transform:scale(.7);transition:opacity .18s ease,transform .24s cubic-bezier(.3,1.5,.5,1)}
+.pill-10 .p10-b{position:absolute;inset:0;margin:auto;display:none}
+.pill-10[data-state="transcribing"] .p10-badge,
+.pill-10[data-state="transforming"] .p10-badge,
+.pill-10[data-state="searching"] .p10-badge,
+.pill-10[data-state="done"] .p10-badge,
+.pill-10[data-state="failed"] .p10-badge{opacity:1;transform:none}
+.pill-10[data-state="transcribing"] .p10-b-ring,
+.pill-10[data-state="transforming"] .p10-b-ring,
+.pill-10[data-state="searching"] .p10-b-ring{display:block;color:var(--accent);animation:p10-spin .9s linear infinite;transform-origin:50% 50%}
+.pill-10[data-state="transforming"] .p10-b-ring{color:var(--warn)}
+.pill-10 .p10-track{opacity:.22}
+.pill-10[data-state="done"] .p10-b-ok{display:block;color:var(--ok)}
+.pill-10[data-state="failed"] .p10-b-err{display:block;color:var(--err)}
+
+/* ---- result card ---- */
+.pill-10 .p10-card{
+  margin-top:8px;border-radius:14px;background:var(--bg);box-shadow:var(--shadow);
+  border:.5px solid var(--p10-hair);
+  display:grid;grid-template-rows:0fr;opacity:0;transform:translateY(-8px) scale(.97);
+  transform-origin:50% 0;pointer-events:none;
+  transition:grid-template-rows .32s cubic-bezier(.22,1,.36,1),opacity .22s ease,transform .32s cubic-bezier(.22,1,.36,1);
+}
+.pill-10[data-state="searching"] .p10-card,
+.pill-10[data-state="done"][data-cmd="search"] .p10-card,
+.pill-10[data-state="failed"][data-cmd="search"] .p10-card{grid-template-rows:1fr;opacity:1;transform:none;pointer-events:auto}
+.pill-10 .p10-cardin{overflow:hidden;min-height:0}
+.pill-10 .p10-pad{padding:8px}
+.pill-10 .p10-skel,.pill-10 .p10-real,.pill-10 .p10-fail{display:none}
+.pill-10[data-state="searching"] .p10-skel{display:block}
+.pill-10[data-state="done"] .p10-real{display:block}
+.pill-10[data-state="failed"] .p10-fail{display:block;padding:6px 6px 8px;color:var(--err);font-size:12px}
+
+.pill-10 .p10-srow{padding:6px}
+.pill-10 .p10-sk{display:block;height:9px;border-radius:5px;margin-bottom:6px;
+  background:linear-gradient(90deg,var(--p10-fill) 0%,color-mix(in srgb,var(--fg) 18%,transparent) 50%,var(--p10-fill) 100%);
+  background-size:200% 100%;animation:p10-shim 1.25s linear infinite}
+.pill-10 .p10-row{display:flex;gap:8px;padding:6px;border-radius:9px}
+.pill-10 .p10-row+.p10-row{margin-top:2px}
+.pill-10 .p10-row:hover{background:var(--p10-fill)}
+.pill-10 .p10-rank{flex:none;width:16px;height:16px;margin-top:1px;border-radius:5px;background:var(--p10-fill);color:var(--accent);font-size:10px;font-weight:700;line-height:16px;text-align:center}
+.pill-10 .p10-rtext{min-width:0;display:block}
+.pill-10 .p10-rtext b{display:block;font-size:12.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pill-10 .p10-rtext em{display:block;margin-top:1px;font-style:normal;font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+@media (prefers-reduced-motion:reduce){
+  .pill-10,.pill-10 *{animation:none!important}
+  .pill-10{transition:width .001s}
+  .pill-10 .p10-shell,.pill-10 .p10-card{transition:opacity .12s linear}
+  .pill-10 .p10-cmd,.pill-10 .p10-seam,.pill-10 .p10-text,.pill-10 .p10-badge{transition:opacity .12s linear}
+  .pill-10 .p10-card{transform:none;grid-template-rows:0fr}
+  .pill-10[data-state="searching"] .p10-card,
+  .pill-10[data-state="done"][data-cmd="search"] .p10-card,
+  .pill-10[data-state="failed"][data-cmd="search"] .p10-card{grid-template-rows:1fr}
+  .pill-10 .p10-caret{opacity:1}
+  .pill-10 .p10-sk{background:var(--p10-fill)}
+  .pill-10 .p10-bar{transition:none}
+}</style></head><body><div class="preview-stage"><div class="pill pill-10" data-state="listening" data-cmd="none">
+  <div class="p10-shell">
+    <div class="p10-cmd">
+      <span class="p10-icon">
+        <svg class="p10-i p10-i-globe" viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><circle cx="8" cy="8" r="6"/><path d="M2 8h12M8 2c1.8 2 1.8 10 0 12M8 2C6.2 4 6.2 12 8 14"/></svg>
+        <svg class="p10-i p10-i-wand" viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M10.5 2.2l.8 1.9 1.9.8-1.9.8-.8 1.9-.8-1.9-1.9-.8 1.9-.8zM8.4 7.6L2.6 13.4"/></svg>
+      </span>
+      <span class="p10-cmdlabel">上網查下</span>
+    </div>
+    <span class="p10-seam"></span>
+    <div class="p10-pay">
+      <div class="p10-meter">
+        <i class="p10-bar"></i><i class="p10-bar"></i><i class="p10-bar"></i><i class="p10-bar"></i><i class="p10-bar"></i><i class="p10-bar"></i><i class="p10-bar"></i>
+      </div>
+      <div class="p10-text"><span class="p10-textin">香港天文台今日天氣</span><span class="p10-caret"></span></div>
+      <div class="p10-scanwrap"><div class="p10-scan"></div></div>
+    </div>
+    <div class="p10-badge">
+      <svg class="p10-b p10-b-ring" viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="10" cy="10" r="7.4" class="p10-track"/><path d="M10 2.6a7.4 7.4 0 0 1 7.4 7.4" class="p10-arc"/></svg>
+      <svg class="p10-b p10-b-ok" viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.6 10.4l3.5 3.4 7.3-7.6"/></svg>
+      <svg class="p10-b p10-b-err" viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5.6 5.6l8.8 8.8M14.4 5.6l-8.8 8.8"/></svg>
+    </div>
+  </div>
+
+  <div class="p10-card">
+    <div class="p10-cardin">
+      <div class="p10-pad">
+        <div class="p10-skel">
+          <div class="p10-srow"><span class="p10-sk" style="width:62%"></span><span class="p10-sk" style="width:88%"></span></div>
+          <div class="p10-srow"><span class="p10-sk" style="width:48%"></span><span class="p10-sk" style="width:74%"></span></div>
+        </div>
+        <div class="p10-real">
+          <div class="p10-row"><span class="p10-rank">1</span><span class="p10-rtext"><b>今日天氣：多雲，28°C</b><em>hko.gov.hk · 香港天文台</em></span></div>
+          <div class="p10-row"><span class="p10-rank">2</span><span class="p10-rtext"><b>未來九天天氣預報</b><em>hko.gov.hk · 預報</em></span></div>
+        </div>
+        <div class="p10-fail">網絡逾時 · 未能完成搜尋</div>
+      </div>
+    </div>
+  </div>
+</div></div><p id="frame-error" hidden>此示範未能更新狀態。</p><script>(function(){
+  var root, bars, scan, hist, N, redu, cur = "", lastScan = -1;
+  function init(){
+    root = document.querySelector(".pill-10");
+    if(!root) return false;
+    bars = root.querySelectorAll(".p10-bar");
+    scan = root.querySelector(".p10-scan");
+    N = bars.length; hist = new Array(N).fill(0);
+    redu = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    cur = root.getAttribute("data-state") || "";
+    return true;
+  }
+  window.pill10_tick = function(level, state){
+    if(!root && !init()) return;
+    if(state && state !== cur){ cur = state; root.setAttribute("data-state", state); }
+    var v = level; if(!(v >= 0)) v = 0; if(v > 1) v = 1;
+
+    // scrolling scope: newest sample enters at the right, older ones travel left
+    if(redu){ for(var k=0;k<N;k++) hist[k] = v * 0.55; }
+    else { for(var i=0;i<N-1;i++) hist[i] = hist[i+1]; hist[N-1] = v; }
+
+    var live = (cur === "listening");
+    for(var b=0;b<N;b++){
+      var s = live ? 0.10 + 0.90 * Math.pow(hist[b], 0.75) : 0.10;
+      bars[b].style.transform = "scaleY(" + s.toFixed(3) + ")";
+    }
+    var w = live ? v : 0;
+    if(Math.abs(w - lastScan) > 0.01){ lastScan = w; scan.style.transform = "scaleX(" + w.toFixed(3) + ")"; }
+  };
+  // host may also set the detected command: "none" | "search" | "transform"
+  window.pill10_command = function(cmd){
+    if(!root && !init()) return;
+    root.setAttribute("data-cmd", cmd || "none");
+  };
+})();</script><script>
+(()=>{
+ const ID="claude-10",KIND="claude",N=10;
+ const allowed=['appear','listening','transcribing','transforming','searching','done','failed'];
+ let latest=null,scheduled=false,previous='',scenario='',revision=-1;
+ const root=document.querySelector(KIND==='codex'?'#inflow-studies':'.pill');
+ const samples={dictate:'將呢個 function 改成 async。',rewrite:'我聽日覆你。',search:'上網查下 exponential backoff。'};
+ const result='Exponential backoff：每次重試前逐步增加等待時間。';
+ function apply(){
+  scheduled=false;if(!latest||!root)return;const m=latest;
+  document.documentElement.dataset.theme=m.theme;
+  document.documentElement.dataset.paused=String(!m.active||!m.motion);
+  document.documentElement.style.setProperty('--level',m.level.toFixed(3));
+  if(KIND==='codex'){
+   root.dataset.theme=m.theme;root.dataset.motion=m.motion&&m.active?'on':'off';
+   root.style.setProperty('--if-energy',String(.7+m.level*.6));root.style.setProperty('--level',m.level.toFixed(3));
+   if(scenario!==m.scenario){const s=root.querySelector('.if-scenario');s.value=m.scenario;s.dispatchEvent(new Event('change'));}
+   if(previous!==m.state||scenario!==m.scenario||revision!==m.revision){const s=root.querySelector('.if-state');s.value=m.state==='appear'?'ready':m.state;s.dispatchEvent(new Event('change'));}
+  }else{
+   let state=m.state;if(state==='appear')state=N===4?'idle':[2,3,5,6,8,9,10].includes(N)?'idle-appear':'appear';
+   root.dataset.state=state;root.dataset.kind=m.scenario==='search'?'search':'text';root.style.setProperty('--level',m.level.toFixed(3));
+   if(previous!==m.state||scenario!==m.scenario||revision!==m.revision){
+    const text=m.scenario==='rewrite'&&m.state==='done'?'I’ll get back to you tomorrow.':samples[m.scenario];
+    if(N===1)window.pill1_setPreview?.(m.scenario==='search'?result:text,root.dataset.kind,'Exponential backoff · 示範');
+    if(N===2){root.dataset.mode=m.scenario==='search'?'search':'text';window.pill2_setText?.(text);window.pill2_setSearch?.('Exponential backoff · 示範',result);}
+    if(N===5){root.dataset.text=text;root.dataset.title='Exponential backoff · 示範';root.dataset.body=result;}
+    if(N===10)window.pill10_command?.(m.scenario==='search'?'search':m.scenario==='rewrite'?'transform':'none');
+   }
+   try{const tick=window['pill'+N+'_tick'];if(typeof tick==='function')tick(m.level,state);}
+   catch(error){document.getElementById('frame-error').hidden=false;}
+  }
+  previous=m.state;scenario=m.scenario;revision=m.revision;
+ }
+ addEventListener('message',event=>{
+  const m=event.data;if(event.source!==parent||!m||m.type!=='pill-state'||!allowed.includes(m.state))return;
+  if(!['light','dark'].includes(m.theme)||!['dictate','rewrite','search'].includes(m.scenario))return;
+  if(typeof m.level!=='number'||!Number.isFinite(m.level))return;
+  latest={...m,level:Math.max(0,Math.min(1,m.level)),active:!!m.active,motion:!!m.motion};
+  if(!scheduled){scheduled=true;requestAnimationFrame(apply);}
+ });
+ const stage=KIND==='codex'?root?.querySelector('.if-study:not([style]) .if-scene'):document.querySelector('.preview-stage');
+ const sizeTarget=KIND==='codex'?[...root.querySelectorAll('.if-scene')].find(el=>el.offsetHeight):stage;
+ if(sizeTarget)new ResizeObserver(()=>parent.postMessage({type:'pill-size',id:ID,height:Math.ceil(sizeTarget.getBoundingClientRect().height)},'*')).observe(sizeTarget);
+ if(parent!==window)parent.postMessage({type:'pill-ready',id:ID},'*');
+})();</script></body></html>

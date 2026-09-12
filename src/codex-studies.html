@@ -1,0 +1,336 @@
+<div id="inflow-studies" aria-label="Inflow 三款語音介面" data-theme="system" data-motion="on">
+  <div class="if-controls">
+    <div class="if-controls-left">
+      <button class="if-play" type="button"><i data-lucide="play" aria-hidden="true"></i><span>播放流程</span></button>
+      <label class="if-field"><span>情境</span><select class="if-scenario" aria-label="示範情境"><option value="dictate">粵英輸入</option><option value="rewrite">改寫成英文</option><option value="search">語音搜尋</option></select></label>
+      <label class="if-field"><span>狀態</span><select class="if-state" aria-label="預覽狀態"><option value="ready">準備</option><option value="listening" selected>聆聽</option><option value="transcribing">轉錄</option><option value="transforming">改寫</option><option value="searching">搜尋</option><option value="done">完成</option><option value="failed">失敗</option></select></label>
+    </div>
+    <span class="if-demo">模擬音訊</span>
+  </div>
+
+  <section class="if-study" data-concept="still" aria-label="Still 呼吸核">
+    <div class="if-caption"><div><span class="if-number">01</span><span class="if-name">STILL</span><span class="if-chinese">呼吸核</span></div><span class="if-note">聲音有回應，視線留喺文字。</span></div>
+    <div class="if-scene still-scene" data-state="listening">
+      <div class="if-app-chrome"><div class="if-app-name"><span class="if-app-dot"></span>備忘錄<span class="if-app-separator">/</span>今日工作</div><span class="if-app-shortcut">inflow</span></div>
+      <div class="still-document"><span class="if-document-label">下一步</span><p class="if-editor-line">將呢個 function 改成 async。<span class="if-caret"></span></p></div>
+      <div class="still-composition">
+        <div class="still-caption if-preview-text">將呢個 function 改成 async。</div>
+        <div class="still-pill">
+          <div class="still-symbol" aria-hidden="true"><div class="still-core"><span></span><span></span><span></span><span></span></div><i class="if-state-icon" data-lucide="check"></i></div>
+          <div class="still-copy"><span class="if-status">聆聽中</span><span class="if-substatus">放開右 ⌥ 完成</span></div>
+          <button class="if-dismiss" type="button" aria-label="取消 Still 示範"><i data-lucide="x" aria-hidden="true"></i></button>
+        </div>
+        <div class="if-recovery" hidden><button type="button" class="if-retry">再試一次 <i data-lucide="rotate-ccw" aria-hidden="true"></i></button></div>
+      </div>
+      <div class="if-scene-footer"><span class="if-state-description">即時音量回應</span><span class="if-theme-label">自動外觀</span></div>
+    </div>
+  </section>
+
+  <section class="if-study" data-concept="weave" aria-label="Weave 雙語織">
+    <div class="if-caption"><div><span class="if-number">02</span><span class="if-name">WEAVE</span><span class="if-chinese">雙語織</span></div><span class="if-note">一句粵語，容得落 English。</span></div>
+    <div class="if-scene weave-scene" data-state="listening">
+      <div class="if-app-chrome"><div class="if-app-name"><span class="if-app-dot"></span>編輯器<span class="if-app-separator">/</span>草稿</div><span class="if-app-shortcut">inflow</span></div>
+      <div class="weave-composition">
+        <div class="weave-paper">
+          <div class="weave-heading"><span class="weave-language"><span>粵</span><span class="weave-interlace">↔</span><span>EN</span></span><span class="weave-live-label">即時草稿</span></div>
+          <div class="weave-transcript"><span class="weave-word">將呢個</span> <span class="weave-word weave-english">function</span> <span class="weave-word">改成</span> <span class="weave-word weave-english">async</span><span class="weave-caret"></span></div>
+          <div class="weave-foot"><span class="if-status">聆聽中</span><div class="weave-thread" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div><button class="if-dismiss" type="button" aria-label="取消 Weave 示範"><i data-lucide="x" aria-hidden="true"></i></button></div>
+          <div class="weave-proof" hidden><span class="weave-proof-label">原句</span><span class="weave-original"></span></div>
+        </div>
+        <span class="weave-hint if-substatus">放開右 ⌥，確認整句</span>
+        <div class="if-recovery" hidden><button type="button" class="if-retry">再試一次 <i data-lucide="rotate-ccw" aria-hidden="true"></i></button></div>
+      </div>
+      <div class="if-scene-footer"><span class="if-state-description">粵英混合 · 保留原字</span><span class="if-theme-label">自動外觀</span></div>
+    </div>
+  </section>
+
+  <section class="if-study" data-concept="relay" aria-label="Relay 指令匣">
+    <div class="if-caption"><div><span class="if-number">03</span><span class="if-name">RELAY</span><span class="if-chinese">指令匣</span></div><span class="if-note">講完、睇清、再套用。</span></div>
+    <div class="if-scene relay-scene" data-state="listening">
+      <div class="if-app-chrome"><div class="if-app-name"><span class="if-app-dot"></span>郵件<span class="if-app-separator">/</span>撰寫中</div><span class="if-app-shortcut">inflow</span></div>
+      <div class="relay-composition">
+        <div class="relay-heard"><span class="relay-heard-label">你講嘅指令</span><div class="relay-heard-text">將呢個 function 改成 async。</div><i data-lucide="arrow-down" aria-hidden="true"></i></div>
+        <div class="relay-result" hidden>
+          <div class="relay-result-heading"><span class="relay-result-type">輸入預覽</span><span class="relay-result-badge">待確認</span></div>
+          <div class="relay-result-text"></div>
+          <div class="relay-result-bottom"><span class="relay-source">目前文字欄</span><button class="relay-apply" type="button"><span>套用</span><i data-lucide="arrow-up-right" aria-hidden="true"></i></button></div>
+        </div>
+        <div class="relay-pill">
+          <div class="relay-mark" aria-hidden="true"><i data-lucide="audio-lines"></i><span class="relay-scan"></span></div>
+          <div class="relay-body"><div class="relay-route"><span class="relay-intent">輸入文字</span><i data-lucide="chevron-right" aria-hidden="true"></i><span class="relay-target">目前游標</span></div><div class="if-status">聆聽中</div></div>
+          <button class="if-dismiss" type="button" aria-label="取消 Relay 示範"><i data-lucide="x" aria-hidden="true"></i></button>
+        </div>
+        <span class="relay-hint if-substatus">放開右 ⌥，先睇預覽</span>
+        <div class="if-recovery" hidden><button type="button" class="if-retry">再試一次 <i data-lucide="rotate-ccw" aria-hidden="true"></i></button></div>
+      </div>
+      <div class="if-scene-footer"><span class="if-state-description">指令與目的地，分開睇清</span><span class="if-theme-label">自動外觀</span></div>
+    </div>
+  </section>
+  <span class="if-sr" role="status" aria-live="polite"></span>
+</div>
+
+<style>
+#inflow-studies { --if-ink:light-dark(#252a2d,#eff1f2); --if-muted:light-dark(#646d72,#a2a9ae); --if-line:light-dark(#d8dddf,#363d42); --if-panel:light-dark(#ffffff,#252b30); --if-soft:light-dark(#f1f3f3,#1c2226); --if-shadow:light-dark(#21313d20,#00000060); color:var(--if-ink); font:400 14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; width:100%; background:transparent; }
+#inflow-studies * { box-sizing:border-box; }
+#inflow-studies[data-theme="light"] .if-scene { color-scheme:light; }
+#inflow-studies[data-theme="dark"] .if-scene { color-scheme:dark; }
+#inflow-studies .if-scene { color:var(--if-ink); }
+#inflow-studies button, #inflow-studies select { font:inherit; color:inherit; }
+#inflow-studies button { cursor:pointer; }
+#inflow-studies button:disabled { cursor:default; }
+#inflow-studies button svg { width:16px; height:16px; flex-shrink:0; }
+#inflow-studies [hidden] { display:none !important; }
+#inflow-studies .if-controls { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:22px; }
+#inflow-studies .if-controls-left { display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+#inflow-studies .if-play { display:inline-flex; gap:7px; align-items:center; background:var(--if-ink); color:var(--if-panel); border:0; border-radius:9px; min-height:36px; padding:7px 12px; font-weight:500; }
+#inflow-studies .if-play:hover { opacity:.85; }
+#inflow-studies .if-field { display:inline-flex; gap:6px; align-items:center; font-size:12px; color:var(--if-muted); }
+#inflow-studies select { max-width:140px; border:1px solid var(--if-line); border-radius:7px; padding:7px 22px 7px 8px; background:var(--if-panel); font-size:12px; min-height:36px; }
+#inflow-studies .if-demo { font-size:11px; color:var(--if-muted); white-space:nowrap; }
+#inflow-studies .if-study { margin-top:26px; }
+#inflow-studies .if-caption { display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:5px 16px; margin-bottom:10px; }
+#inflow-studies .if-caption>div { display:flex; gap:12px; align-items:baseline; }
+#inflow-studies .if-number { color:var(--if-muted); font:400 11px/1.5 ui-monospace,SFMono-Regular,monospace; }
+#inflow-studies .if-name { font-size:14px; font-weight:500; letter-spacing:.13em; }
+#inflow-studies .if-chinese { font-size:12px; color:var(--if-muted); }
+#inflow-studies .if-note { color:var(--if-muted); font-size:12px; }
+#inflow-studies .if-scene { --if-accent:light-dark(#137964,#79ddc0); --if-tint:light-dark(#cce9dd,#254c42); --if-ground:light-dark(#eaf0ed,#171f1d); --if-active:var(--if-accent); border:1px solid var(--if-line); border-radius:16px; background:radial-gradient(ellipse at 50% 125%,var(--if-tint),transparent 70%),var(--if-ground); overflow:hidden; position:relative; min-height:264px; }
+#inflow-studies .weave-scene { --if-accent:light-dark(#5b53b7,#b4acf4); --if-tint:light-dark(#e1def3,#39324f); --if-ground:light-dark(#f0eff7,#201e2b); }
+#inflow-studies .relay-scene { --if-accent:light-dark(#ab4a25,#ffb487); --if-tint:light-dark(#edd9c8,#463128); --if-ground:light-dark(#f4ede6,#28221e); min-height:326px; }
+#inflow-studies .if-scene[data-state="failed"] { --if-active:light-dark(#b6393f,#ff9499); }
+#inflow-studies .if-scene[data-state="done"] { --if-active:light-dark(#18705b,#85dfb8); }
+#inflow-studies .if-app-chrome { display:flex; align-items:center; justify-content:space-between; padding:13px 18px; gap:10px; color:var(--if-muted); font-size:11px; }
+#inflow-studies .if-app-name { display:flex; align-items:center; gap:8px; }
+#inflow-studies .if-app-dot { width:7px; height:7px; border-radius:50%; background:var(--if-muted); opacity:.55; }
+#inflow-studies .if-app-separator { opacity:.5; }
+#inflow-studies .if-app-shortcut { letter-spacing:.14em; font-weight:500; }
+#inflow-studies .if-scene-footer { display:flex; gap:12px; justify-content:space-between; padding:0 18px 13px; color:var(--if-muted); font-size:11px; }
+#inflow-studies .if-theme-label { white-space:nowrap; }
+#inflow-studies .if-dismiss { display:grid; place-items:center; background:transparent; color:var(--if-muted); border:0; border-radius:50%; padding:0; width:32px; height:32px; flex-shrink:0; }
+#inflow-studies .if-dismiss:hover { background:var(--if-soft); color:var(--if-ink); }
+#inflow-studies .if-status { font-size:13px; font-weight:500; }
+#inflow-studies .if-substatus { font-size:11px; color:var(--if-muted); }
+#inflow-studies .if-retry { display:flex; align-items:center; gap:6px; padding:5px 10px; margin:8px auto 0; border:1px solid var(--if-line); background:var(--if-panel); border-radius:8px; font-size:12px; }
+#inflow-studies .if-recovery { text-align:center; }
+#inflow-studies .if-sr { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); }
+
+#inflow-studies .still-document { padding:3px 28px 0; }
+#inflow-studies .if-document-label { font-size:11px; color:var(--if-muted); }
+#inflow-studies .if-editor-line { font-size:15px; margin:5px 0 0; color:var(--if-muted); }
+#inflow-studies .if-caret { display:inline-block; width:1px; height:17px; background:var(--if-accent); margin-left:3px; vertical-align:-3px; }
+#inflow-studies .still-composition { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:143px; padding:16px 16px 24px; }
+#inflow-studies .still-caption { font-size:12px; text-align:center; margin-bottom:10px; max-width:380px; overflow-wrap:anywhere; color:var(--if-muted); }
+#inflow-studies .still-pill { display:flex; align-items:center; gap:10px; width:252px; max-width:100%; min-height:62px; padding:8px 10px 8px 12px; border:1px solid light-dark(#ffffff,#46524d); background:var(--if-panel); border-radius:40px; box-shadow:0 12px 28px var(--if-shadow),0 2px 3px var(--if-shadow); }
+#inflow-studies .still-copy { display:flex; flex:1; flex-direction:column; gap:1px; }
+#inflow-studies .still-symbol { position:relative; display:grid; place-items:center; width:40px; height:40px; color:var(--if-active); flex-shrink:0; }
+#inflow-studies .still-core { width:38px; height:38px; position:relative; }
+#inflow-studies .still-core span { position:absolute; left:12px; top:4px; width:14px; height:30px; border:1.5px solid var(--if-active); border-radius:60% 40% 60% 40%; transform:rotate(var(--turn)); background:color-mix(in srgb,var(--if-active) 10%,transparent); animation:if-breathe 2.2s ease-in-out infinite; }
+#inflow-studies .still-core span:nth-child(1) { --turn:0deg; }
+#inflow-studies .still-core span:nth-child(2) { --turn:45deg; animation-delay:-.18s; }
+#inflow-studies .still-core span:nth-child(3) { --turn:90deg; animation-delay:-.36s; }
+#inflow-studies .still-core span:nth-child(4) { --turn:135deg; animation-delay:-.54s; }
+#inflow-studies .still-symbol>.if-state-icon { display:none; width:22px; height:22px; }
+#inflow-studies .still-scene[data-state="ready"] .still-core { transform:scale(.45); opacity:.65; }
+#inflow-studies .still-scene:is([data-state="transcribing"],[data-state="transforming"],[data-state="searching"]) .still-core { animation:if-spin 3s linear infinite; }
+#inflow-studies .still-scene:is([data-state="done"],[data-state="failed"]) .still-core { display:none; }
+#inflow-studies .still-scene:is([data-state="done"],[data-state="failed"]) .if-state-icon { display:block; }
+
+#inflow-studies .weave-composition { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:200px; padding:13px 20px 20px; }
+#inflow-studies .weave-paper { position:relative; width:366px; max-width:100%; background:var(--if-panel); border-radius:14px; border:1px solid light-dark(#ffffff,#484256); box-shadow:0 12px 32px var(--if-shadow),0 2px 3px var(--if-shadow); padding:14px 16px 7px; }
+#inflow-studies .weave-heading { display:flex; align-items:center; justify-content:space-between; gap:8px; font-size:11px; color:var(--if-muted); }
+#inflow-studies .weave-language { display:flex; gap:7px; align-items:center; color:var(--if-accent); font-weight:500; }
+#inflow-studies .weave-interlace { color:var(--if-muted); }
+#inflow-studies .weave-transcript { padding:17px 0 13px; font-size:17px; letter-spacing:.015em; min-height:60px; overflow-wrap:anywhere; }
+#inflow-studies .weave-english { color:var(--if-accent); font-family:ui-monospace,SFMono-Regular,monospace; font-size:.91em; background:color-mix(in srgb,var(--if-accent) 8%,var(--if-panel)); border-radius:4px; padding:1px 2px; }
+#inflow-studies .weave-caret { display:inline-block; width:2px; height:19px; vertical-align:-3px; margin-left:4px; background:var(--if-active); animation:if-caret 1.2s steps(2,end) infinite; }
+#inflow-studies .weave-foot { display:flex; align-items:center; gap:10px; border-top:1px solid var(--if-line); padding-top:5px; }
+#inflow-studies .weave-foot .if-status { font-size:11px; color:var(--if-active); }
+#inflow-studies .weave-foot .if-dismiss { margin-left:auto; }
+#inflow-studies .weave-thread { display:flex; gap:3px; align-items:center; height:18px; margin-left:2px; }
+#inflow-studies .weave-thread span { width:3px; height:3px; border-radius:3px; background:var(--if-active); animation:if-thread 1.5s ease-in-out infinite; }
+#inflow-studies .weave-thread span:nth-child(3n) { animation-delay:-.6s; }
+#inflow-studies .weave-thread span:nth-child(3n+1) { animation-delay:-.3s; }
+#inflow-studies .weave-hint { margin-top:10px; }
+#inflow-studies .weave-proof { border-top:1px solid var(--if-line); padding:8px 0 3px; display:flex; gap:8px; align-items:baseline; color:var(--if-muted); font-size:11px; }
+#inflow-studies .weave-proof-label { flex-shrink:0; }
+#inflow-studies .weave-scene:is([data-state="done"],[data-state="failed"],[data-state="ready"]) .weave-thread { opacity:.45; }
+#inflow-studies .weave-scene:is([data-state="done"],[data-state="failed"],[data-state="ready"]) .weave-caret { display:none; }
+
+#inflow-studies .relay-composition { display:flex; flex-direction:column; align-items:center; justify-content:flex-end; min-height:248px; padding:14px 20px 26px; }
+#inflow-studies .relay-pill { position:relative; z-index:2; display:flex; gap:11px; align-items:center; width:306px; max-width:100%; background:var(--if-panel); border:1px solid light-dark(#ffffff,#55453d); border-radius:15px; padding:9px 10px; box-shadow:0 12px 24px var(--if-shadow),0 2px 3px var(--if-shadow); }
+#inflow-studies .relay-mark { display:grid; place-items:center; width:40px; height:40px; flex-shrink:0; border-radius:11px; background:color-mix(in srgb,var(--if-active) 11%,var(--if-panel)); color:var(--if-active); position:relative; overflow:hidden; }
+#inflow-studies .relay-mark svg { width:22px; height:22px; }
+#inflow-studies .relay-scan { position:absolute; left:5px; right:5px; height:1px; top:8px; background:var(--if-active); opacity:.6; animation:if-scan 1.8s ease-in-out infinite; }
+#inflow-studies .relay-body { min-width:0; flex:1; }
+#inflow-studies .relay-route { display:flex; flex-wrap:wrap; align-items:center; gap:3px; font-size:11px; margin-bottom:3px; color:var(--if-muted); }
+#inflow-studies .relay-route svg { width:11px; height:11px; }
+#inflow-studies .relay-intent { color:var(--if-active); }
+#inflow-studies .relay-hint { margin-top:10px; }
+#inflow-studies .relay-heard { width:340px; max-width:100%; padding:4px 10px 17px; text-align:center; }
+#inflow-studies .relay-heard-label { font-size:11px; color:var(--if-muted); }
+#inflow-studies .relay-heard-text { font-size:17px; padding:9px 0 13px; overflow-wrap:anywhere; }
+#inflow-studies .relay-heard>svg { width:16px; height:16px; color:var(--if-accent); margin:auto; }
+#inflow-studies .relay-result { position:relative; width:340px; max-width:100%; background:var(--if-panel); border:1px solid var(--if-line); border-radius:12px; box-shadow:0 8px 18px var(--if-shadow); padding:12px 14px; margin-bottom:10px; animation:if-unfold .28s ease-out; }
+#inflow-studies .relay-result:after { content:""; position:absolute; left:50%; bottom:-6px; width:10px; height:10px; background:var(--if-panel); transform:translateX(-50%) rotate(45deg); border-right:1px solid var(--if-line); border-bottom:1px solid var(--if-line); }
+#inflow-studies .relay-result-heading { display:flex; justify-content:space-between; gap:10px; align-items:center; font-size:11px; color:var(--if-muted); }
+#inflow-studies .relay-result-badge { color:var(--if-active); }
+#inflow-studies .relay-result-text { font-size:14px; padding:11px 0; overflow-wrap:anywhere; }
+#inflow-studies .relay-result-bottom { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; }
+#inflow-studies .relay-source { font-size:11px; color:var(--if-muted); }
+#inflow-studies .relay-apply { display:inline-flex; align-items:center; gap:4px; background:var(--if-ink); color:var(--if-panel); border:0; padding:5px 9px; border-radius:7px; font-size:11px; }
+#inflow-studies .relay-apply:disabled { background:var(--if-soft); color:var(--if-muted); }
+#inflow-studies .relay-scene:is([data-state="done"],[data-state="failed"],[data-state="ready"]) .relay-scan { display:none; }
+#inflow-studies .if-scene:is([data-state="ready"],[data-state="done"],[data-state="failed"]) .still-core span,
+#inflow-studies .if-scene:is([data-state="ready"],[data-state="done"],[data-state="failed"]) .weave-thread span { animation:none; }
+@keyframes if-breathe { 0%,100% { transform:rotate(var(--turn)) scale(.66); } 45% { transform:rotate(calc(var(--turn) + 18deg)) scale(var(--if-energy,1.08)); } }
+@keyframes if-spin { to { transform:rotate(360deg); } }
+@keyframes if-thread { 0%,100% { transform:scaleY(1); opacity:.4; } 45% { transform:scaleY(3); opacity:1; } }
+@keyframes if-caret { 50% { opacity:0; } }
+@keyframes if-scan { 0%,100% { transform:translateY(0); opacity:.2; } 50% { transform:translateY(24px); opacity:.8; } }
+@keyframes if-unfold { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+#inflow-studies[data-motion="off"] *, #inflow-studies[data-motion="off"] *:before, #inflow-studies[data-motion="off"] *:after { animation:none !important; transition:none !important; }
+@media(prefers-reduced-motion:reduce) { #inflow-studies *, #inflow-studies *:before, #inflow-studies *:after { animation:none !important; transition:none !important; } }
+@media(max-width:520px) {
+  #inflow-studies .if-controls { gap:7px; }
+  #inflow-studies .if-controls-left { gap:8px; }
+  #inflow-studies .if-field { gap:4px; }
+  #inflow-studies .if-field>span { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); }
+  #inflow-studies .if-demo { width:100%; }
+  #inflow-studies .if-note { margin-left:29px; width:100%; }
+  #inflow-studies .if-caption { gap:4px; }
+  #inflow-studies .if-scene-footer { padding-left:14px; padding-right:14px; gap:6px; }
+  #inflow-studies .still-document { padding-left:20px; padding-right:20px; }
+  #inflow-studies .weave-composition, #inflow-studies .relay-composition { padding-left:14px; padding-right:14px; }
+  #inflow-studies .weave-paper { padding-left:13px; padding-right:13px; }
+  #inflow-studies .weave-transcript { font-size:16px; }
+  #inflow-studies .if-theme-label { display:none; }
+}
+@media(pointer:coarse) {
+  #inflow-studies button { min-height:44px; }
+  #inflow-studies .if-dismiss { width:44px; }
+  #inflow-studies select { font-size:16px; min-height:44px; max-width:146px; }
+  #inflow-studies .if-controls-left { gap:8px; }
+  #inflow-studies .if-play { padding:7px 9px; }
+}
+</style>
+
+<script>
+(() => {
+  const root = document.getElementById('inflow-studies');
+  const scenes = [...root.querySelectorAll('.if-scene')];
+  const stateSelect = root.querySelector('.if-state');
+  const scenarioSelect = root.querySelector('.if-scenario');
+  const play = root.querySelector('.if-play');
+  const live = root.querySelector('.if-sr');
+  const options = { theme: 'system', motion: true, energy: 1.08 };
+  const labels = { ready:'準備好', listening:'聆聽中', transcribing:'轉成文字中', transforming:'改寫中', searching:'搜尋中', done:'已完成', failed:'未能完成' };
+  const examples = {
+    dictate: { input:'將呢個 function 改成 async。', result:'將呢個 function 改成 async。', intent:'輸入文字', target:'目前游標', type:'輸入預覽' },
+    rewrite: { input:'我聽日覆你。', result:'I’ll get back to you tomorrow.', intent:'改寫英文', target:'已選文字', type:'改寫預覽' },
+    search: { input:'上網查下 exponential backoff。', result:'Exponential backoff：每次重試前逐步增加等待時間。', intent:'上網查下', target:'搜尋預覽', type:'搜尋結果 · 示範' }
+  };
+  let timers = [];
+  let playing = false;
+  const stop = () => {
+    timers.forEach(clearTimeout); timers = []; playing = false;
+    play.querySelector('span').textContent = '播放流程';
+    play.setAttribute('aria-pressed','false');
+  };
+  function setTranscript(el, text, partial) {
+    el.replaceChildren();
+    const segments = text.split(/(function|async|exponential backoff)/g);
+    segments.forEach(word => {
+      const span = document.createElement('span');
+      span.className = /^(function|async|exponential backoff)$/.test(word) ? 'weave-word weave-english' : 'weave-word';
+      span.textContent = word; el.append(span);
+    });
+    if (partial) { const caret = document.createElement('span'); caret.className='weave-caret'; el.append(caret); }
+  }
+  function renderScene(scene, state, fragment) {
+    const sample = examples[scenarioSelect.value];
+    const concept = scene.closest('.if-study').dataset.concept;
+    scene.dataset.state = state;
+    const done = state === 'done';
+    const failed = state === 'failed';
+    let status = labels[state];
+    if (done) status = concept === 'relay' ? '等你確認' : scenarioSelect.value === 'search' ? '已找到結果' : '文字已備妥';
+    scene.querySelector('.if-status').textContent = status;
+    scene.querySelector('.if-substatus').textContent = failed ? '原文仍然保留' : done ? (concept === 'relay' ? '確認後先套用' : '完成示範') : state === 'ready' ? '按播放流程試用' : state === 'listening' ? (concept === 'relay' ? '放開右 ⌥，先睇預覽' : '放開右 ⌥ 完成') : '正在處理呢一句';
+    scene.querySelector('.if-recovery').hidden = !failed;
+    const dismiss = scene.querySelector('.if-dismiss');
+    dismiss.disabled = state === 'ready';
+    dismiss.setAttribute('aria-label', `${done ? '關閉' : '取消'} ${concept} 示範`);
+    if (concept === 'still') {
+      scene.querySelector('.if-preview-text').textContent = state === 'ready' ? '準備聽你講' : failed ? '連線中斷，文字已保留' : done ? sample.result : fragment || sample.input;
+      scene.querySelector('.if-editor-line').firstChild.textContent = done && scenarioSelect.value !== 'search' ? sample.result : sample.input;
+      const icon = scene.querySelector('.if-state-icon');
+      icon.outerHTML = `<i class="if-state-icon" data-lucide="${failed ? 'circle-alert' : 'check'}" aria-hidden="true"></i>`;
+      scene.querySelector('.if-state-description').textContent = done ? '收斂為完成記號' : failed ? '失敗有文字，亦有重試' : '固定位置 · 呼吸回應';
+    } else if (concept === 'weave') {
+      setTranscript(scene.querySelector('.weave-transcript'),state === 'ready' ? '由你開口。' : done ? sample.result : fragment || sample.input, state === 'listening');
+      scene.querySelector('.weave-live-label').textContent = done ? '已確認文字' : failed ? '保留草稿' : state === 'ready' ? '準備輸入' : '即時草稿 · 示範';
+      scene.querySelector('.weave-proof').hidden = !(done && scenarioSelect.value === 'rewrite');
+      scene.querySelector('.weave-original').textContent = sample.input;
+      scene.querySelector('.if-state-description').textContent = failed ? '草稿保留，可重新處理' : '粵英混合 · 保留原字';
+    } else {
+      scene.querySelector('.relay-intent').textContent = sample.intent;
+      scene.querySelector('.relay-target').textContent = sample.target;
+      scene.querySelector('.relay-result').hidden = !done;
+      scene.querySelector('.relay-heard').hidden = done;
+      scene.querySelector('.relay-heard-label').textContent = state === 'ready' ? '下一句，交畀你。' : failed ? '已保留原句' : '你講嘅指令';
+      scene.querySelector('.relay-heard-text').textContent = state === 'ready' ? '講完，先睇預覽。' : fragment || sample.input;
+      scene.querySelector('.relay-result-type').textContent = sample.type;
+      scene.querySelector('.relay-result-text').textContent = sample.result;
+      scene.querySelector('.relay-result-badge').textContent = '待確認';
+      scene.querySelector('.relay-source').textContent = scenarioSelect.value === 'search' ? '模擬結果 · 尚未插入' : scenarioSelect.value === 'rewrite' ? `原句：${sample.input}` : '目的地：目前文字欄';
+      const apply = scene.querySelector('.relay-apply');
+      apply.disabled = false; apply.querySelector('span').textContent = scenarioSelect.value === 'search' ? '插入摘要' : '套用';
+      scene.querySelector('.if-state-description').textContent = failed ? '操作未套用 · 可以重試' : '指令與目的地，分開睇清';
+    }
+  }
+  function setState(state, fragment) {
+    stateSelect.value = state;
+    scenes.forEach(scene => renderScene(scene,state,fragment));
+    if (globalThis.lucide) lucide.createIcons();
+    if (!fragment) live.textContent = `${scenarioSelect.options[scenarioSelect.selectedIndex].text}：${labels[state]}`;
+  }
+  function start() {
+    stop(); playing = true;
+    play.querySelector('span').textContent = '停止示範'; play.setAttribute('aria-pressed','true');
+    const sample = examples[scenarioSelect.value];
+    setState('listening', sample.input.slice(0,3));
+    [0.3,0.62,1].forEach((portion,i) => timers.push(setTimeout(() => setState('listening', sample.input.slice(0,Math.ceil(sample.input.length*portion))), 650+i*950)));
+    timers.push(setTimeout(() => setState('transcribing'),3800));
+    if (scenarioSelect.value !== 'dictate') timers.push(setTimeout(() => setState(scenarioSelect.value === 'rewrite' ? 'transforming' : 'searching'),5200));
+    timers.push(setTimeout(() => { setState('done'); stop(); },scenarioSelect.value === 'dictate' ? 5600 : 7400));
+  }
+  play.addEventListener('click',() => { if (playing) { stop(); setState('ready'); } else start(); });
+  stateSelect.addEventListener('change',() => { stop(); setState(stateSelect.value); });
+  scenarioSelect.addEventListener('change',() => { stop(); setState('listening'); });
+  scenes.forEach(scene => {
+    scene.querySelector('.if-dismiss').addEventListener('click',() => { stop(); renderScene(scene,'ready'); if(globalThis.lucide) lucide.createIcons(); live.textContent = `${scene.closest('.if-study').getAttribute('aria-label')}：已關閉`; });
+    scene.querySelector('.if-retry').addEventListener('click',start);
+  });
+  root.querySelector('.relay-apply').addEventListener('click',e => {
+    const scene = root.querySelector('.relay-scene');
+    scene.querySelector('.if-status').textContent = '已套用';
+    scene.querySelector('.relay-result-badge').textContent = '已套用 · 示範';
+    scene.querySelector('.if-substatus').textContent = '示範完成';
+    e.currentTarget.querySelector('span').textContent = '已套用'; e.currentTarget.disabled = true;
+    live.textContent = 'Relay：已在示範中套用文字';
+  });
+  function renderOptions() {
+    root.dataset.theme = options.theme;
+    root.dataset.motion = options.motion ? 'on' : 'off';
+    root.style.setProperty('--if-energy',options.energy);
+    root.querySelectorAll('.if-theme-label').forEach(el => el.textContent = {system:'自動外觀',light:'淺色外觀',dark:'深色外觀'}[options.theme]);
+  }
+  renderOptions(); setState('listening');
+  if (globalThis.Tweak) {
+    const tweak = new Tweak({container:root,onChange:renderOptions});
+    tweak.addSelect(options,'theme',{label:'介面外觀',options:[{label:'跟隨系統',value:'system'},{label:'淺色',value:'light'},{label:'深色',value:'dark'}]});
+    tweak.addSlider(options,'energy',{label:'呼吸幅度',min:.8,max:1.3,step:.05});
+    tweak.addToggle(options,'motion',{label:'動態回應'});
+  }
+})();
+</script>

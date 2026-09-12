@@ -1,0 +1,316 @@
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'"><title>Ghostwriter</title><style>
+:root{color-scheme:light;--bg:#fcfafb;--fg:#1a151e;--muted:#6b6070;--accent:#8a2e63;--ok:#2f7d53;--warn:#a8690c;--err:#b5372f;--shadow:#1a151e2e;background:#e9e5e9;color:var(--fg)}
+:root[data-theme=dark]{color-scheme:dark;--bg:#221c27;--fg:#efe9f0;--muted:#a497aa;--accent:#e88cc0;--ok:#56c98a;--warn:#e8a63e;--err:#ff7c6e;--shadow:#0009;background:#14111a}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;width:100%}body{font-family:system-ui,sans-serif}
+.preview-stage{min-height:350px;display:flex;align-items:center;justify-content:center;padding:40px 18px;position:relative;isolation:isolate}
+.preview-stage>.pill{max-width:100%;flex-shrink:1}
+#frame-error{position:fixed;bottom:5px;left:8px;background:var(--bg);color:var(--err);font:12px system-ui;padding:6px}
+[hidden]{display:none!important}:root[data-paused=true] *{animation-play-state:paused!important}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* Ghostwriter — .pill-5 ------------------------------------------------ */
+.pill-5{
+  --p5-level:0;
+  --p5-ease:cubic-bezier(.2,.8,.2,1);
+  position:relative; box-sizing:border-box;
+  width:240px; min-height:48px; max-width:260px;
+  padding:9px 14px 8px 12px;
+  border-radius:16px;
+  background:var(--bg); color:var(--fg);
+  box-shadow:0 10px 28px var(--shadow), 0 0 0 .5px var(--muted);
+  font:500 14px/1.25 -apple-system,"SF Pro Text",system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;
+  transition:width .34s var(--p5-ease), max-width .34s var(--p5-ease), opacity .22s ease, transform .26s var(--p5-ease);
+  transform-origin:50% 100%;
+  overflow:hidden;
+}
+.pill-5__row{display:flex; align-items:center; gap:9px; height:22px;}
+.pill-5__mic{
+  flex:none; width:15px; height:15px; color:var(--fg);
+  opacity:calc(.45 + var(--p5-level) * .55);
+  transition:opacity .12s linear, color .3s;
+}
+.pill-5__line{flex:1 1 auto; min-width:0; height:22px; overflow:hidden; position:relative;}
+.pill-5__line::before{ /* soft left fade so scrolled-off ghost text dissolves */
+  content:""; position:absolute; left:0; top:0; bottom:0; width:18px; z-index:1; pointer-events:none;
+  background:linear-gradient(90deg, var(--bg), transparent);
+}
+.pill-5__scroll{
+  display:flex; align-items:center; height:22px; white-space:nowrap;
+  will-change:transform; transition:transform .09s linear;
+}
+.pill-5__ghost{display:inline-flex; align-items:center; gap:0; height:22px;}
+.pill-5__ghost b{ /* one ghost "syllable" stroke */
+  display:inline-block; height:9px; width:10px; border-radius:3px;
+  background:var(--fg); opacity:.28; margin-right:3px;
+  transform-origin:0 50%;
+  animation:p5-type .16s var(--p5-ease) both;
+  transition:opacity .3s, background-color .3s, height .3s;
+}
+.pill-5__ghost b.sp{width:6px; background:transparent; opacity:0; margin:0;} /* word gap */
+.pill-5__ghost b.set{opacity:1; height:11px;}                            /* solidified beat */
+.pill-5__text{
+  display:inline-block; color:var(--fg); max-width:100%;
+  opacity:0; transform:translateY(3px);
+  transition:opacity .28s ease, transform .28s var(--p5-ease), color .3s;
+  overflow:hidden; text-overflow:ellipsis;
+}
+.pill-5__caret{
+  flex:none; position:relative; width:2px; height:16px; margin-left:1px;
+  background:var(--muted); border-radius:1px; overflow:hidden;
+  animation:p5-blink 1.05s steps(1,end) infinite;
+}
+.pill-5__caret i{ /* accent ink rising with audio level */
+  position:absolute; left:0; right:0; bottom:0; height:100%;
+  background:var(--accent); transform-origin:50% 100%;
+  transform:scaleY(var(--p5-level)); transition:transform .08s linear;
+}
+.pill-5__badge{flex:none; width:16px; height:16px; position:relative; display:none;}
+.pill-5__ico{position:absolute; inset:0; width:16px; height:16px; opacity:0; transform:scale(.6); transition:opacity .2s, transform .28s var(--p5-ease);}
+.pill-5__rule{height:1px; margin-top:6px; border-radius:1px; background:var(--muted); opacity:.35; position:relative; overflow:hidden; transition:opacity .3s, background-color .3s;}
+.pill-5__rule i{
+  position:absolute; inset:0; background:var(--accent);
+  transform-origin:0 50%; transform:scaleX(var(--p5-level));
+  transition:transform .1s linear, background-color .3s;
+}
+.pill-5__card{display:none; margin-top:8px; padding-top:8px; border-top:.5px solid var(--muted); color:var(--fg);}
+.pill-5__card-title{font-weight:600; font-size:13px; margin-bottom:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.pill-5__card-body{font-weight:400; font-size:12.5px; line-height:1.35; color:var(--muted); display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;}
+
+/* ---- states ---------------------------------------------------------- */
+.pill-5[data-state="idle-appear"]{animation:p5-in .32s var(--p5-ease) both;}
+.pill-5[data-state="idle-appear"] .pill-5__caret{animation:none; opacity:.6;}
+
+.pill-5[data-state="listening"] .pill-5__mic{color:var(--accent);}
+
+.pill-5[data-state="transcribing"] .pill-5__caret{animation:none; opacity:0;}
+.pill-5[data-state="transcribing"] .pill-5__ghost{animation:p5-wash 1.1s ease-in-out infinite;}
+.pill-5[data-state="transcribing"] .pill-5__rule i{transform:scaleX(1); animation:p5-sweep 1.1s var(--p5-ease) infinite; background:var(--fg); opacity:.5;}
+.pill-5[data-state="transcribing"] .pill-5__mic{opacity:.4;}
+
+.pill-5[data-state="transforming"] .pill-5__caret{animation:none; opacity:0;}
+.pill-5[data-state="transforming"] .pill-5__ghost b{background:var(--accent); opacity:.45;}
+.pill-5[data-state="transforming"] .pill-5__ghost{animation:p5-wash 1.1s ease-in-out infinite;}
+.pill-5[data-state="transforming"] .pill-5__rule i{transform:scaleX(1); animation:p5-sweep 1.1s var(--p5-ease) infinite alternate;}
+.pill-5[data-state="transforming"] .pill-5__badge{display:block; color:var(--accent);}
+.pill-5[data-state="transforming"] .pill-5__ico--spark{opacity:1; transform:scale(1); animation:p5-spin 2.4s linear infinite;}
+
+.pill-5[data-state="searching"]{width:260px;}
+.pill-5[data-state="searching"] .pill-5__caret{animation:none; opacity:0;}
+.pill-5[data-state="searching"] .pill-5__ghost{opacity:.6;}
+.pill-5[data-state="searching"] .pill-5__text{opacity:1; transform:none; color:var(--muted);}
+.pill-5[data-state="searching"] .pill-5__badge{display:block; color:var(--accent);}
+.pill-5[data-state="searching"] .pill-5__ico--search{opacity:1; transform:scale(1);}
+.pill-5[data-state="searching"] .pill-5__rule{opacity:1; background:transparent;}
+.pill-5[data-state="searching"] .pill-5__rule i{
+  transform:scaleX(1);
+  background:repeating-linear-gradient(90deg, var(--accent) 0 6px, transparent 6px 12px);
+  animation:p5-crawl .5s linear infinite;
+}
+
+.pill-5[data-state="done"]{width:340px; max-width:380px;}
+.pill-5[data-state="done"] .pill-5__scroll{transform:none !important;}
+.pill-5[data-state="done"] .pill-5__ghost{display:none;}
+.pill-5[data-state="done"] .pill-5__text{opacity:1; transform:none;}
+.pill-5[data-state="done"] .pill-5__caret{animation:none; opacity:0;}
+.pill-5[data-state="done"] .pill-5__mic{color:var(--ok); opacity:1;}
+.pill-5[data-state="done"] .pill-5__badge{display:block; color:var(--ok);}
+.pill-5[data-state="done"] .pill-5__ico--ok{opacity:1; transform:scale(1);}
+.pill-5[data-state="done"] .pill-5__rule{background:var(--ok); opacity:.9; animation:p5-settle 1.4s ease-out .3s both;}
+.pill-5[data-state="done"] .pill-5__rule i{transform:scaleX(0);}
+.pill-5[data-state="done"][data-kind="search"]{width:380px; max-width:400px;}
+.pill-5[data-state="done"][data-kind="search"] .pill-5__card{display:block;}
+.pill-5[data-state="done"][data-kind="search"] .pill-5__badge{color:var(--accent);}
+.pill-5[data-state="done"][data-kind="search"] .pill-5__ico--ok{opacity:0;}
+.pill-5[data-state="done"][data-kind="search"] .pill-5__ico--search{opacity:1; transform:scale(1);}
+
+.pill-5[data-state="failed"]{width:300px; max-width:340px; animation:p5-nudge .32s var(--p5-ease);}
+.pill-5[data-state="failed"] .pill-5__ghost{display:none;}
+.pill-5[data-state="failed"] .pill-5__text{opacity:1; transform:none; color:var(--err);}
+.pill-5[data-state="failed"] .pill-5__caret{animation:none; opacity:0;}
+.pill-5[data-state="failed"] .pill-5__mic{color:var(--err); opacity:1;}
+.pill-5[data-state="failed"] .pill-5__badge{display:block; color:var(--err);}
+.pill-5[data-state="failed"] .pill-5__ico--err{opacity:1; transform:scale(1);}
+.pill-5[data-state="failed"] .pill-5__rule{background:var(--err); opacity:.9;}
+.pill-5[data-state="failed"] .pill-5__rule i{transform:scaleX(0);}
+
+.pill-5[data-state="hidden"]{opacity:0; transform:translateY(8px) scale(.97); pointer-events:none;}
+
+/* ---- keyframes ------------------------------------------------------- */
+@keyframes p5-in{from{opacity:0; transform:translateY(10px) scale(.96);} to{opacity:1; transform:none;}}
+@keyframes p5-type{from{transform:scaleX(.2); opacity:0;} to{transform:none;}}
+@keyframes p5-blink{0%,55%{opacity:1;} 56%,100%{opacity:.15;}}
+@keyframes p5-wash{0%,100%{opacity:1;} 50%{opacity:.45;}}
+@keyframes p5-sweep{0%{transform:translateX(-100%) scaleX(.5);} 100%{transform:translateX(100%) scaleX(.5);}}
+@keyframes p5-crawl{from{background-position:0 0;} to{background-position:12px 0;}}
+@keyframes p5-spin{to{transform:scale(1) rotate(360deg);}}
+@keyframes p5-settle{from{opacity:.9;} to{opacity:.3;}}
+@keyframes p5-nudge{0%,100%{transform:none;} 30%{transform:translateX(-3px);} 60%{transform:translateX(3px);}}
+
+/* ---- reduced motion -------------------------------------------------- */
+@media (prefers-reduced-motion: reduce){
+  .pill-5, .pill-5 *{animation:none !important; transition:none !important;}
+  .pill-5 .pill-5__scroll{transition:none;}
+  .pill-5 .pill-5__caret{opacity:1;}
+  .pill-5 .pill-5__ghost b{animation:none; transform:none;}
+  .pill-5[data-state="transcribing"] .pill-5__rule i,
+  .pill-5[data-state="transforming"] .pill-5__rule i{transform:scaleX(1); opacity:.6;}
+  .pill-5[data-state="searching"] .pill-5__rule i{background:var(--accent);}
+  .pill-5[data-state="hidden"]{transform:none;}
+}</style></head><body><div class="preview-stage"><div class="pill pill-5" data-state="idle-appear" data-text="" data-kind="text" role="status" aria-live="polite" style="--p5-level:0">
+  <div class="pill-5__row">
+    <svg class="pill-5__mic" viewBox="0 0 16 16" aria-hidden="true">
+      <rect x="5.5" y="1.5" width="5" height="8" rx="2.5" fill="currentColor"/>
+      <path d="M3.5 7.5a4.5 4.5 0 0 0 9 0" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M8 12v2.5M5.5 14.5h5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+    <div class="pill-5__line">
+      <div class="pill-5__scroll">
+        <span class="pill-5__ghost" aria-hidden="true"></span>
+        <span class="pill-5__text"></span>
+        <span class="pill-5__caret" aria-hidden="true"><i></i></span>
+      </div>
+    </div>
+    <span class="pill-5__badge" aria-hidden="true">
+      <svg class="pill-5__ico pill-5__ico--search" viewBox="0 0 16 16"><circle cx="7" cy="7" r="4.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M10.5 10.5 14 14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      <svg class="pill-5__ico pill-5__ico--spark" viewBox="0 0 16 16"><path d="M8 1.5 9.6 6.4 14.5 8 9.6 9.6 8 14.5 6.4 9.6 1.5 8 6.4 6.4Z" fill="currentColor"/></svg>
+      <svg class="pill-5__ico pill-5__ico--ok" viewBox="0 0 16 16"><path d="M3 8.5 6.5 12 13 4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <svg class="pill-5__ico pill-5__ico--err" viewBox="0 0 16 16"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </span>
+  </div>
+  <div class="pill-5__rule"><i></i></div>
+  <div class="pill-5__card" aria-hidden="true">
+    <div class="pill-5__card-title"></div>
+    <div class="pill-5__card-body"></div>
+  </div>
+</div></div><p id="frame-error" hidden>此示範未能更新狀態。</p><script>// Host calls window.pill5_tick(level, state) at 30 Hz. No timers here.
+// Host also sets data-text (transcript / message / query) and, for web-search
+// results, data-kind="search" plus data-title / data-body on the root element.
+(function(){
+  var S = { el:null, acc:0, marks:[], widths:0, sinceGap:0, wordLen:0, prevState:null, frame:0, setBeat:0, seed:1 };
+  var MAX_MARKS = 44;
+  function rnd(){ S.seed = (S.seed * 16807) % 2147483647; return (S.seed - 1) / 2147483646; }
+  function root(){ if(!S.el || !S.el.isConnected) S.el = document.querySelector('.pill-5'); return S.el; }
+  function reduced(){ return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches; }
+
+  function clearGhost(el){
+    var g = el.querySelector('.pill-5__ghost'); g.textContent = '';
+    S.marks = []; S.widths = 0; S.acc = 0; S.sinceGap = 0; S.wordLen = 0;
+    el.querySelector('.pill-5__scroll').style.transform = '';
+  }
+  function pushMark(el, level){
+    var g = el.querySelector('.pill-5__ghost');
+    var b = document.createElement('b'), w;
+    var gap = S.sinceGap >= S.wordLen;
+    if(gap){ b.className = 'sp'; w = 6; S.sinceGap = 0; S.wordLen = 2 + Math.floor(rnd()*4); }
+    else { w = Math.round(6 + level*12 + rnd()*4); b.style.width = w + 'px'; b.style.height = Math.round(8 + level*3) + 'px'; S.sinceGap++; }
+    g.appendChild(b); S.marks.push(w + (gap?0:3)); S.widths += w + (gap?0:3);
+    while(S.marks.length > MAX_MARKS){ S.widths -= S.marks.shift(); g.removeChild(g.firstChild); }
+    // Typewriter carriage: keep the caret on-screen by sliding old ghost text left.
+    var line = el.querySelector('.pill-5__line');
+    var avail = line.clientWidth - 8;
+    var shift = Math.max(0, S.widths - avail);
+    el.querySelector('.pill-5__scroll').style.transform = shift ? 'translateX(-' + shift + 'px)' : '';
+  }
+  function syncText(el, state){
+    var t = el.querySelector('.pill-5__text');
+    var txt = el.getAttribute('data-text') || '';
+    if(state === 'searching' && txt) txt = txt;                 // shows the query
+    if(state === 'failed' && !txt) txt = 'Could not transcribe';
+    if(t.textContent !== txt) t.textContent = txt;
+    var card = el.querySelector('.pill-5__card');
+    if(card){
+      var ti = el.getAttribute('data-title') || '', bo = el.getAttribute('data-body') || '';
+      var tt = card.querySelector('.pill-5__card-title'), bb = card.querySelector('.pill-5__card-body');
+      if(tt.textContent !== ti) tt.textContent = ti;
+      if(bb.textContent !== bo) bb.textContent = bo;
+    }
+  }
+  function enter(el, state){
+    if(state === 'idle-appear' || state === 'listening'){ if(S.prevState !== 'idle-appear' || state === 'idle-appear') clearGhost(el); }
+    if(state === 'done'){
+      // Solidify beat: ghost strokes go full-ink for ~10 frames, then the real text replaces them.
+      var g = el.querySelector('.pill-5__ghost');
+      if(!reduced() && g.children.length){ g.style.display = 'inline-flex'; for(var i=0;i<g.children.length;i++) g.children[i].classList.add('set'); S.setBeat = 10; }
+      else S.setBeat = 0;
+    } else {
+      var g2 = el.querySelector('.pill-5__ghost'); g2.style.display = ''; S.setBeat = 0;
+    }
+  }
+
+  window.pill5_tick = function(level, state){
+    var el = root(); if(!el) return;
+    level = Math.max(0, Math.min(1, +level || 0));
+    state = state || el.getAttribute('data-state') || 'listening';
+    if(el.getAttribute('data-state') !== state) el.setAttribute('data-state', state);
+    if(state !== S.prevState){ enter(el, state); S.prevState = state; }
+    S.frame++;
+
+    // Level drives caret ink, mic opacity and the rule fill (CSS reads --p5-level).
+    var shown = state === 'listening' ? level : 0;
+    el.style.setProperty('--p5-level', shown.toFixed(3));
+
+    if(state === 'listening'){
+      // Typing cadence: ~0 marks/s in silence, ~14 marks/s at full level; width grows with level.
+      var gate = level < 0.06 ? 0 : level;
+      S.acc += 0.05 + gate * 0.42;
+      if(S.acc >= 1){ S.acc -= 1; pushMark(el, level); }
+      // If host streams partial text while listening, show it as ghost words instead.
+      var partial = el.getAttribute('data-text');
+      var t = el.querySelector('.pill-5__text');
+      if(partial){ if(t.textContent !== partial) t.textContent = partial; t.style.opacity = '.4'; t.style.transform = 'none'; }
+      else if(t.style.opacity){ t.style.opacity = ''; t.style.transform = ''; t.textContent = ''; }
+    } else {
+      var t2 = el.querySelector('.pill-5__text'); if(t2.style.opacity){ t2.style.opacity = ''; t2.style.transform = ''; }
+    }
+
+    if(state === 'done'){
+      if(S.setBeat > 0){ S.setBeat--; if(S.setBeat === 0){ el.querySelector('.pill-5__ghost').style.display = ''; } }
+    }
+    if(state === 'done' || state === 'failed' || state === 'searching') syncText(el, state);
+  };
+})();</script><script>
+(()=>{
+ const ID="claude-05",KIND="claude",N=5;
+ const allowed=['appear','listening','transcribing','transforming','searching','done','failed'];
+ let latest=null,scheduled=false,previous='',scenario='',revision=-1;
+ const root=document.querySelector(KIND==='codex'?'#inflow-studies':'.pill');
+ const samples={dictate:'將呢個 function 改成 async。',rewrite:'我聽日覆你。',search:'上網查下 exponential backoff。'};
+ const result='Exponential backoff：每次重試前逐步增加等待時間。';
+ function apply(){
+  scheduled=false;if(!latest||!root)return;const m=latest;
+  document.documentElement.dataset.theme=m.theme;
+  document.documentElement.dataset.paused=String(!m.active||!m.motion);
+  document.documentElement.style.setProperty('--level',m.level.toFixed(3));
+  if(KIND==='codex'){
+   root.dataset.theme=m.theme;root.dataset.motion=m.motion&&m.active?'on':'off';
+   root.style.setProperty('--if-energy',String(.7+m.level*.6));root.style.setProperty('--level',m.level.toFixed(3));
+   if(scenario!==m.scenario){const s=root.querySelector('.if-scenario');s.value=m.scenario;s.dispatchEvent(new Event('change'));}
+   if(previous!==m.state||scenario!==m.scenario||revision!==m.revision){const s=root.querySelector('.if-state');s.value=m.state==='appear'?'ready':m.state;s.dispatchEvent(new Event('change'));}
+  }else{
+   let state=m.state;if(state==='appear')state=N===4?'idle':[2,3,5,6,8,9,10].includes(N)?'idle-appear':'appear';
+   root.dataset.state=state;root.dataset.kind=m.scenario==='search'?'search':'text';root.style.setProperty('--level',m.level.toFixed(3));
+   if(previous!==m.state||scenario!==m.scenario||revision!==m.revision){
+    const text=m.scenario==='rewrite'&&m.state==='done'?'I’ll get back to you tomorrow.':samples[m.scenario];
+    if(N===1)window.pill1_setPreview?.(m.scenario==='search'?result:text,root.dataset.kind,'Exponential backoff · 示範');
+    if(N===2){root.dataset.mode=m.scenario==='search'?'search':'text';window.pill2_setText?.(text);window.pill2_setSearch?.('Exponential backoff · 示範',result);}
+    if(N===5){root.dataset.text=text;root.dataset.title='Exponential backoff · 示範';root.dataset.body=result;}
+    if(N===10)window.pill10_command?.(m.scenario==='search'?'search':m.scenario==='rewrite'?'transform':'none');
+   }
+   try{const tick=window['pill'+N+'_tick'];if(typeof tick==='function')tick(m.level,state);}
+   catch(error){document.getElementById('frame-error').hidden=false;}
+  }
+  previous=m.state;scenario=m.scenario;revision=m.revision;
+ }
+ addEventListener('message',event=>{
+  const m=event.data;if(event.source!==parent||!m||m.type!=='pill-state'||!allowed.includes(m.state))return;
+  if(!['light','dark'].includes(m.theme)||!['dictate','rewrite','search'].includes(m.scenario))return;
+  if(typeof m.level!=='number'||!Number.isFinite(m.level))return;
+  latest={...m,level:Math.max(0,Math.min(1,m.level)),active:!!m.active,motion:!!m.motion};
+  if(!scheduled){scheduled=true;requestAnimationFrame(apply);}
+ });
+ const stage=KIND==='codex'?root?.querySelector('.if-study:not([style]) .if-scene'):document.querySelector('.preview-stage');
+ const sizeTarget=KIND==='codex'?[...root.querySelectorAll('.if-scene')].find(el=>el.offsetHeight):stage;
+ if(sizeTarget)new ResizeObserver(()=>parent.postMessage({type:'pill-size',id:ID,height:Math.ceil(sizeTarget.getBoundingClientRect().height)},'*')).observe(sizeTarget);
+ if(parent!==window)parent.postMessage({type:'pill-ready',id:ID},'*');
+})();</script></body></html>

@@ -1,0 +1,194 @@
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'"><title>Aurora Halo</title><style>
+:root{color-scheme:light;--bg:#fcfafb;--fg:#1a151e;--muted:#6b6070;--accent:#8a2e63;--ok:#2f7d53;--warn:#a8690c;--err:#b5372f;--shadow:#1a151e2e;background:#e9e5e9;color:var(--fg)}
+:root[data-theme=dark]{color-scheme:dark;--bg:#221c27;--fg:#efe9f0;--muted:#a497aa;--accent:#e88cc0;--ok:#56c98a;--warn:#e8a63e;--err:#ff7c6e;--shadow:#0009;background:#14111a}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;width:100%}body{font-family:system-ui,sans-serif}
+.preview-stage{min-height:350px;display:flex;align-items:center;justify-content:center;padding:40px 18px;position:relative;isolation:isolate}
+.preview-stage>.pill{max-width:100%;flex-shrink:1}
+#frame-error{position:fixed;bottom:5px;left:8px;background:var(--bg);color:var(--err);font:12px system-ui;padding:6px}
+[hidden]{display:none!important}:root[data-paused=true] *{animation-play-state:paused!important}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+.pill-6{
+  --p6-level:0;
+  --p6-r:220px;
+  position:relative;
+  display:inline-grid;
+  place-items:center;
+  width:var(--p6-r);
+  height:44px;
+  padding:34px 40px;
+  box-sizing:content-box;
+  font:500 13px/1.3 -apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang HK",sans-serif;
+  color:var(--fg);
+  transition:width .28s cubic-bezier(.2,.8,.2,1),height .28s cubic-bezier(.2,.8,.2,1),opacity .18s ease;
+}
+.pill-6__halo{
+  position:absolute;
+  left:50%;top:50%;
+  width:300px;height:140px;
+  border-radius:50%;
+  pointer-events:none;
+  transform:translate(-50%,-50%) scale(calc(.55 + var(--p6-level) * .7));
+  opacity:calc(.22 + var(--p6-level) * .55);
+  transition:transform .08s linear,opacity .08s linear;
+  will-change:transform,opacity;
+}
+.pill-6__halo--a{
+  background:radial-gradient(closest-side,var(--accent) 0%,transparent 72%);
+}
+.pill-6__halo--b{
+  background:radial-gradient(closest-side,var(--ok) 0%,transparent 72%);
+  opacity:calc(var(--p6-level) * var(--p6-level) * .6);
+}
+.pill-6__body{
+  position:relative;
+  z-index:1;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  width:100%;height:100%;
+  padding:0 14px;
+  box-sizing:border-box;
+  border-radius:22px;
+  background:var(--bg);
+  box-shadow:0 0 0 .5px var(--shadow),0 8px 24px -8px var(--shadow);
+  overflow:hidden;
+  white-space:nowrap;
+}
+.pill-6__glyph{flex:none;color:var(--accent)}
+.pill-6__label{color:var(--muted);letter-spacing:.01em}
+.pill-6__label::after{content:"Listening"}
+.pill-6__text{
+  display:none;
+  flex:1;
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  color:var(--fg);
+}
+
+/* idle-appear */
+.pill-6[data-state="idle-appear"]{opacity:1;animation:p6-appear .22s cubic-bezier(.2,.8,.2,1) both}
+.pill-6[data-state="idle-appear"] .pill-6__halo{transform:translate(-50%,-50%) scale(.4);opacity:.12}
+.pill-6[data-state="idle-appear"] .pill-6__label::after{content:"Hold ⌥ to talk"}
+@keyframes p6-appear{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* transcribing: slow muted breath, no level */
+.pill-6[data-state="transcribing"] .pill-6__glyph{color:var(--muted)}
+.pill-6[data-state="transcribing"] .pill-6__label::after{content:"Transcribing…"}
+.pill-6[data-state="transcribing"] .pill-6__halo--b{opacity:0}
+.pill-6[data-state="transcribing"] .pill-6__halo--a{animation:p6-breathe 1.6s ease-in-out infinite;transition:none}
+@keyframes p6-breathe{0%,100%{transform:translate(-50%,-50%) scale(.5);opacity:.18}50%{transform:translate(-50%,-50%) scale(.72);opacity:.34}}
+
+/* transforming: two hues sweep alternately */
+.pill-6[data-state="transforming"] .pill-6__label::after{content:"Rewriting…"}
+.pill-6[data-state="transforming"] .pill-6__halo{transition:none;transform:translate(-50%,-50%) scale(.8)}
+.pill-6[data-state="transforming"] .pill-6__halo--a{animation:p6-sweep 2.2s ease-in-out infinite}
+.pill-6[data-state="transforming"] .pill-6__halo--b{animation:p6-sweep 2.2s ease-in-out infinite reverse}
+@keyframes p6-sweep{0%,100%{opacity:.12;transform:translate(-62%,-50%) scale(.7)}50%{opacity:.5;transform:translate(-38%,-50%) scale(.9)}}
+
+/* searching: wide low horizon pulse */
+.pill-6[data-state="searching"] .pill-6__label::after{content:"Searching the web…"}
+.pill-6[data-state="searching"] .pill-6__halo--b{opacity:0}
+.pill-6[data-state="searching"] .pill-6__halo--a{transition:none;animation:p6-horizon 1.8s ease-in-out infinite}
+@keyframes p6-horizon{0%,100%{transform:translate(-50%,-50%) scale(.9,.35);opacity:.25}50%{transform:translate(-50%,-50%) scale(1.25,.45);opacity:.5}}
+
+/* done: pill grows, halo settles to ok rim */
+.pill-6[data-state="done"]{--p6-r:260px;height:60px}
+.pill-6[data-state="done"] .pill-6__body{border-radius:30px;box-shadow:0 0 0 1px var(--ok),0 8px 24px -8px var(--shadow)}
+.pill-6[data-state="done"] .pill-6__glyph{color:var(--ok)}
+.pill-6[data-state="done"] .pill-6__label{display:none}
+.pill-6[data-state="done"] .pill-6__text{display:block;white-space:normal;max-height:2.6em;line-height:1.3;font-size:12.5px}
+.pill-6[data-state="done"] .pill-6__halo--a{opacity:0;transition:opacity .4s ease}
+.pill-6[data-state="done"] .pill-6__halo--b{transition:transform .35s cubic-bezier(.2,.8,.2,1),opacity .6s ease .15s;transform:translate(-50%,-50%) scale(.6);opacity:.12}
+
+/* failed: err flash then faint ring */
+.pill-6[data-state="failed"]{--p6-r:260px;height:60px}
+.pill-6[data-state="failed"] .pill-6__body{border-radius:30px;box-shadow:0 0 0 1px var(--err),0 8px 24px -8px var(--shadow)}
+.pill-6[data-state="failed"] .pill-6__glyph{color:var(--err)}
+.pill-6[data-state="failed"] .pill-6__label{display:none}
+.pill-6[data-state="failed"] .pill-6__text{display:block;white-space:normal;max-height:2.6em;font-size:12.5px;color:var(--fg)}
+.pill-6[data-state="failed"] .pill-6__halo--b{opacity:0}
+.pill-6[data-state="failed"] .pill-6__halo--a{background:radial-gradient(closest-side,var(--err) 0%,transparent 72%);transition:none;animation:p6-flash .9s ease-out both}
+@keyframes p6-flash{0%{transform:translate(-50%,-50%) scale(1.1);opacity:.6}100%{transform:translate(-50%,-50%) scale(.55);opacity:.1}}
+
+/* cancel / hide */
+.pill-6[data-state="hidden"]{opacity:0;pointer-events:none;transition:opacity .14s ease}
+.pill-6[data-state="hidden"] .pill-6__halo{transform:translate(-50%,-50%) scale(.3);opacity:0;transition:transform .14s ease,opacity .14s ease}
+
+/* reduced motion: no keyframes, level maps to opacity only */
+@media (prefers-reduced-motion:reduce){
+  .pill-6,.pill-6 .pill-6__halo,.pill-6 .pill-6__body{animation:none!important;transition:opacity .2s ease!important}
+  .pill-6 .pill-6__halo{transform:translate(-50%,-50%) scale(.7)!important}
+  .pill-6[data-state="listening"] .pill-6__halo--a{opacity:calc(.2 + var(--p6-level) * .5)}
+  .pill-6[data-state="transcribing"] .pill-6__halo--a,
+  .pill-6[data-state="transforming"] .pill-6__halo--a,
+  .pill-6[data-state="searching"] .pill-6__halo--a{opacity:.3}
+  .pill-6[data-state="transforming"] .pill-6__halo--b{opacity:.2}
+}</style></head><body><div class="preview-stage"><div class="pill pill-6" data-state="listening" style="--p6-level:0">
+  <div class="pill-6__halo pill-6__halo--a" aria-hidden="true"></div>
+  <div class="pill-6__halo pill-6__halo--b" aria-hidden="true"></div>
+  <div class="pill-6__body" role="status" aria-live="polite">
+    <svg class="pill-6__glyph" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+      <rect x="5.5" y="1.5" width="5" height="8" rx="2.5" fill="currentColor"/>
+      <path d="M3.5 7.5a4.5 4.5 0 0 0 9 0" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+      <path d="M8 12v2.5M5.5 14.5h5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+    </svg>
+    <span class="pill-6__label"></span>
+    <span class="pill-6__text"></span>
+  </div>
+</div></div><p id="frame-error" hidden>此示範未能更新狀態。</p><script>window.pill6_tick = function(level, state){
+  var el = document.querySelector('.pill-6');
+  if(!el) return;
+  var l = Math.max(0, Math.min(1, +level || 0));
+  if(!el.__p6s) el.__p6s = 0;
+  // fast attack, slow release so the halo feels like breath not jitter
+  el.__p6s = l > el.__p6s ? el.__p6s + (l - el.__p6s) * 0.6 : el.__p6s + (l - el.__p6s) * 0.18;
+  el.style.setProperty('--p6-level', el.__p6s.toFixed(3));
+  if(state && el.dataset.state !== state) el.dataset.state = state;
+  // host may set preview/error text by writing to .pill-6__text before switching to done/failed
+};</script><script>
+(()=>{
+ const ID="claude-06",KIND="claude",N=6;
+ const allowed=['appear','listening','transcribing','transforming','searching','done','failed'];
+ let latest=null,scheduled=false,previous='',scenario='',revision=-1;
+ const root=document.querySelector(KIND==='codex'?'#inflow-studies':'.pill');
+ const samples={dictate:'將呢個 function 改成 async。',rewrite:'我聽日覆你。',search:'上網查下 exponential backoff。'};
+ const result='Exponential backoff：每次重試前逐步增加等待時間。';
+ function apply(){
+  scheduled=false;if(!latest||!root)return;const m=latest;
+  document.documentElement.dataset.theme=m.theme;
+  document.documentElement.dataset.paused=String(!m.active||!m.motion);
+  document.documentElement.style.setProperty('--level',m.level.toFixed(3));
+  if(KIND==='codex'){
+   root.dataset.theme=m.theme;root.dataset.motion=m.motion&&m.active?'on':'off';
+   root.style.setProperty('--if-energy',String(.7+m.level*.6));root.style.setProperty('--level',m.level.toFixed(3));
+   if(scenario!==m.scenario){const s=root.querySelector('.if-scenario');s.value=m.scenario;s.dispatchEvent(new Event('change'));}
+   if(previous!==m.state||scenario!==m.scenario||revision!==m.revision){const s=root.querySelector('.if-state');s.value=m.state==='appear'?'ready':m.state;s.dispatchEvent(new Event('change'));}
+  }else{
+   let state=m.state;if(state==='appear')state=N===4?'idle':[2,3,5,6,8,9,10].includes(N)?'idle-appear':'appear';
+   root.dataset.state=state;root.dataset.kind=m.scenario==='search'?'search':'text';root.style.setProperty('--level',m.level.toFixed(3));
+   if(previous!==m.state||scenario!==m.scenario||revision!==m.revision){
+    const text=m.scenario==='rewrite'&&m.state==='done'?'I’ll get back to you tomorrow.':samples[m.scenario];
+    if(N===1)window.pill1_setPreview?.(m.scenario==='search'?result:text,root.dataset.kind,'Exponential backoff · 示範');
+    if(N===2){root.dataset.mode=m.scenario==='search'?'search':'text';window.pill2_setText?.(text);window.pill2_setSearch?.('Exponential backoff · 示範',result);}
+    if(N===5){root.dataset.text=text;root.dataset.title='Exponential backoff · 示範';root.dataset.body=result;}
+    if(N===10)window.pill10_command?.(m.scenario==='search'?'search':m.scenario==='rewrite'?'transform':'none');
+   }
+   try{const tick=window['pill'+N+'_tick'];if(typeof tick==='function')tick(m.level,state);}
+   catch(error){document.getElementById('frame-error').hidden=false;}
+  }
+  previous=m.state;scenario=m.scenario;revision=m.revision;
+ }
+ addEventListener('message',event=>{
+  const m=event.data;if(event.source!==parent||!m||m.type!=='pill-state'||!allowed.includes(m.state))return;
+  if(!['light','dark'].includes(m.theme)||!['dictate','rewrite','search'].includes(m.scenario))return;
+  if(typeof m.level!=='number'||!Number.isFinite(m.level))return;
+  latest={...m,level:Math.max(0,Math.min(1,m.level)),active:!!m.active,motion:!!m.motion};
+  if(!scheduled){scheduled=true;requestAnimationFrame(apply);}
+ });
+ const stage=KIND==='codex'?root?.querySelector('.if-study:not([style]) .if-scene'):document.querySelector('.preview-stage');
+ const sizeTarget=KIND==='codex'?[...root.querySelectorAll('.if-scene')].find(el=>el.offsetHeight):stage;
+ if(sizeTarget)new ResizeObserver(()=>parent.postMessage({type:'pill-size',id:ID,height:Math.ceil(sizeTarget.getBoundingClientRect().height)},'*')).observe(sizeTarget);
+ if(parent!==window)parent.postMessage({type:'pill-ready',id:ID},'*');
+})();</script></body></html>

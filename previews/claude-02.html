@@ -1,0 +1,269 @@
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'"><title>Orbit</title><style>
+:root{color-scheme:light;--bg:#fcfafb;--fg:#1a151e;--muted:#6b6070;--accent:#8a2e63;--ok:#2f7d53;--warn:#a8690c;--err:#b5372f;--shadow:#1a151e2e;background:#e9e5e9;color:var(--fg)}
+:root[data-theme=dark]{color-scheme:dark;--bg:#221c27;--fg:#efe9f0;--muted:#a497aa;--accent:#e88cc0;--ok:#56c98a;--warn:#e8a63e;--err:#ff7c6e;--shadow:#0009;background:#14111a}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;width:100%}body{font-family:system-ui,sans-serif}
+.preview-stage{min-height:350px;display:flex;align-items:center;justify-content:center;padding:40px 18px;position:relative;isolation:isolate}
+.preview-stage>.pill{max-width:100%;flex-shrink:1}
+#frame-error{position:fixed;bottom:5px;left:8px;background:var(--bg);color:var(--err);font:12px system-ui;padding:6px}
+[hidden]{display:none!important}:root[data-paused=true] *{animation-play-state:paused!important}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ===== Orbit — .pill-2 =====
+   Host writes --lv (0..1 smoothed level) and --ph (deg) via pill2_tick.
+   Tokens only: --bg --fg --muted --accent --ok --warn --err --shadow */
+.pill-2 { --p2-ease: cubic-bezier(.2,.9,.25,1.15); --p2-r: calc(10px + var(--lv) * 7px);
+  position: relative; display: flex; flex-direction: column; align-items: center; gap: 8px;
+  width: max-content; max-width: 260px; color: var(--fg);
+  font: 500 13px/1.25 -apple-system, "SF Pro Text", "PingFang HK", "Helvetica Neue", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased; user-select: none; pointer-events: auto;
+  transform: translateY(0) scale(1); opacity: 1;
+  transition: opacity .22s ease, transform .28s var(--p2-ease), max-width .3s ease; }
+
+/* capsule */
+.pill-2 .p2-capsule { display: flex; align-items: center; gap: 8px; height: 44px; padding: 0 12px 0 6px;
+  border-radius: 22px; background: var(--bg); color: var(--fg);
+  box-shadow: 0 8px 28px var(--shadow), 0 0 0 0.5px color-mix(in srgb, var(--fg) 14%, transparent) inset;
+  max-width: 260px; overflow: hidden; transition: max-width .3s ease, box-shadow .3s ease; }
+
+/* orbital cell */
+.pill-2 .p2-orbit { position: relative; width: 36px; height: 36px; flex: none; display: grid; place-items: center; }
+.pill-2 .p2-halo { position: absolute; inset: 6px; border-radius: 50%; background: var(--accent);
+  opacity: calc(.08 + var(--lv) * .32); transform: scale(calc(.9 + var(--lv) * .9)); filter: blur(4px);
+  transition: opacity .25s ease; }
+.pill-2 .p2-ring { position: absolute; inset: 0; transform: rotate(var(--ph)); will-change: transform; }
+.pill-2 .p2-ring-b { transform: rotate(calc(var(--ph) * -0.62)); }
+.pill-2 .p2-dot { position: absolute; left: 50%; top: 50%; width: 4px; height: 4px; margin: -2px 0 0 -2px; border-radius: 50%;
+  background: var(--fg); opacity: calc(.45 + var(--lv) * .55);
+  transform: rotate(var(--a)) translateX(var(--p2-r)); }
+.pill-2 .p2-ring-b .p2-dot { width: 3px; height: 3px; margin: -1.5px 0 0 -1.5px; background: var(--accent);
+  transform: rotate(var(--a)) translateX(calc(var(--p2-r) + 5px)); }
+.pill-2 .p2-glyph { position: absolute; color: var(--fg); opacity: 0; transform: scale(.6);
+  transition: opacity .2s ease, transform .3s var(--p2-ease), color .2s ease; }
+
+/* label */
+.pill-2 .p2-label { position: relative; display: grid; min-width: 0; }
+.pill-2 .p2-status, .pill-2 .p2-text { grid-area: 1 / 1; white-space: nowrap; opacity: 0; transform: translateY(4px);
+  transition: opacity .2s ease, transform .25s var(--p2-ease); }
+.pill-2 .p2-status { color: var(--muted); letter-spacing: .01em; }
+.pill-2 .p2-text { color: var(--fg); overflow: hidden; text-overflow: ellipsis; max-width: 280px; }
+
+/* close */
+.pill-2 .p2-close { flex: none; width: 18px; height: 18px; border: 0; border-radius: 50%; padding: 0; display: grid; place-items: center;
+  background: color-mix(in srgb, var(--fg) 10%, transparent); color: var(--muted); cursor: pointer; opacity: 0; transform: scale(.8);
+  transition: opacity .2s ease, transform .2s var(--p2-ease), background .15s ease; }
+.pill-2 .p2-close:hover { background: color-mix(in srgb, var(--fg) 18%, transparent); color: var(--fg); }
+.pill-2:hover .p2-close, .pill-2[data-state="done"] .p2-close, .pill-2[data-state="failed"] .p2-close { opacity: 1; transform: scale(1); }
+
+/* result card (search) */
+.pill-2 .p2-card { display: none; width: 340px; max-width: 340px; padding: 10px 14px 12px; border-radius: 14px; background: var(--bg); color: var(--fg);
+  box-shadow: 0 10px 32px var(--shadow), 0 0 0 0.5px color-mix(in srgb, var(--fg) 14%, transparent) inset;
+  opacity: 0; transform: translateY(10px) scale(.97); transition: opacity .25s ease, transform .3s var(--p2-ease); }
+.pill-2 .p2-card-kicker { font-size: 11px; color: var(--accent); font-weight: 600; letter-spacing: .04em; margin-bottom: 3px; }
+.pill-2 .p2-card-title { font-weight: 600; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pill-2 .p2-card-snippet { font-weight: 400; font-size: 12px; color: var(--muted); line-height: 1.4; margin-top: 3px;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* ---------- states ---------- */
+/* idle-appear */
+.pill-2[data-state="idle-appear"] { animation: p2-appear .32s var(--p2-ease) both; }
+.pill-2[data-state="idle-appear"] .p2-s-idle, .pill-2[data-state="idle-appear"] .p2-glyph-mic { opacity: 1; transform: none; }
+.pill-2[data-state="idle-appear"] .p2-dot { opacity: .35; }
+@keyframes p2-appear { from { opacity: 0; transform: translateY(10px) scale(.94); } to { opacity: 1; transform: none; } }
+
+/* listening: no transitions on the live transforms (host drives them at 30 Hz) */
+.pill-2[data-state="listening"] .p2-ring, .pill-2[data-state="listening"] .p2-dot { transition: none; }
+.pill-2[data-state="listening"] .p2-s-listening, .pill-2[data-state="listening"] .p2-glyph-mic { opacity: 1; transform: none; }
+.pill-2[data-state="listening"] .p2-glyph-mic { color: color-mix(in srgb, var(--fg) 70%, var(--accent)); }
+
+/* transcribing: rings unwind, dots fall onto the baseline as an ellipsis */
+.pill-2[data-state="transcribing"] .p2-ring, .pill-2[data-state="done"] .p2-ring, .pill-2[data-state="failed"] .p2-ring { transform: rotate(0deg); transition: transform .45s var(--p2-ease); }
+.pill-2[data-state="transcribing"] .p2-dot { transform: translate(var(--tx), 13px); opacity: .9; background: var(--fg);
+  transition: transform .45s var(--p2-ease), opacity .3s ease, background .3s ease;
+  animation: p2-bounce 1.1s ease-in-out infinite; animation-delay: calc((var(--tx) + 10px) * .018s); }
+.pill-2[data-state="transcribing"] .p2-halo { opacity: 0; }
+.pill-2[data-state="transcribing"] .p2-s-transcribing, .pill-2[data-state="transcribing"] .p2-glyph-mic { opacity: 1; transform: none; }
+.pill-2[data-state="transcribing"] .p2-glyph-mic { color: var(--muted); transform: translateY(-5px) scale(.9); }
+@keyframes p2-bounce { 0%,100% { margin-top: -2px; } 50% { margin-top: -5px; } }
+
+/* transforming: sparkle at the centre, calm accent orbit */
+.pill-2[data-state="transforming"] .p2-ring, .pill-2[data-state="transforming"] .p2-dot, .pill-2[data-state="searching"] .p2-ring, .pill-2[data-state="searching"] .p2-dot { transition: none; }
+.pill-2[data-state="transforming"] .p2-dot { background: var(--accent); opacity: .85; }
+.pill-2[data-state="transforming"] .p2-halo { opacity: .22; transform: scale(1.1); animation: p2-breathe 1.6s ease-in-out infinite; }
+.pill-2[data-state="transforming"] .p2-s-transforming, .pill-2[data-state="transforming"] .p2-glyph-wand { opacity: 1; transform: none; }
+.pill-2[data-state="transforming"] .p2-glyph-wand { color: var(--accent); }
+@keyframes p2-breathe { 0%,100% { opacity: .16; transform: scale(1); } 50% { opacity: .3; transform: scale(1.25); } }
+
+/* searching: magnifier, wide orbit, alternating fg/accent dots */
+.pill-2[data-state="searching"] { --p2-r: 14px; }
+.pill-2[data-state="searching"] .p2-dot { opacity: .8; }
+.pill-2[data-state="searching"] .p2-halo { opacity: .14; transform: scale(1.3); }
+.pill-2[data-state="searching"] .p2-s-searching, .pill-2[data-state="searching"] .p2-glyph-search { opacity: 1; transform: none; }
+.pill-2[data-state="searching"] .p2-glyph-search { color: var(--accent); }
+
+/* done: dots converge to one point that becomes the check; preview slides in; pill may widen */
+.pill-2[data-state="done"], .pill-2[data-state="done"] .p2-capsule { max-width: 340px; }
+.pill-2[data-state="done"] .p2-dot { transform: translate(0,0) scale(.2); opacity: 0; background: var(--ok);
+  transition: transform .35s var(--p2-ease), opacity .25s ease .1s, background .2s ease; }
+.pill-2[data-state="done"] .p2-halo { background: var(--ok); opacity: .2; transform: scale(1); transition: opacity .3s ease, background .2s ease; }
+.pill-2[data-state="done"] .p2-glyph-check { opacity: 1; transform: none; color: var(--ok); transition-delay: .18s; }
+.pill-2[data-state="done"] .p2-text { opacity: 1; transform: none; transition-delay: .15s; }
+.pill-2[data-state="done"][data-mode="search"] .p2-card { display: block; opacity: 1; transform: none; }
+.pill-2[data-state="done"][data-mode="search"] .p2-capsule .p2-text { color: var(--muted); }
+
+/* failed: dots scatter outward in --err */
+.pill-2[data-state="failed"] .p2-dot { transform: rotate(var(--a)) translateX(24px) scale(.6); opacity: 0; background: var(--err);
+  transition: transform .4s ease-out, opacity .35s ease .05s, background .1s ease; }
+.pill-2[data-state="failed"] .p2-halo { background: var(--err); opacity: .18; transform: scale(1); }
+.pill-2[data-state="failed"] .p2-glyph-fail { opacity: 1; transform: none; color: var(--err); }
+.pill-2[data-state="failed"] .p2-text { opacity: 1; transform: none; color: var(--err); }
+.pill-2[data-state="failed"] .p2-capsule { box-shadow: 0 8px 28px var(--shadow), 0 0 0 1px color-mix(in srgb, var(--err) 45%, transparent) inset; }
+.pill-2[data-state="failed"] { animation: p2-shake .32s ease-out; }
+@keyframes p2-shake { 0%,100% { transform: translateX(0); } 30% { transform: translateX(-4px); } 60% { transform: translateX(3px); } }
+
+/* cancel / hide */
+.pill-2[data-state="hidden"] { opacity: 0; transform: translateY(8px) scale(.94); pointer-events: none; }
+
+/* ---------- reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .pill-2, .pill-2 * { animation: none !important; }
+  .pill-2 .p2-ring, .pill-2 .p2-ring-b { transform: none !important; transition: none !important; }
+  .pill-2 .p2-dot { transition: opacity .2s ease, background .2s ease !important; }
+  .pill-2 .p2-halo { transform: scale(1.1); transition: opacity .15s ease; filter: blur(3px); }
+  .pill-2[data-state="transcribing"] .p2-dot { transform: translate(var(--tx), 13px); }
+  .pill-2[data-state="done"] .p2-dot, .pill-2[data-state="failed"] .p2-dot { transform: none; }
+  .pill-2 .p2-glyph, .pill-2 .p2-status, .pill-2 .p2-text, .pill-2 .p2-card { transition-duration: .12s; transform: none; }
+}</style></head><body><div class="preview-stage"><div class="pill pill-2" data-state="listening" style="--lv:0;--ph:0deg" role="status" aria-live="polite">
+  <div class="p2-card" aria-hidden="true">
+    <div class="p2-card-kicker">上網查下</div>
+    <div class="p2-card-title"></div>
+    <div class="p2-card-snippet"></div>
+  </div>
+  <div class="p2-capsule">
+    <div class="p2-orbit" aria-hidden="true">
+      <div class="p2-halo"></div>
+      <div class="p2-ring p2-ring-a">
+        <i class="p2-dot" style="--a:0deg;--tx:-10px"></i>
+        <i class="p2-dot" style="--a:120deg;--tx:0px"></i>
+        <i class="p2-dot" style="--a:240deg;--tx:10px"></i>
+      </div>
+      <div class="p2-ring p2-ring-b">
+        <i class="p2-dot" style="--a:60deg;--tx:-5px"></i>
+        <i class="p2-dot" style="--a:240deg;--tx:5px"></i>
+      </div>
+      <svg class="p2-glyph p2-glyph-mic" viewBox="0 0 16 16" width="14" height="14"><path fill="currentColor" d="M8 1.5a2.5 2.5 0 0 0-2.5 2.5v4a2.5 2.5 0 0 0 5 0V4A2.5 2.5 0 0 0 8 1.5Z"/><path fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" d="M3.5 7.8a4.5 4.5 0 0 0 9 0M8 12.3v2.2M5.8 14.5h4.4"/></svg>
+      <svg class="p2-glyph p2-glyph-wand" viewBox="0 0 16 16" width="14" height="14"><path fill="currentColor" d="M8 1l1.3 3.7L13 6l-3.7 1.3L8 11 6.7 7.3 3 6l3.7-1.3Zm-4.5 8 .7 1.8 1.8.7-1.8.7L3.5 14l-.7-1.8L1 11.5l1.8-.7Zm9 1 .5 1.3 1.3.5-1.3.5-.5 1.3-.5-1.3-1.3-.5 1.3-.5Z"/></svg>
+      <svg class="p2-glyph p2-glyph-search" viewBox="0 0 16 16" width="14" height="14"><circle cx="6.8" cy="6.8" r="4.3" fill="none" stroke="currentColor" stroke-width="1.6"/><path stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M10.2 10.2 14 14"/></svg>
+      <svg class="p2-glyph p2-glyph-check" viewBox="0 0 16 16" width="14" height="14"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M3 8.5l3.2 3L13 4.5"/></svg>
+      <svg class="p2-glyph p2-glyph-fail" viewBox="0 0 16 16" width="14" height="14"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 4l8 8M12 4l-8 8"/></svg>
+    </div>
+    <div class="p2-label">
+      <span class="p2-status p2-s-idle">Ready</span>
+      <span class="p2-status p2-s-listening">Listening</span>
+      <span class="p2-status p2-s-transcribing">Transcribing</span>
+      <span class="p2-status p2-s-transforming">Transforming</span>
+      <span class="p2-status p2-s-searching">上網查下…</span>
+      <span class="p2-text"></span>
+    </div>
+    <button class="p2-close" type="button" aria-label="Cancel" title="Cancel">
+      <svg viewBox="0 0 10 10" width="8" height="8"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" d="M2 2l6 6M8 2l-6 6"/></svg>
+    </button>
+  </div>
+</div></div><p id="frame-error" hidden>此示範未能更新狀態。</p><script>/* Orbit — host calls window.pill2_tick(level, state) at 30 Hz. No timers here. */
+(function () {
+  var reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  var sm = 0;        // smoothed level 0..1 (fast attack, slow release)
+  var ph = 0;        // orbit phase in degrees, accumulated
+  var last = '';
+  var ORBITING = { 'idle-appear': 1, listening: 1, transforming: 1, searching: 1 };
+
+  window.pill2_tick = function (level, state) {
+    var els = document.querySelectorAll('.pill-2');
+    if (!els.length) return;
+    level = Math.max(0, Math.min(1, +level || 0));
+    sm += (level > sm ? 0.45 : 0.10) * (level - sm);
+
+    if (state && state !== last) {
+      last = state;
+      ph = ((ph % 360) + 360) % 360;      // normalise so the unwind on collapse is at most one turn
+      if (state === 'transcribing' || state === 'done' || state === 'failed') ph = 0; // CSS overrides ring rotation anyway
+      for (var j = 0; j < els.length; j++) els[j].setAttribute('data-state', state);
+    }
+
+    if (ORBITING[last] && !reduce) {
+      // Listening: speed follows the voice. Transforming/searching: calm constant drift.
+      var drive = last === 'listening' ? sm : (last === 'searching' ? 0.35 : 0.22);
+      ph += 1.4 + Math.pow(drive, 0.8) * 9.5;   // 1.4..10.9 deg per tick => ~7.5 s .. ~1.1 s per revolution
+      if (ph > 3.6e6) ph -= 3.6e6;
+    }
+
+    var lv = (last === 'listening' ? sm : 0).toFixed(3);
+    var phs = ph.toFixed(1) + 'deg';
+    for (var i = 0; i < els.length; i++) {
+      var s = els[i].style;
+      s.setProperty('--lv', lv);
+      s.setProperty('--ph', phs);
+    }
+  };
+
+  /* Optional helpers for the host: set the preview text / search card content. */
+  window.pill2_setText = function (text) {
+    var t = document.querySelectorAll('.pill-2 .p2-text');
+    for (var i = 0; i < t.length; i++) t[i].textContent = text || '';
+  };
+  window.pill2_setSearch = function (title, snippet) {
+    var els = document.querySelectorAll('.pill-2');
+    for (var i = 0; i < els.length; i++) {
+      var e = els[i];
+      if (title == null) { e.removeAttribute('data-mode'); continue; }
+      e.setAttribute('data-mode', 'search');
+      var c = e.querySelector('.p2-card');
+      c.querySelector('.p2-card-title').textContent = title || '';
+      c.querySelector('.p2-card-snippet').textContent = snippet || '';
+      c.setAttribute('aria-hidden', 'false');
+    }
+  };
+})();</script><script>
+(()=>{
+ const ID="claude-02",KIND="claude",N=2;
+ const allowed=['appear','listening','transcribing','transforming','searching','done','failed'];
+ let latest=null,scheduled=false,previous='',scenario='',revision=-1;
+ const root=document.querySelector(KIND==='codex'?'#inflow-studies':'.pill');
+ const samples={dictate:'將呢個 function 改成 async。',rewrite:'我聽日覆你。',search:'上網查下 exponential backoff。'};
+ const result='Exponential backoff：每次重試前逐步增加等待時間。';
+ function apply(){
+  scheduled=false;if(!latest||!root)return;const m=latest;
+  document.documentElement.dataset.theme=m.theme;
+  document.documentElement.dataset.paused=String(!m.active||!m.motion);
+  document.documentElement.style.setProperty('--level',m.level.toFixed(3));
+  if(KIND==='codex'){
+   root.dataset.theme=m.theme;root.dataset.motion=m.motion&&m.active?'on':'off';
+   root.style.setProperty('--if-energy',String(.7+m.level*.6));root.style.setProperty('--level',m.level.toFixed(3));
+   if(scenario!==m.scenario){const s=root.querySelector('.if-scenario');s.value=m.scenario;s.dispatchEvent(new Event('change'));}
+   if(previous!==m.state||scenario!==m.scenario||revision!==m.revision){const s=root.querySelector('.if-state');s.value=m.state==='appear'?'ready':m.state;s.dispatchEvent(new Event('change'));}
+  }else{
+   let state=m.state;if(state==='appear')state=N===4?'idle':[2,3,5,6,8,9,10].includes(N)?'idle-appear':'appear';
+   root.dataset.state=state;root.dataset.kind=m.scenario==='search'?'search':'text';root.style.setProperty('--level',m.level.toFixed(3));
+   if(previous!==m.state||scenario!==m.scenario||revision!==m.revision){
+    const text=m.scenario==='rewrite'&&m.state==='done'?'I’ll get back to you tomorrow.':samples[m.scenario];
+    if(N===1)window.pill1_setPreview?.(m.scenario==='search'?result:text,root.dataset.kind,'Exponential backoff · 示範');
+    if(N===2){root.dataset.mode=m.scenario==='search'?'search':'text';window.pill2_setText?.(text);window.pill2_setSearch?.('Exponential backoff · 示範',result);}
+    if(N===5){root.dataset.text=text;root.dataset.title='Exponential backoff · 示範';root.dataset.body=result;}
+    if(N===10)window.pill10_command?.(m.scenario==='search'?'search':m.scenario==='rewrite'?'transform':'none');
+   }
+   try{const tick=window['pill'+N+'_tick'];if(typeof tick==='function')tick(m.level,state);}
+   catch(error){document.getElementById('frame-error').hidden=false;}
+  }
+  previous=m.state;scenario=m.scenario;revision=m.revision;
+ }
+ addEventListener('message',event=>{
+  const m=event.data;if(event.source!==parent||!m||m.type!=='pill-state'||!allowed.includes(m.state))return;
+  if(!['light','dark'].includes(m.theme)||!['dictate','rewrite','search'].includes(m.scenario))return;
+  if(typeof m.level!=='number'||!Number.isFinite(m.level))return;
+  latest={...m,level:Math.max(0,Math.min(1,m.level)),active:!!m.active,motion:!!m.motion};
+  if(!scheduled){scheduled=true;requestAnimationFrame(apply);}
+ });
+ const stage=KIND==='codex'?root?.querySelector('.if-study:not([style]) .if-scene'):document.querySelector('.preview-stage');
+ const sizeTarget=KIND==='codex'?[...root.querySelectorAll('.if-scene')].find(el=>el.offsetHeight):stage;
+ if(sizeTarget)new ResizeObserver(()=>parent.postMessage({type:'pill-size',id:ID,height:Math.ceil(sizeTarget.getBoundingClientRect().height)},'*')).observe(sizeTarget);
+ if(parent!==window)parent.postMessage({type:'pill-ready',id:ID},'*');
+})();</script></body></html>

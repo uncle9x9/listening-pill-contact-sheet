@@ -1,0 +1,342 @@
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'"><title>Glyph Arc</title><style>
+:root{color-scheme:light;--bg:#fcfafb;--fg:#1a151e;--muted:#6b6070;--accent:#8a2e63;--ok:#2f7d53;--warn:#a8690c;--err:#b5372f;--shadow:#1a151e2e;background:#e9e5e9;color:var(--fg)}
+:root[data-theme=dark]{color-scheme:dark;--bg:#221c27;--fg:#efe9f0;--muted:#a497aa;--accent:#e88cc0;--ok:#56c98a;--warn:#e8a63e;--err:#ff7c6e;--shadow:#0009;background:#14111a}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;width:100%}body{font-family:system-ui,sans-serif}
+.preview-stage{min-height:350px;display:flex;align-items:center;justify-content:center;padding:40px 18px;position:relative;isolation:isolate}
+.preview-stage>.pill{max-width:100%;flex-shrink:1}
+#frame-error{position:fixed;bottom:5px;left:8px;background:var(--bg);color:var(--err);font:12px system-ui;padding:6px}
+[hidden]{display:none!important}:root[data-paused=true] *{animation-play-state:paused!important}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+.pill-9 {
+  --p9-level: 0;
+  --p9-line: color-mix(in srgb, var(--fg) 12%, transparent);
+  --p9-ink: var(--accent);
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 252px;
+  height: 56px;
+  padding: 0 12px;
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--bg) 92%, transparent);
+  border: 1px solid var(--p9-line);
+  box-shadow: 0 10px 30px var(--shadow), 0 1px 0 color-mix(in srgb, var(--fg) 6%, transparent) inset;
+  color: var(--fg);
+  font: 13px/1.35 -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang HK", system-ui, sans-serif;
+  -webkit-backdrop-filter: blur(18px) saturate(1.6);
+  backdrop-filter: blur(18px) saturate(1.6);
+  overflow: hidden;
+  transform-origin: 50% 100%;
+  animation: p9-appear 240ms cubic-bezier(.2, .9, .25, 1.05) both;
+  transition: width 260ms cubic-bezier(.2, .8, .25, 1), height 260ms cubic-bezier(.2, .8, .25, 1),
+              border-color 200ms linear, opacity 160ms linear, transform 160ms ease;
+}
+.pill-9 * { box-sizing: border-box; }
+
+@keyframes p9-appear {
+  from { opacity: 0; transform: translateY(10px) scale(.94); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ---------- token ---------- */
+.p9-token { position: relative; flex: 0 0 auto; width: 26px; height: 26px; perspective: 320px; }
+.p9-card {
+  position: absolute; inset: 0;
+  transform-style: preserve-3d;
+  transition: transform 260ms cubic-bezier(.5, 0, .2, 1.2);
+}
+.p9-face {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 9px;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  background: color-mix(in srgb, var(--p9-ink) 16%, transparent);
+  border: 1px solid color-mix(in srgb, var(--p9-ink) 42%, transparent);
+  color: var(--p9-ink);
+  font-weight: 620;
+  letter-spacing: .02em;
+}
+.p9-back { transform: rotateY(180deg); }
+.p9-front .p9-zh, .p9-front .p9-en, .p9-front .p9-neutral { position: absolute; opacity: 0; transition: opacity 120ms linear; }
+.p9-front .p9-zh { font-size: 15px; }
+.p9-front .p9-en { font-size: 10px; letter-spacing: .06em; }
+.p9-front .p9-neutral { font-size: 14px; color: var(--muted); }
+.pill-9[data-lang="neutral"] .p9-neutral,
+.pill-9[data-lang="zh"] .p9-zh,
+.pill-9[data-lang="en"] .p9-en { opacity: 1; }
+.pill-9[data-lang="en"] .p9-card { transform: rotateY(360deg); }
+
+.p9-back > * { position: absolute; opacity: 0; transition: opacity 120ms linear; }
+.p9-work { font-size: 14px; }
+.p9-ok, .p9-bad { font-size: 15px; font-weight: 700; }
+.p9-globe { width: 17px; height: 17px; }
+
+.p9-halo {
+  position: absolute; inset: -3px;
+  border-radius: 12px;
+  border: 1.5px solid color-mix(in srgb, var(--p9-ink) 55%, transparent);
+  opacity: calc(.12 + var(--p9-level) * .72);
+  transform: scale(calc(1 + var(--p9-level) * .16));
+  transition: opacity 90ms linear, transform 90ms linear;
+  pointer-events: none;
+}
+
+/* ---------- stage ---------- */
+.p9-stage { position: relative; flex: 1 1 auto; min-width: 0; height: 42px; display: flex; align-items: center; }
+.p9-arc { display: block; width: 100%; height: 42px; overflow: visible; }
+.p9-arc path { fill: none; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.p9-line   { stroke: var(--p9-ink); stroke-width: 2; }
+.p9-trail  { stroke: color-mix(in srgb, var(--p9-ink) 34%, transparent); stroke-width: 2; }
+.p9-shuttle { stroke: var(--p9-ink); stroke-width: 2.4; opacity: 0; stroke-dasharray: 26 400; }
+
+.p9-rail {
+  position: absolute; left: 0; right: 0; bottom: 4px; height: 2px;
+  border-radius: 2px; background: var(--ok);
+  transform: scaleX(0); transform-origin: 0 50%; opacity: 0;
+  transition: transform 220ms cubic-bezier(.2, .8, .25, 1), opacity 140ms linear;
+}
+.p9-text {
+  position: absolute; left: 0; right: 0; top: 2px;
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;
+  overflow: hidden;
+  font-size: 12.5px; line-height: 1.32; color: var(--fg);
+  opacity: 0; transform: translateY(3px);
+  transition: opacity 160ms linear, transform 200ms cubic-bezier(.2, .8, .25, 1);
+  pointer-events: none;
+}
+.p9-hint {
+  flex: 0 0 auto; font-size: 11px; color: var(--muted);
+  opacity: .8; transition: opacity 140ms linear;
+}
+
+/* ---------- states ---------- */
+.pill-9[data-state="idle"] .p9-line,
+.pill-9[data-state="idle"] .p9-trail { stroke: var(--muted); }
+.pill-9[data-state="idle"] .p9-halo { opacity: .1; }
+
+.pill-9[data-state="listening"] .p9-hint { opacity: .5; }
+
+.pill-9[data-state="transcribing"] { --p9-ink: var(--accent); }
+.pill-9[data-state="transcribing"] .p9-line,
+.pill-9[data-state="transcribing"] .p9-trail { stroke: color-mix(in srgb, var(--fg) 22%, transparent); stroke-width: 1.5; }
+.pill-9[data-state="transcribing"] .p9-shuttle { opacity: 1; animation: p9-shuttle 900ms linear infinite; }
+@keyframes p9-shuttle { from { stroke-dashoffset: 26; } to { stroke-dashoffset: -200; } }
+
+.pill-9[data-state="transforming"] { --p9-ink: var(--warn); }
+.pill-9[data-state="transforming"] .p9-card { transform: rotateY(180deg); }
+.pill-9[data-state="transforming"] .p9-work { opacity: 1; animation: p9-spin 1.6s linear infinite; }
+.pill-9[data-state="transforming"] .p9-line,
+.pill-9[data-state="transforming"] .p9-trail { stroke: color-mix(in srgb, var(--warn) 55%, transparent); stroke-width: 1.5; }
+.pill-9[data-state="transforming"] .p9-shuttle { opacity: .9; stroke-dasharray: 14 60; animation: p9-shuttle 1.4s linear infinite reverse; }
+@keyframes p9-spin { to { transform: rotate(360deg); } }
+
+.pill-9[data-state="searching"] .p9-card { transform: rotateY(180deg); }
+.pill-9[data-state="searching"] .p9-globe { opacity: 1; }
+.pill-9[data-state="searching"] .p9-line,
+.pill-9[data-state="searching"] .p9-trail { stroke: color-mix(in srgb, var(--fg) 20%, transparent); stroke-width: 1.5; }
+.pill-9[data-state="searching"] .p9-shuttle { opacity: 1; stroke-dasharray: 40 400; animation: p9-shuttle 1.15s cubic-bezier(.5, 0, .5, 1) infinite; }
+
+.pill-9[data-state="done"],
+.pill-9[data-state="failed"] { width: 340px; height: 74px; align-items: flex-start; padding-top: 12px; }
+.pill-9[data-state="done"] .p9-card,
+.pill-9[data-state="failed"] .p9-card { transform: rotateY(180deg); }
+.pill-9[data-state="done"] .p9-ok { opacity: 1; }
+.pill-9[data-state="failed"] .p9-bad { opacity: 1; }
+.pill-9[data-state="done"] { --p9-ink: var(--ok); }
+.pill-9[data-state="failed"] { --p9-ink: var(--err); border-color: color-mix(in srgb, var(--err) 45%, transparent); animation: p9-nudge 300ms cubic-bezier(.36, .07, .19, .97) both; }
+@keyframes p9-nudge { 0%,100% { transform: none; } 30% { transform: translateX(-4px); } 65% { transform: translateX(3px); } }
+.pill-9[data-state="done"] .p9-arc,
+.pill-9[data-state="failed"] .p9-arc { opacity: 0; }
+.pill-9[data-state="done"] .p9-text,
+.pill-9[data-state="failed"] .p9-text { opacity: 1; transform: none; }
+.pill-9[data-state="failed"] .p9-text { color: var(--err); }
+.pill-9[data-state="done"] .p9-rail,
+.pill-9[data-state="failed"] .p9-rail { opacity: 1; transform: scaleX(1); }
+.pill-9[data-state="failed"] .p9-rail { background: var(--err); }
+.pill-9[data-state="done"] .p9-hint,
+.pill-9[data-state="failed"] .p9-hint { opacity: 0; }
+
+.pill-9[data-state="hidden"] {
+  opacity: 0;
+  transform: translateY(8px) scale(.94);
+  pointer-events: none;
+}
+
+/* ---------- reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .pill-9,
+  .pill-9 .p9-card,
+  .pill-9 .p9-halo,
+  .pill-9 .p9-text,
+  .pill-9 .p9-rail { animation: none !important; transition: opacity 120ms linear, width 120ms linear, height 120ms linear; }
+  .pill-9 .p9-card { transition: none; }
+  .pill-9[data-lang="en"] .p9-card { transform: none; }
+  .pill-9[data-lang="en"] .p9-en { opacity: 1; }
+  .pill-9[data-state="transforming"] .p9-card,
+  .pill-9[data-state="searching"] .p9-card,
+  .pill-9[data-state="done"] .p9-card,
+  .pill-9[data-state="failed"] .p9-card { transform: none; }
+  .pill-9[data-state="transforming"] .p9-front > *,
+  .pill-9[data-state="searching"] .p9-front > *,
+  .pill-9[data-state="done"] .p9-front > *,
+  .pill-9[data-state="failed"] .p9-front > * { opacity: 0; }
+  .pill-9 .p9-back { transform: none; backface-visibility: visible; -webkit-backface-visibility: visible; opacity: 0; }
+  .pill-9[data-state="transforming"] .p9-back,
+  .pill-9[data-state="searching"] .p9-back,
+  .pill-9[data-state="done"] .p9-back,
+  .pill-9[data-state="failed"] .p9-back { opacity: 1; }
+  .pill-9 .p9-work { animation: none !important; }
+  .pill-9 .p9-shuttle { animation: none !important; opacity: 0 !important; }
+  .pill-9 .p9-halo { transition: opacity 200ms linear; transform: none; }
+  .pill-9[data-state="transcribing"] .p9-line,
+  .pill-9[data-state="transforming"] .p9-line,
+  .pill-9[data-state="searching"] .p9-line { stroke-dasharray: 3 5; }
+}</style></head><body><div class="preview-stage"><div class="pill pill-9" data-state="listening" data-lang="neutral" role="status" aria-live="polite">
+  <div class="p9-token" aria-hidden="true">
+    <div class="p9-card">
+      <span class="p9-face p9-front"><span class="p9-neutral">〜</span><span class="p9-zh">中</span><span class="p9-en">EN</span></span>
+      <span class="p9-face p9-back">
+        <span class="p9-work">✳</span>
+        <span class="p9-ok">✓</span>
+        <span class="p9-bad">!</span>
+        <svg class="p9-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+          <circle cx="12" cy="12" r="7.5"/><path d="M4.5 12h15M12 4.5c3 3.4 3 11.6 0 15M12 4.5c-3 3.4-3 11.6 0 15"/>
+        </svg>
+      </span>
+    </div>
+    <span class="p9-halo"></span>
+  </div>
+
+  <div class="p9-stage">
+    <svg class="p9-arc" viewBox="0 0 168 42" width="168" height="42" aria-hidden="true">
+      <path class="p9-trail" d="M0 21L168 21"/>
+      <path class="p9-line" d="M0 21L168 21"/>
+      <path class="p9-shuttle" d="M0 21L168 21"/>
+    </svg>
+    <div class="p9-rail" aria-hidden="true"></div>
+    <div class="p9-text">上網查下今日港股收市</div>
+  </div>
+
+  <div class="p9-hint" aria-hidden="true">⌥</div>
+</div></div><p id="frame-error" hidden>此示範未能更新狀態。</p><script>(function () {
+  var W = 168, MID = 21, N = 12, TAU = Math.PI * 2;
+  var el, arc, trail, glyph, amp = 0, phase = 0, lastD = "", reduced = false;
+
+  try { reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) {}
+
+  function bind() {
+    if (el && el.isConnected) return true;
+    el = document.querySelector(".pill-9");
+    if (!el) return false;
+    arc = el.querySelector(".p9-line");
+    trail = el.querySelector(".p9-trail");
+    glyph = el.querySelector(".p9-token");
+    return true;
+  }
+
+  // Smooth tapered wave: quadratic-midpoint spline over N+1 samples,
+  // squared-sine envelope so the stroke always resolves to the baseline.
+  function path(a, ph, k) {
+    var pts = [], i, x, y, env;
+    for (i = 0; i <= N; i++) {
+      x = i * W / N;
+      env = Math.sin(Math.PI * i / N);
+      env = env * env;
+      y = MID - Math.sin(ph + i * k) * a * env * 15;
+      pts.push(x, y);
+    }
+    var d = "M" + pts[0].toFixed(1) + " " + pts[1].toFixed(1), mx, my;
+    for (i = 1; i < N; i++) {
+      mx = (pts[i * 2] + pts[i * 2 + 2]) / 2;
+      my = (pts[i * 2 + 1] + pts[i * 2 + 3]) / 2;
+      d += "Q" + pts[i * 2].toFixed(1) + " " + pts[i * 2 + 1].toFixed(1) + " " + mx.toFixed(1) + " " + my.toFixed(1);
+    }
+    return d + "L" + W + " " + MID;
+  }
+
+  // Host calls this when the recognizer's language posterior crosses threshold.
+  window.pill9_setLang = function (lang) {
+    if (!bind()) return;
+    if (el.getAttribute("data-lang") !== lang) el.setAttribute("data-lang", lang);
+  };
+
+  // Host calls this at 30 Hz. level 0..1, state one of:
+  // idle | listening | transcribing | transforming | searching | done | failed | hidden
+  window.pill9_tick = function (level, state) {
+    if (!bind()) return;
+    if (state && el.getAttribute("data-state") !== state) {
+      el.setAttribute("data-state", state);
+      phase = 0;
+    }
+    var s = el.getAttribute("data-state");
+    var live = (s === "listening");
+    var target = live ? Math.max(0, Math.min(1, level || 0))
+      : (s === "transcribing" || s === "transforming" || s === "searching" ? 0.12 : 0);
+    amp += (target - amp) * (reduced ? 0.12 : 0.35);
+    el.style.setProperty("--p9-level", amp.toFixed(3));
+
+    if (s === "done" || s === "failed" || s === "hidden") return;
+
+    if (reduced) {
+      var d0 = path(amp * 0.55, Math.PI / 2, 0);
+      if (d0 !== lastD) { lastD = d0; arc.setAttribute("d", d0); if (trail) trail.setAttribute("d", d0); }
+      return;
+    }
+
+    phase += 0.20 + amp * 0.22;           // louder speech drifts faster
+    if (phase > TAU * 64) phase -= TAU * 64;
+    var d = path(amp, phase, 0.78);
+    if (d !== lastD) {                     // skip DOM writes during silence
+      lastD = d;
+      arc.setAttribute("d", d);
+      if (trail) trail.setAttribute("d", path(amp * 0.72, phase - 0.42, 0.78));
+    }
+  };
+})();</script><script>
+(()=>{
+ const ID="claude-09",KIND="claude",N=9;
+ const allowed=['appear','listening','transcribing','transforming','searching','done','failed'];
+ let latest=null,scheduled=false,previous='',scenario='',revision=-1;
+ const root=document.querySelector(KIND==='codex'?'#inflow-studies':'.pill');
+ const samples={dictate:'將呢個 function 改成 async。',rewrite:'我聽日覆你。',search:'上網查下 exponential backoff。'};
+ const result='Exponential backoff：每次重試前逐步增加等待時間。';
+ function apply(){
+  scheduled=false;if(!latest||!root)return;const m=latest;
+  document.documentElement.dataset.theme=m.theme;
+  document.documentElement.dataset.paused=String(!m.active||!m.motion);
+  document.documentElement.style.setProperty('--level',m.level.toFixed(3));
+  if(KIND==='codex'){
+   root.dataset.theme=m.theme;root.dataset.motion=m.motion&&m.active?'on':'off';
+   root.style.setProperty('--if-energy',String(.7+m.level*.6));root.style.setProperty('--level',m.level.toFixed(3));
+   if(scenario!==m.scenario){const s=root.querySelector('.if-scenario');s.value=m.scenario;s.dispatchEvent(new Event('change'));}
+   if(previous!==m.state||scenario!==m.scenario||revision!==m.revision){const s=root.querySelector('.if-state');s.value=m.state==='appear'?'ready':m.state;s.dispatchEvent(new Event('change'));}
+  }else{
+   let state=m.state;if(state==='appear')state=N===4?'idle':[2,3,5,6,8,9,10].includes(N)?'idle-appear':'appear';
+   root.dataset.state=state;root.dataset.kind=m.scenario==='search'?'search':'text';root.style.setProperty('--level',m.level.toFixed(3));
+   if(previous!==m.state||scenario!==m.scenario||revision!==m.revision){
+    const text=m.scenario==='rewrite'&&m.state==='done'?'I’ll get back to you tomorrow.':samples[m.scenario];
+    if(N===1)window.pill1_setPreview?.(m.scenario==='search'?result:text,root.dataset.kind,'Exponential backoff · 示範');
+    if(N===2){root.dataset.mode=m.scenario==='search'?'search':'text';window.pill2_setText?.(text);window.pill2_setSearch?.('Exponential backoff · 示範',result);}
+    if(N===5){root.dataset.text=text;root.dataset.title='Exponential backoff · 示範';root.dataset.body=result;}
+    if(N===10)window.pill10_command?.(m.scenario==='search'?'search':m.scenario==='rewrite'?'transform':'none');
+   }
+   try{const tick=window['pill'+N+'_tick'];if(typeof tick==='function')tick(m.level,state);}
+   catch(error){document.getElementById('frame-error').hidden=false;}
+  }
+  previous=m.state;scenario=m.scenario;revision=m.revision;
+ }
+ addEventListener('message',event=>{
+  const m=event.data;if(event.source!==parent||!m||m.type!=='pill-state'||!allowed.includes(m.state))return;
+  if(!['light','dark'].includes(m.theme)||!['dictate','rewrite','search'].includes(m.scenario))return;
+  if(typeof m.level!=='number'||!Number.isFinite(m.level))return;
+  latest={...m,level:Math.max(0,Math.min(1,m.level)),active:!!m.active,motion:!!m.motion};
+  if(!scheduled){scheduled=true;requestAnimationFrame(apply);}
+ });
+ const stage=KIND==='codex'?root?.querySelector('.if-study:not([style]) .if-scene'):document.querySelector('.preview-stage');
+ const sizeTarget=KIND==='codex'?[...root.querySelectorAll('.if-scene')].find(el=>el.offsetHeight):stage;
+ if(sizeTarget)new ResizeObserver(()=>parent.postMessage({type:'pill-size',id:ID,height:Math.ceil(sizeTarget.getBoundingClientRect().height)},'*')).observe(sizeTarget);
+ if(parent!==window)parent.postMessage({type:'pill-ready',id:ID},'*');
+})();</script></body></html>
