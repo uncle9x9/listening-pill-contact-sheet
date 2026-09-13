@@ -3,42 +3,42 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>InFlow Default · 呼吸波 — 互動演示</title>
+<title>InFlow Default · 呼吸波 — 互動演示與生成紀錄</title>
 <link rel="stylesheet" href="assets/archive.css">
 <style>
 .demo-wrapper {
-  max-width: 900px;
+  max-width: 920px;
   margin: 0 auto;
-  padding: 30px 20px 60px;
+  padding: 30px 20px 80px;
 }
 .demo-header {
-  margin-bottom: 30px;
+  margin-bottom: 28px;
 }
 .demo-header h1 {
-  font-size: 28px;
-  margin: 8px 0;
+  font-size: 30px;
+  margin: 8px 0 10px 0;
   font-weight: 700;
   letter-spacing: -0.02em;
 }
 .demo-header p {
   color: var(--muted);
   font-size: 15px;
-  line-height: 1.5;
+  line-height: 1.55;
   margin: 0;
 }
 .stage-card {
   background: var(--bg);
   border: 1px solid rgba(127,127,127,0.2);
-  border-radius: 16px;
+  border-radius: 18px;
   overflow: hidden;
-  box-shadow: 0 10px 30px -5px var(--shadow);
-  margin-bottom: 28px;
+  box-shadow: 0 12px 36px -6px var(--shadow);
+  margin-bottom: 24px;
 }
 .stage-topbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 18px;
+  padding: 12px 20px;
   border-bottom: 1px solid rgba(127,127,127,0.15);
   font-size: 13px;
   color: var(--muted);
@@ -48,7 +48,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: radial-gradient(circle at center, rgba(36, 226, 155, 0.04) 0%, transparent 70%);
+  background: radial-gradient(circle at center, rgba(36, 226, 155, 0.05) 0%, transparent 72%);
 }
 .pill-iframe {
   width: 100%;
@@ -58,15 +58,15 @@
 .controls-card {
   background: var(--bg);
   border: 1px solid rgba(127,127,127,0.2);
-  border-radius: 16px;
-  padding: 20px 24px;
+  border-radius: 18px;
+  padding: 22px 24px;
   margin-bottom: 28px;
 }
 .controls-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 16px;
-  margin-top: 14px;
+  margin-top: 16px;
 }
 .control-box {
   display: flex;
@@ -126,31 +126,140 @@
   border-style: solid;
   transform: scale(0.99);
 }
+
+/* Feature cards */
 .design-specs {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 16px;
-  margin-top: 24px;
+  margin-bottom: 28px;
 }
 .spec-item {
-  padding: 16px;
+  padding: 18px;
   background: var(--bg);
-  border: 1px solid rgba(127,127,127,0.15);
-  border-radius: 12px;
+  border: 1px solid rgba(127,127,127,0.18);
+  border-radius: 14px;
 }
 .spec-item h3 {
-  font-size: 14px;
-  margin: 0 0 6px 0;
+  font-size: 14.5px;
+  margin: 0 0 8px 0;
   color: var(--fg);
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 .spec-item p {
   font-size: 13px;
   color: var(--muted);
-  line-height: 1.45;
+  line-height: 1.5;
   margin: 0;
+}
+
+/* Metadata & Engineering Record */
+.record-card {
+  background: var(--bg);
+  border: 1px solid rgba(127,127,127,0.2);
+  border-radius: 18px;
+  padding: 26px;
+  margin-bottom: 28px;
+}
+.record-card h2 {
+  font-size: 18px;
+  margin: 0 0 18px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  letter-spacing: -0.01em;
+}
+.meta-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px 18px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(127,127,127,0.15);
+  margin-bottom: 20px;
+}
+.meta-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.meta-tag {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+.meta-val {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--fg);
+}
+.badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  background: rgba(36, 226, 155, 0.15);
+  color: var(--mint);
+  width: fit-content;
+}
+.badge-effort {
+  background: rgba(138, 46, 99, 0.15);
+  color: var(--accent);
+}
+.prompt-section {
+  margin-bottom: 22px;
+}
+.prompt-section h3 {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  margin: 0 0 8px 0;
+}
+.prompt-quote {
+  background: rgba(127,127,127,0.06);
+  border-left: 3px solid var(--mint);
+  padding: 12px 16px;
+  border-radius: 0 10px 10px 0;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--fg);
+  font-style: italic;
+  margin: 0 0 12px 0;
+}
+.skills-box {
+  margin-top: 16px;
+}
+.skills-box h3 {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  margin: 0 0 10px 0;
+}
+.skill-item {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.skill-code {
+  flex-shrink: 0;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 11.5px;
+  padding: 2px 7px;
+  border-radius: 5px;
+  background: rgba(127,127,127,0.12);
+  color: var(--fg);
+  height: fit-content;
+  font-weight: 600;
 }
 </style>
 </head>
@@ -231,6 +340,69 @@
       <p>垂直置中展開，待機時具備微幅海浪起伏（Idle wave），開口時以 Fast Attack (0.6) 及 Smooth Release (0.15) 即時隨語音跳動，告別「硬吃不動」。</p>
     </div>
   </div>
+
+  <!-- Engineering & Model Record Card -->
+  <section class="record-card" aria-labelledby="record-heading">
+    <h2 id="record-heading">📋 生成技術、模型與工程規格紀錄</h2>
+
+    <div class="meta-grid">
+      <div class="meta-field">
+        <span class="meta-tag">廠商 (Provider)</span>
+        <span class="meta-val">Google DeepMind</span>
+      </div>
+      <div class="meta-field">
+        <span class="meta-tag">製作工具 (Tool)</span>
+        <span class="meta-val">Google Antigravity</span>
+      </div>
+      <div class="meta-field">
+        <span class="meta-tag">核心模型 (Model)</span>
+        <span class="meta-val"><span class="badge-pill">Gemini 3.8 Flash</span></span>
+      </div>
+      <div class="meta-field">
+        <span class="meta-tag">推理努力 (Effort)</span>
+        <span class="meta-val"><span class="badge-pill badge-effort">High Reasoning Effort</span></span>
+      </div>
+      <div class="meta-field">
+        <span class="meta-tag">生成日期 (Date)</span>
+        <span class="meta-val">2026-09-13</span>
+      </div>
+      <div class="meta-field">
+        <span class="meta-tag">交付專案 (Project)</span>
+        <span class="meta-val">InFlow Listening Pill Default</span>
+      </div>
+    </div>
+
+    <div class="prompt-section">
+      <h3>原始用戶 Prompt（創辦人即時廣東話語音反饋）</h3>
+      <blockquote class="prompt-quote">
+        “我剛才直接發現了介面的問題。當我按住Option一走出來的時候,Listening後面冇了三個點點。還有,它嗰個動態,之前有六條包,而家變成三點,就硬吃不動。所以整個情況,UI覺得很奇怪。呢個是一個Bud來的,應該要立即收復它。否則我按下去,好像冇反應,不舒服。還有嗰個綠色的燈應該變成呼吸燈。就好像不斷地在聽總之之前,我哋都做了一個 open source是專門說明呢個事情介面點樣做得漂亮跟其後我哋是有地方可以跟嗰個融合碼一齊選擇介面的但呢個介面在Deford介面上是接受不了”
+      </blockquote>
+    </div>
+
+    <div class="skills-box">
+      <h3>採用技能與動態工程規範（Skills & Motion Standards）</h3>
+      <div class="skill-item">
+        <span class="skill-code">emilkowalski/skills</span>
+        <div><strong>Emil Kowalski 設計工程指南 (emil-design-eng)</strong>：遵循 Vercel / Linear 等頂尖產品動畫標準，核心關注非對稱進退場、自然曲線與無延遲反饋。</div>
+      </div>
+      <div class="skill-item">
+        <span class="skill-code">Fast Attack / Decay</span>
+        <div><strong>非對稱音訊反應包絡</strong>：<code>attack: 0.6</code>（瞬間咬住語音音量峰值）、<code>decay: 0.15</code>（平滑緩慢釋放回落），消弭傳統音量條突兀跳動（Jitter），令音波起伏如呼吸般柔和。</div>
+      </div>
+      <div class="skill-item">
+        <span class="skill-code">Phase-Shifted Wave</span>
+        <div><strong>待機活體波算法</strong>：採用多相位正弦曲線 <code>Math.sin(t * 2.2 + i * 0.85) * 0.08 + 0.18</code>。在靜音或等待發聲期間，6 條波柱持續維持 4~6px 的緩慢流動，徹底根治「硬吃不動」如同當機的誤解。</div>
+      </div>
+      <div class="skill-item">
+        <span class="skill-code">Staggered Ellipsis</span>
+        <div><strong>錯開微動態脈衝</strong>：每顆點點以 180ms 延遲錯開 keyframe opacity 動畫，在靜止文字中注入持續向前的運作感。</div>
+      </div>
+      <div class="skill-item">
+        <span class="skill-code">Hardware-Accelerated</span>
+        <div><strong>離線合成器硬體加速</strong>：所有波形更新均採用純 <code>transform: scaleY()</code> 與 <code>will-change: transform</code>，脫離主執行緒（Off-main-thread），不觸發 Layout / Reflow，確保維持穩定 60fps。</div>
+      </div>
+    </div>
+  </section>
 </main>
 
 <script>

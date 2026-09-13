@@ -42,8 +42,8 @@
       "recorded_at": "2026-09-13",
       "archive": "archives/inflow-default.html",
       "prompt": "當我按住Option一走出來的時候,Listening後面冇了三個點點。還有,它嗰個動態,之前有六條包,而家變成三點,就硬吃不動。所以整個情況,UI覺得很奇怪。呢個是一個Bud來的,應該要立即收復它。否則我按下去,好像冇反應,不舒服。還有嗰個綠色的燈應該變成呼吸燈。就好像不斷地在聽",
-      "prompt_context": "修復 InFlow 預設收音膠囊（Default Listening Pill）。針對硬吃不動的三點問題，還原六條具備待機微律動與即時語音響應的立體波形，補回 Listening 後方的三顆動態脈衝點點，並將綠色狀態燈升級為平滑呼吸燈。遵循 Emil Kowalski 動畫指南。",
-      "provenance": "由創辦人即時反饋並指定 Emil Kowalski 動畫標準，使用 Antigravity (Gemini 3.8 Flash) 實作。",
+      "prompt_context": "修復 InFlow 預設收音膠囊（Default Listening Pill）。針對硬吃不動的三點問題，還原六條具備待機微律動與即時語音響應的立體波形，補回 Listening 後方的三顆動態脈衝點點，並將綠色狀態燈升級為平滑呼吸燈。技術原則遵循 Emil Kowalski 動畫工程指南（emilkowalski/skills 中的 emil-design-eng：非對稱 Attack/Decay 音訊包絡、相位差待機波、180ms 錯開點點脈衝、硬體加速 scaleY 合成）。",
+      "provenance": "由創辦人即時反饋並指定 Emil Kowalski 動畫標準，模型使用 Google DeepMind Gemini 3.8 Flash，推理努力度（Reasoning Effort）為 High，透過 Google Antigravity 實作於作品庫。",
       "reference": "https://github.com/emilkowalski/skills"
     }
   ],
