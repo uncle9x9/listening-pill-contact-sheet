@@ -3,7 +3,7 @@ import json, subprocess, re
 from pathlib import Path
 ROOT=Path(__file__).resolve().parent.parent
 catalog=json.loads((ROOT/'src/catalog.json').read_text())
-assert len(catalog['concepts'])==13
+assert len(catalog['concepts'])==14
 original=subprocess.check_output(['git','show','6938b6c:index.html'],cwd=ROOT)
 assert (ROOT/'archives/claude-original.html').read_bytes()==original, 'Original ten were modified'
 paths=[ROOT/'assets/catalog.mjs', *sorted((ROOT/'previews').glob('*.html'))]
@@ -20,4 +20,4 @@ for c in catalog['concepts']:
 for script in ['assets/app.mjs','assets/core.mjs','assets/catalog.mjs']:
  subprocess.run(['node','--check',script],cwd=ROOT,check=True)
 for run in catalog['runs']:assert (ROOT/run['archive']).is_file()
-print('PASS: 13 previews, preserved original ten, reproducible build, all inline/module scripts parse, archive links exist')
+print('PASS: 14 previews, preserved original ten, reproducible build, all inline/module scripts parse, archive links exist')

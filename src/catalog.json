@@ -30,6 +30,21 @@
       "prompt_context": "使用 Visualize，參考當時開啟的 Listening Pill Contact Sheet 十款設計，製作三款替代方案。這次生成有參考原作，並非與原作使用相同 prompt 的獨立測試。",
       "provenance": "保存原對話中的使用者 prompt。對話助手標示為 GPT-6；精確模型 ID 與 reasoning effort 未記錄。",
       "reference": "archives/claude-original.html"
+    },
+    {
+      "id": "antigravity-flow",
+      "provider": "Google DeepMind",
+      "tool": "Antigravity",
+      "model": "Gemini 3.8 Flash",
+      "model_family": "Gemini",
+      "effort": "High",
+      "created_at": "2026-09-13",
+      "recorded_at": "2026-09-13",
+      "archive": "archives/inflow-default.html",
+      "prompt": "當我按住Option一走出來的時候,Listening後面冇了三個點點。還有,它嗰個動態,之前有六條包,而家變成三點,就硬吃不動。所以整個情況,UI覺得很奇怪。呢個是一個Bud來的,應該要立即收復它。否則我按下去,好像冇反應,不舒服。還有嗰個綠色的燈應該變成呼吸燈。就好像不斷地在聽",
+      "prompt_context": "修復 InFlow 預設收音膠囊（Default Listening Pill）。針對硬吃不動的三點問題，還原六條具備待機微律動與即時語音響應的立體波形，補回 Listening 後方的三顆動態脈衝點點，並將綠色狀態燈升級為平滑呼吸燈。遵循 Emil Kowalski 動畫指南。",
+      "provenance": "由創辦人即時反饋並指定 Emil Kowalski 動畫標準，使用 Antigravity (Gemini 3.8 Flash) 實作。",
+      "reference": "https://github.com/emilkowalski/skills"
     }
   ],
   "concepts": [
@@ -136,6 +151,14 @@
       "tagline": "講完、睇清、再套用。",
       "source_concept": "relay",
       "description": "把指令、目的地與結果分開顯示。完成後先展示預覽，再由使用者確認套用。"
+    },
+    {
+      "id": "inflow-default",
+      "run_id": "antigravity-flow",
+      "name": "InFlow Default · 呼吸波",
+      "tagline": "綠色呼吸燈、動態點點、活體六條波形，聽得見亦睇得見。",
+      "description": "針對原版預設膠囊的缺陷修復與設計進化：將硬吃不動的三點還原為六條具備待機微波動態（Idle Wave）與音訊即時響應（Fast Attack / Smooth Decay）的立體波形；左側綠色狀態燈升級為柔和呼吸燈（Breathing LED Pulse）；「Listening」後方加入三顆錯開淡入淡出的動態點點，確保一按即有生動反饋，絕不給人「沒有反應」的凝結感。",
+      "source_file": "src/submissions/inflow-default.html"
     }
   ]
 }

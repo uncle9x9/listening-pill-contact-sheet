@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>InFlow Default · 呼吸波 — 互動演示</title>
+<link rel="stylesheet" href="assets/archive.css">
+<style>
+.demo-wrapper {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 30px 20px 60px;
+}
+.demo-header {
+  margin-bottom: 30px;
+}
+.demo-header h1 {
+  font-size: 28px;
+  margin: 8px 0;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.demo-header p {
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.5;
+  margin: 0;
+}
+.stage-card {
+  background: var(--bg);
+  border: 1px solid rgba(127,127,127,0.2);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px -5px var(--shadow);
+  margin-bottom: 28px;
+}
+.stage-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px;
+  border-bottom: 1px solid rgba(127,127,127,0.15);
+  font-size: 13px;
+  color: var(--muted);
+}
+.pill-iframe-container {
+  height: 380px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at center, rgba(36, 226, 155, 0.04) 0%, transparent 70%);
+}
+.pill-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+.controls-card {
+  background: var(--bg);
+  border: 1px solid rgba(127,127,127,0.2);
+  border-radius: 16px;
+  padding: 20px 24px;
+  margin-bottom: 28px;
+}
+.controls-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-top: 14px;
+}
+.control-box {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.control-box label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+}
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.btn-toggle {
+  padding: 7px 13px;
+  border-radius: 8px;
+  border: 1px solid rgba(127,127,127,0.25);
+  background: transparent;
+  color: var(--fg);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.btn-toggle:hover {
+  background: rgba(127,127,127,0.1);
+}
+.btn-toggle.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+.press-hold-btn {
+  width: 100%;
+  padding: 16px;
+  border-radius: 12px;
+  border: 2px dashed var(--mint);
+  background: rgba(36, 226, 155, 0.08);
+  color: var(--fg);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.press-hold-btn:active, .press-hold-btn.holding {
+  background: rgba(36, 226, 155, 0.22);
+  border-style: solid;
+  transform: scale(0.99);
+}
+.design-specs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+  margin-top: 24px;
+}
+.spec-item {
+  padding: 16px;
+  background: var(--bg);
+  border: 1px solid rgba(127,127,127,0.15);
+  border-radius: 12px;
+}
+.spec-item h3 {
+  font-size: 14px;
+  margin: 0 0 6px 0;
+  color: var(--fg);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.spec-item p {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.45;
+  margin: 0;
+}
+</style>
+</head>
+<body>
+
+<header class="masthead wrap">
+  <a class="wordmark" href="./"><span class="brand-mark" aria-hidden="true">◉</span> LISTENING PILL <span class="wordmark-note">DESIGN ARCHIVE</span></a>
+  <div>
+    <a class="source-link" href="./" style="margin-right: 12px;">← 返回 14 款並排比較</a>
+    <a class="source-link" href="https://github.com/uncle9x9/listening-pill-contact-sheet">GitHub ↗</a>
+  </div>
+</header>
+
+<main class="demo-wrapper">
+  <div class="demo-header">
+    <p class="eyebrow">INFLOW DEFAULT REDESIGN · EMIL KOWALSKI MOTION STANDARDS</p>
+    <h1>InFlow Default · 呼吸波</h1>
+    <p>針對創辦人即時反饋：「Listening 後面冇了三個點點」、「六條 bar 變成三點硬吃不動」、「綠色的燈應該變成呼吸燈」的完整修復與進階動態實現。</p>
+  </div>
+
+  <!-- Live Stage -->
+  <div class="stage-card">
+    <div class="stage-topbar">
+      <span><strong>即時互動畫布</strong>（直接模擬按住 Option 及語音波動）</span>
+      <span id="current-state-label">狀態：listening</span>
+    </div>
+    <div class="pill-iframe-container">
+      <iframe class="pill-iframe" id="pill-frame" src="previews/inflow-default.html"></iframe>
+    </div>
+  </div>
+
+  <!-- Controls Deck -->
+  <div class="controls-card">
+    <button class="press-hold-btn" id="hold-btn" type="button">
+      <span>🎙️</span> <span>按住此處模擬按住 Option（放開結束收音）</span>
+    </button>
+
+    <div class="controls-grid">
+      <div class="control-box">
+        <label>狀態切換</label>
+        <div class="button-row">
+          <button class="btn-toggle active" onclick="sendState('listening')">Listening</button>
+          <button class="btn-toggle" onclick="sendState('transcribing')">轉寫</button>
+          <button class="btn-toggle" onclick="sendState('transforming')">改寫</button>
+          <button class="btn-toggle" onclick="sendState('searching')">搜尋</button>
+          <button class="btn-toggle" onclick="sendState('done')">完成</button>
+          <button class="btn-toggle" onclick="sendState('failed')">失敗</button>
+        </div>
+      </div>
+
+      <div class="control-box">
+        <label>外觀主題</label>
+        <div class="button-row">
+          <button class="btn-toggle active" id="theme-dark-btn" onclick="setTheme('dark')">深色模式</button>
+          <button class="btn-toggle" id="theme-light-btn" onclick="setTheme('light')">淺色模式</button>
+        </div>
+      </div>
+
+      <div class="control-box">
+        <label>模擬音量 (<span id="level-display">55%</span>)</label>
+        <input type="range" id="vol-slider" min="0" max="100" value="55" oninput="updateVolume(this.value)">
+      </div>
+    </div>
+  </div>
+
+  <!-- Design Spec Notes -->
+  <div class="design-specs">
+    <div class="spec-item">
+      <h3>🟢 綠色呼吸燈（Breathing Light）</h3>
+      <p>採用 1.6s 平滑循環呼吸（<code>cubic-bezier(0.4, 0, 0.2, 1)</code>），核心原點伴隨外暈光環律動，呈現「正在持續聆聽」的真實生命感。</p>
+    </div>
+    <div class="spec-item">
+      <h3>⋯ Listening 動態三點（Ellipsis）</h3>
+      <p>標籤緊隨三顆以 180ms 錯開淡入淡出的白色脈衝圓點，即使尚未說話，視覺亦隨時保持前進動力，絕無呆滯感。</p>
+    </div>
+    <div class="spec-item">
+      <h3>📊 6 條活體音波（Waveform Bars）</h3>
+      <p>垂直置中展開，待機時具備微幅海浪起伏（Idle wave），開口時以 Fast Attack (0.6) 及 Smooth Release (0.15) 即時隨語音跳動，告別「硬吃不動」。</p>
+    </div>
+  </div>
+</main>
+
+<script>
+var frame = document.getElementById('pill-frame');
+var currentLevel = 0.55;
+var currentTheme = 'dark';
+var currentState = 'listening';
+var holdBtn = document.getElementById('hold-btn');
+var isHolding = false;
+var simInterval = null;
+
+function postToPill(state, level, theme, scenario) {
+  if (!frame.contentWindow) return;
+  frame.contentWindow.postMessage({
+    type: 'pill-state',
+    state: state || currentState,
+    level: (level !== undefined) ? level : currentLevel,
+    theme: theme || currentTheme,
+    scenario: scenario || 'dictate',
+    motion: true,
+    active: true,
+    revision: Date.now()
+  }, '*');
+}
+
+function sendState(st) {
+  currentState = st;
+  document.getElementById('current-state-label').textContent = '狀態：' + st;
+  document.querySelectorAll('.button-row .btn-toggle').forEach(function(b) {
+    if (b.textContent.toLowerCase().includes(st) || b.getAttribute('onclick')?.includes(st)) {
+      b.classList.add('active');
+    } else if (!b.id.includes('theme')) {
+      b.classList.remove('active');
+    }
+  });
+  postToPill(st);
+}
+
+function setTheme(th) {
+  currentTheme = th;
+  document.documentElement.dataset.theme = th;
+  document.getElementById('theme-dark-btn').classList.toggle('active', th === 'dark');
+  document.getElementById('theme-light-btn').classList.toggle('active', th === 'light');
+  postToPill(currentState, currentLevel, th);
+}
+
+function updateVolume(val) {
+  currentLevel = val / 100;
+  document.getElementById('level-display').textContent = val + '%';
+  postToPill(currentState, currentLevel);
+}
+
+// Hold to record simulation
+function startHold() {
+  if (isHolding) return;
+  isHolding = true;
+  holdBtn.classList.add('holding');
+  sendState('listening');
+
+  // Simulate speaking audio level
+  simInterval = setInterval(function() {
+    var noise = Math.sin(Date.now() * 0.005) * 0.35 + 0.5;
+    currentLevel = Math.max(0.1, Math.min(1.0, noise + (Math.random() - 0.5) * 0.2));
+    document.getElementById('level-display').textContent = Math.round(currentLevel * 100) + '%';
+    document.getElementById('vol-slider').value = Math.round(currentLevel * 100);
+    postToPill('listening', currentLevel);
+  }, 50);
+}
+
+function stopHold() {
+  if (!isHolding) return;
+  isHolding = false;
+  holdBtn.classList.remove('holding');
+  clearInterval(simInterval);
+  sendState('transcribing');
+  setTimeout(function() {
+    sendState('done');
+  }, 1200);
+}
+
+holdBtn.addEventListener('mousedown', startHold);
+window.addEventListener('mouseup', stopHold);
+holdBtn.addEventListener('touchstart', function(e) { e.preventDefault(); startHold(); });
+window.addEventListener('touchend', stopHold);
+
+window.addEventListener('load', function() {
+  setTimeout(function() {
+    postToPill('listening', 0.55, 'dark');
+  }, 300);
+});
+</script>
+</body>
+</html>

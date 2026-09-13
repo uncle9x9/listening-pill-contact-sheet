@@ -1,0 +1,526 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<title>InFlow Default · 呼吸波</title>
+<style>
+:root {
+  color-scheme: light;
+  --bg: #fcfafb;
+  --fg: #1a151e;
+  --muted: #6b6070;
+  --accent: #8a2e63;
+  --ok: #24e29b;
+  --warn: #ff9f0a;
+  --err: #ff453a;
+  --petrol: #1c3038;
+  --mint: #24e29b;
+  --shadow: rgba(0, 0, 0, 0.22);
+  background: #e9e5e9;
+  color: var(--fg);
+}
+:root[data-theme=dark] {
+  color-scheme: dark;
+  --bg: #221c27;
+  --fg: #efe9f0;
+  --muted: #a497aa;
+  --accent: #e88cc0;
+  --ok: #24e29b;
+  --warn: #ff9f0a;
+  --err: #ff453a;
+  --petrol: #14232a;
+  --mint: #24e29b;
+  --shadow: rgba(0, 0, 0, 0.45);
+  background: #14111a;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0;
+  min-height: 100%;
+  width: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+.preview-stage {
+  min-height: 350px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 18px;
+  position: relative;
+  isolation: isolate;
+}
+
+/* ============================================================
+   InFlow Default Listening Pill
+   ============================================================ */
+.inflow-pill {
+  --pill-bg: rgba(28, 48, 56, 0.94);
+  --pill-hairline: rgba(255, 255, 255, 0.14);
+  --pill-fg: #ffffff;
+  --indicator-color: var(--mint);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  height: 44px;
+  min-width: 220px;
+  max-width: 380px;
+  padding: 0 14px;
+  border-radius: 22px;
+  background: var(--pill-bg);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid var(--pill-hairline);
+  box-shadow: 0 12px 32px -4px var(--shadow), 0 2px 8px rgba(0,0,0,0.18);
+  color: var(--pill-fg);
+  user-select: none;
+  cursor: default;
+  transition: width 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+              max-width 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.24s cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 0.2s ease,
+              border-color 0.2s ease;
+  animation: pill-appear 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+:root[data-theme=light] .inflow-pill {
+  --pill-bg: rgba(22, 38, 44, 0.92);
+  --pill-hairline: rgba(255, 255, 255, 0.18);
+}
+
+@keyframes pill-appear {
+  0% { opacity: 0; transform: scale(0.94) translateY(6px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes pill-shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-4px); }
+  40%, 80% { transform: translateX(4px); }
+}
+
+.inflow-pill[data-state=failed] {
+  animation: pill-shake 0.36s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+/* ============================================================
+   1. Breathing Indicator (呼吸燈)
+   ============================================================ */
+.indicator-cell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  margin-right: 10px;
+}
+
+.indicator-halo {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--indicator-color);
+  opacity: 0.25;
+  transform-origin: center;
+  animation: halo-breathe 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate;
+}
+
+.indicator-dot {
+  position: relative;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--indicator-color);
+  box-shadow: 0 0 10px var(--indicator-color);
+  transform-origin: center;
+  animation: dot-breathe 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate;
+  transition: background-color 0.24s ease, box-shadow 0.24s ease;
+}
+
+@keyframes halo-breathe {
+  0% { transform: scale(0.85); opacity: 0.15; }
+  100% { transform: scale(1.35); opacity: 0.45; }
+}
+
+@keyframes dot-breathe {
+  0% { transform: scale(0.92); opacity: 0.75; }
+  100% { transform: scale(1.18); opacity: 1; }
+}
+
+/* Indicator color mapping */
+.inflow-pill[data-state=appear] { --indicator-color: var(--mint); }
+.inflow-pill[data-state=listening] { --indicator-color: var(--mint); }
+.inflow-pill[data-state=transcribing] { --indicator-color: var(--warn); }
+.inflow-pill[data-state=transforming] { --indicator-color: #0a84ff; }
+.inflow-pill[data-state=searching] { --indicator-color: #a855f7; }
+.inflow-pill[data-state=done] { --indicator-color: var(--mint); }
+.inflow-pill[data-state=failed] { --indicator-color: var(--err); }
+
+.inflow-pill[data-state=transcribing] .indicator-halo,
+.inflow-pill[data-state=transforming] .indicator-halo {
+  animation-duration: 0.9s;
+}
+.inflow-pill[data-state=done] .indicator-halo,
+.inflow-pill[data-state=failed] .indicator-halo {
+  animation: none;
+  opacity: 0.15;
+  transform: scale(1);
+}
+.inflow-pill[data-state=done] .indicator-dot,
+.inflow-pill[data-state=failed] .indicator-dot {
+  animation: none;
+  transform: scale(1);
+}
+
+/* ============================================================
+   2. Label & Animated Ellipsis (三個點點)
+   ============================================================ */
+.label-container {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+  font-size: 13.5px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-right: 12px;
+}
+
+.label-text {
+  transition: opacity 0.18s ease;
+}
+
+.ellipsis-dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-left: 4px;
+}
+
+.ellipsis-dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background-color: #ffffff;
+  opacity: 0.25;
+  animation: ellipsis-pulse 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.ellipsis-dot:nth-child(1) { animation-delay: 0s; }
+.ellipsis-dot:nth-child(2) { animation-delay: 0.2s; }
+.ellipsis-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes ellipsis-pulse {
+  0%, 100% { opacity: 0.25; transform: scale(0.85); }
+  40% { opacity: 1; transform: scale(1.2); }
+}
+
+.inflow-pill[data-state=done] .ellipsis-dots,
+.inflow-pill[data-state=failed] .ellipsis-dots {
+  display: none;
+}
+
+/* ============================================================
+   3. Dynamic 6-Bar Waveform (六條活體音波 - 絕不硬吃不動)
+   ============================================================ */
+.waveform-container {
+  display: flex;
+  align-items: center;
+  gap: 3.5px;
+  height: 28px;
+  padding: 0 2px;
+  flex-shrink: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.wave-bar {
+  width: 3.5px;
+  height: 20px;
+  border-radius: 2px;
+  background-color: rgba(255, 255, 255, 0.82);
+  transform-origin: center center;
+  transform: scaleY(0.2);
+  transition: background-color 0.2s ease;
+  will-change: transform;
+}
+
+.inflow-pill[data-state=listening] .wave-bar {
+  background-color: rgba(255, 255, 255, 0.88);
+}
+
+.inflow-pill[data-state=transcribing] .wave-bar {
+  background-color: rgba(255, 159, 10, 0.75);
+}
+
+.inflow-pill[data-state=transforming] .wave-bar {
+  background-color: rgba(10, 132, 255, 0.75);
+}
+
+.inflow-pill[data-state=searching] .wave-bar {
+  background-color: rgba(168, 85, 247, 0.75);
+}
+
+.inflow-pill[data-state=done] .waveform-container,
+.inflow-pill[data-state=failed] .waveform-container {
+  display: none;
+}
+
+/* Success Checkmark Icon */
+.result-badge {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.inflow-pill[data-state=done] .result-badge {
+  display: flex;
+  color: var(--mint);
+}
+.inflow-pill[data-state=failed] .result-badge {
+  display: flex;
+  color: var(--err);
+}
+
+/* Reduced motion & paused states */
+:root[data-paused=true] * {
+  animation-play-state: paused !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* Standalone controller (only visible when not in iframe) */
+.standalone-deck {
+  display: none;
+  margin-top: 36px;
+  background: var(--bg);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 12px 18px;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  gap: 12px;
+  align-items: center;
+  font-size: 13px;
+}
+:root[data-theme=dark] .standalone-deck {
+  border-color: rgba(255, 255, 255, 0.12);
+}
+.standalone-deck.active {
+  display: flex;
+  flex-wrap: wrap;
+}
+.standalone-deck button {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(127,127,127,0.3);
+  background: transparent;
+  color: var(--fg);
+  font: inherit;
+  cursor: pointer;
+}
+.standalone-deck button:hover {
+  background: rgba(127,127,127,0.15);
+}
+</style>
+</head>
+<body>
+
+<div class="preview-stage">
+  <div class="inflow-pill" id="pill" data-state="listening">
+    <!-- 1. Breathing Indicator (呼吸燈) -->
+    <div class="indicator-cell" aria-hidden="true">
+      <div class="indicator-halo"></div>
+      <div class="indicator-dot"></div>
+    </div>
+
+    <!-- 2. Label & Staggered Ellipsis Dots -->
+    <div class="label-container">
+      <span class="label-text" id="pill-label">Listening</span>
+      <span class="ellipsis-dots" id="pill-dots" aria-hidden="true">
+        <span class="ellipsis-dot"></span>
+        <span class="ellipsis-dot"></span>
+        <span class="ellipsis-dot"></span>
+      </span>
+    </div>
+
+    <!-- 3. Dynamic 6-Bar Waveform -->
+    <div class="waveform-container" id="pill-wave" aria-hidden="true">
+      <div class="wave-bar"></div>
+      <div class="wave-bar"></div>
+      <div class="wave-bar"></div>
+      <div class="wave-bar"></div>
+      <div class="wave-bar"></div>
+      <div class="wave-bar"></div>
+    </div>
+
+    <!-- Terminal Badge (Check / Cross) -->
+    <div class="result-badge" id="pill-badge" aria-hidden="true"></div>
+  </div>
+
+  <!-- Standalone test controls (shown when opened directly) -->
+  <div class="standalone-deck" id="deck">
+    <span><strong>InFlow Default 演示</strong></span>
+    <button type="button" onclick="setDemoState('listening')">Listening</button>
+    <button type="button" onclick="setDemoState('transcribing')">Transcribing</button>
+    <button type="button" onclick="setDemoState('transforming')">Transforming</button>
+    <button type="button" onclick="setDemoState('searching')">Searching</button>
+    <button type="button" onclick="setDemoState('done')">Done</button>
+    <button type="button" onclick="setDemoState('failed')">Failed</button>
+  </div>
+</div>
+
+<script>
+(function() {
+  var pill = document.getElementById('pill');
+  var label = document.getElementById('pill-label');
+  var wave = document.getElementById('pill-wave');
+  var badge = document.getElementById('pill-badge');
+  var bars = wave.querySelectorAll('.wave-bar');
+
+  var currentState = 'listening';
+  var currentLevel = 0.55;
+  var currentScenario = 'dictate';
+  var smoothedLevel = 0;
+  var isMotion = true;
+
+  var barWeights = [0.45, 0.75, 1.0, 1.0, 0.75, 0.45];
+  var barLevels = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1];
+
+  var samples = {
+    dictate: '將呢個 function 改成 async。',
+    rewrite: 'I’ll get back to you tomorrow.',
+    search: '上網查下 exponential backoff。'
+  };
+
+  function updateState(state, scenario) {
+    currentState = state || 'listening';
+    if (scenario) currentScenario = scenario;
+    pill.setAttribute('data-state', currentState);
+
+    switch (currentState) {
+      case 'appear':
+      case 'listening':
+        label.textContent = 'Listening';
+        badge.innerHTML = '';
+        break;
+      case 'transcribing':
+        label.textContent = 'Transcribing';
+        badge.innerHTML = '';
+        break;
+      case 'transforming':
+        label.textContent = 'Transforming';
+        badge.innerHTML = '';
+        break;
+      case 'searching':
+        label.textContent = '上網查下…';
+        badge.innerHTML = '';
+        break;
+      case 'done':
+        label.textContent = samples[currentScenario] || '完成輸入';
+        badge.innerHTML = '<svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 0 1 1.06-1.06L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0z"/></svg>';
+        break;
+      case 'failed':
+        label.textContent = '辨識失敗，請重試';
+        badge.innerHTML = '<svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.75.75 0 1 1 1.06 1.06L9.06 8l3.22 3.22a.75.75 0 1 1-1.06 1.06L8 9.06l-3.22 3.22a.75.75 0 0 1-1.06-1.06L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06z"/></svg>';
+        break;
+    }
+  }
+
+  // Animation Loop (6-bar dynamic waveform)
+  function tick(timestamp) {
+    if (!isMotion) {
+      requestAnimationFrame(tick);
+      return;
+    }
+
+    var t = timestamp ? timestamp * 0.003 : Date.now() * 0.003;
+    var targetLevel = currentLevel;
+
+    // Fast attack (0.6), smooth natural decay (0.15)
+    var attack = 0.6;
+    var decay = 0.15;
+    smoothedLevel = smoothedLevel < targetLevel
+      ? smoothedLevel + attack * (targetLevel - smoothedLevel)
+      : smoothedLevel + decay * (targetLevel - smoothedLevel);
+
+    if (currentState === 'listening' || currentState === 'appear') {
+      for (var i = 0; i < bars.length; i++) {
+        // Idle living wave: gentle sine ripple so it NEVER sits frozen
+        var idleWave = Math.sin(t * 2.2 + i * 0.85) * 0.08 + 0.18;
+        var audioResponse = smoothedLevel * barWeights[i] * (0.75 + Math.sin(t * 4.5 + i * 1.2) * 0.25);
+        var targetScale = Math.max(idleWave, audioResponse);
+
+        barLevels[i] += 0.25 * (targetScale - barLevels[i]);
+        var clamped = Math.min(1.0, Math.max(0.12, barLevels[i]));
+        bars[i].style.transform = 'scaleY(' + clamped.toFixed(3) + ')';
+      }
+    } else if (currentState === 'transcribing' || currentState === 'transforming' || currentState === 'searching') {
+      // Processing state: elegant traveling wave shimmer
+      for (var j = 0; j < bars.length; j++) {
+        var waveShift = Math.sin(t * 3.5 - j * 0.9) * 0.35 + 0.45;
+        bars[j].style.transform = 'scaleY(' + Math.max(0.15, waveShift).toFixed(3) + ')';
+      }
+    }
+
+    requestAnimationFrame(tick);
+  }
+
+  requestAnimationFrame(tick);
+
+  // Standalone mode helper
+  window.setDemoState = function(st) {
+    updateState(st, currentScenario);
+  };
+
+  if (window.parent === window) {
+    var deck = document.getElementById('deck');
+    if (deck) deck.classList.add('active');
+  }
+
+  // ============================================================
+  // Contact Sheet Bridge Protocol
+  // ============================================================
+  var allowedStates = ['appear', 'listening', 'transcribing', 'transforming', 'searching', 'done', 'failed'];
+
+  window.addEventListener('message', function(event) {
+    var m = event.data;
+    if (!m || m.type !== 'pill-state' || allowedStates.indexOf(m.state) === -1) return;
+
+    if (m.theme === 'light' || m.theme === 'dark') {
+      document.documentElement.dataset.theme = m.theme;
+    }
+    isMotion = (m.motion !== false && m.active !== false);
+    document.documentElement.dataset.paused = String(!isMotion);
+
+    if (typeof m.level === 'number' && isFinite(m.level)) {
+      currentLevel = Math.max(0, Math.min(1, m.level));
+    }
+
+    updateState(m.state, m.scenario);
+  });
+
+  // Report ready to parent contact sheet
+  if (window.parent !== window) {
+    window.parent.postMessage({ type: 'pill-ready', id: 'inflow-default' }, '*');
+  }
+})();
+</script>
+
+</body>
+</html>
