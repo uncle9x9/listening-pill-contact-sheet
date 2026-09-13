@@ -151,6 +151,40 @@ html, body {
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; }
 }
+
+/* Standalone controller (only visible when not in iframe) */
+.standalone-deck {
+  display: none;
+  margin-top: 36px;
+  background: var(--bg);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 12px 18px;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  gap: 12px;
+  align-items: center;
+  font-size: 13px;
+  z-index: 2;
+}
+:root[data-theme=dark] .standalone-deck {
+  border-color: rgba(255, 255, 255, 0.12);
+}
+.standalone-deck.active {
+  display: flex;
+  flex-wrap: wrap;
+}
+.standalone-deck button {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(127,127,127,0.3);
+  background: transparent;
+  color: var(--fg);
+  font: inherit;
+  cursor: pointer;
+}
+.standalone-deck button:hover {
+  background: rgba(127,127,127,0.15);
+}
 </style>
 </head>
 <body>
@@ -176,6 +210,17 @@ html, body {
         <div class="wave-dot"></div>
       </div>
     </div>
+  </div>
+
+  <!-- Standalone test controls (shown when opened directly) -->
+  <div class="standalone-deck" id="deck">
+    <span><strong>Fluid Aura · 液態流體光暈 演示</strong></span>
+    <button type="button" onclick="setDemoState('listening')">Listening</button>
+    <button type="button" onclick="setDemoState('transcribing')">Transcribing</button>
+    <button type="button" onclick="setDemoState('transforming')">Transforming</button>
+    <button type="button" onclick="setDemoState('searching')">Searching</button>
+    <button type="button" onclick="setDemoState('done')">Done</button>
+    <button type="button" onclick="setDemoState('failed')">Failed</button>
   </div>
 </div>
 
@@ -280,6 +325,16 @@ html, body {
 
     updateState(m.state, m.scenario);
   });
+
+  // Standalone mode helper
+  window.setDemoState = function(st) {
+    updateState(st, currentScenario);
+  };
+
+  if (window.parent === window) {
+    var deck = document.getElementById('deck');
+    if (deck) deck.classList.add('active');
+  }
 
   if (window.parent !== window) {
     window.parent.postMessage({ type: 'pill-ready', id: 'inflow-fluid-aura' }, '*');

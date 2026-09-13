@@ -150,7 +150,7 @@ function showRecord(concept,run){
  }
  recordPrompt=run.prompt||'';$('record-prompt').textContent=recordPrompt||'未記錄：原作沒有附上原始 prompt。';$('copy-prompt').hidden=!recordPrompt;
  $('record-context').textContent=run.prompt_context;$('record-provenance').textContent=run.provenance;
- $('record-original').href=run.archive;$('original-notes').hidden=!concept.original_score;$('original-notes').open=false;
+ $('record-original').href=concept.archive||run.archive;$('original-notes').hidden=!concept.original_score;$('original-notes').open=false;
  $('original-score').textContent=concept.original_score?.note||'';$('record-dialog').showModal();
 }
 $('close-record').addEventListener('click',()=>$('record-dialog').close());

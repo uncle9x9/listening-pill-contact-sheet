@@ -133,6 +133,36 @@ html, body {
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; }
 }
+
+/* Standalone controller (only visible when not in iframe) */
+.standalone-deck {
+  display: none;
+  margin-top: 36px;
+  background: var(--pill-bg);
+  border: 1px solid var(--pill-border);
+  padding: 12px 18px;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px var(--shadow);
+  gap: 12px;
+  align-items: center;
+  font-size: 13px;
+}
+.standalone-deck.active {
+  display: flex;
+  flex-wrap: wrap;
+}
+.standalone-deck button {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--pill-border);
+  background: transparent;
+  color: var(--fg);
+  font: inherit;
+  cursor: pointer;
+}
+.standalone-deck button:hover {
+  background: rgba(127,127,127,0.15);
+}
 </style>
 </head>
 <body>
@@ -149,6 +179,17 @@ html, body {
         <path class="wave-path-main" id="path-main" d="M 0 12 L 80 12" />
       </svg>
     </div>
+  </div>
+
+  <!-- Standalone test controls (shown when opened directly) -->
+  <div class="standalone-deck" id="deck">
+    <span><strong>Single-Line · 極簡連續波 演示</strong></span>
+    <button type="button" onclick="setDemoState('listening')">Listening</button>
+    <button type="button" onclick="setDemoState('transcribing')">Transcribing</button>
+    <button type="button" onclick="setDemoState('transforming')">Transforming</button>
+    <button type="button" onclick="setDemoState('searching')">Searching</button>
+    <button type="button" onclick="setDemoState('done')">Done</button>
+    <button type="button" onclick="setDemoState('failed')">Failed</button>
   </div>
 </div>
 
@@ -274,6 +315,16 @@ html, body {
 
     updateState(m.state, m.scenario);
   });
+
+  // Standalone mode helper
+  window.setDemoState = function(st) {
+    updateState(st, currentScenario);
+  };
+
+  if (window.parent === window) {
+    var deck = document.getElementById('deck');
+    if (deck) deck.classList.add('active');
+  }
 
   if (window.parent !== window) {
     window.parent.postMessage({ type: 'pill-ready', id: 'inflow-single-line' }, '*');

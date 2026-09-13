@@ -20,4 +20,6 @@ for c in catalog['concepts']:
 for script in ['assets/app.mjs','assets/core.mjs','assets/catalog.mjs']:
  subprocess.run(['node','--check',script],cwd=ROOT,check=True)
 for run in catalog['runs']:assert (ROOT/run['archive']).is_file()
+for c in catalog['concepts']:
+ if 'archive' in c:assert (ROOT/c['archive']).is_file()
 print('PASS: 17 previews, preserved original ten, reproducible build, all inline/module scripts parse, archive links exist')

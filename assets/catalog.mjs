@@ -252,6 +252,7 @@ export const catalog = {
       "tagline": "綠色呼吸燈、動態點點、活體六條波形，聽得見亦睇得見。",
       "description": "針對原版預設膠囊的缺陷修復與設計進化：將硬吃不動的三點還原為六條具備待機微波動態（Idle Wave）與音訊即時響應（Fast Attack / Smooth Decay）的立體波形；左側綠色狀態燈升級為柔和呼吸燈（Breathing LED Pulse）；「Listening」後方加入三顆錯開淡入淡出的動態點點，確保一按即有生動反饋，絕不給人「沒有反應」的凝結感。",
       "source_file": "src/submissions/inflow-default.html",
+      "archive": "archives/inflow-default.html",
       "preview": "previews/inflow-default.html"
     },
     {
@@ -261,6 +262,7 @@ export const catalog = {
       "tagline": "Teenage Engineering 工業風，8 段 LED 分立式峰值儀表與金屬 REC 狀態。",
       "description": "致敬 Teenage Engineering TP-7 與經典錄音機的實體觸感：採用 8 階分立式 LED 峰值音量計（綠-黃-紅精準分段動態響應音量 dB 讀數）、物理 REC 指示燈與等寬工業字體，徹底打破傳統圓弧 HUD 的數位均質感，賦予聲音輸入極致的實體機械反饋。",
       "source_file": "src/submissions/inflow-tactile-hifi.html",
+      "archive": "archives/inflow-tactile-hifi.html",
       "preview": "previews/inflow-tactile-hifi.html"
     },
     {
@@ -270,6 +272,7 @@ export const catalog = {
       "tagline": "環境氛圍光暈與液態能量核，說話時流光隨聲浪呼吸擴散。",
       "description": "靈感來自 Siri 與新一代 AI 語音介面：膠囊背後設有環境徑向漫射光暈（Ambient Radial Aura），說話音量直接驅動光暈的擴散半徑與流光透明度；左側為旋轉流動的液態能量球（Fluid Orb），搭配 5 條彩色漸變流動聲柱，營造溫潤且充滿未來感的智慧聆聽氛圍。",
       "source_file": "src/submissions/inflow-fluid-aura.html",
+      "archive": "archives/inflow-fluid-aura.html",
       "preview": "previews/inflow-fluid-aura.html"
     },
     {
@@ -279,6 +282,7 @@ export const catalog = {
       "tagline": "Rauno & Linear 極簡美學，一筆連續單線向量軌跡，有聲音即起伏，無聲則歸於呼吸細線。",
       "description": "致敬 Rauno Freiberg 與 Linear 的極簡向量工藝：捨棄多條柱狀波形，改以單條連續的 Catmull-Rom / 正弦平滑向量線（Single Vector Stroke）貫穿微型舞台；語音振幅驅動線條波幅與波動頻率，並帶有延遲的半透明光軌（Lagged Trail）形成景深；無聲時回歸一條有生命力的呼吸細線，優雅而不喧賓奪主。",
       "source_file": "src/submissions/inflow-single-line.html",
+      "archive": "archives/inflow-single-line.html",
       "preview": "previews/inflow-single-line.html"
     }
   ]
