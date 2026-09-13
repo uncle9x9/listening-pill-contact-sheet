@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<title>InFlow Single-Line · 極簡連續波</title>
+<style>
+:root {
+  color-scheme: light;
+  --bg: #f7f7f8;
+  --fg: #111112;
+  --muted: #6e6e73;
+  --pill-bg: rgba(255, 255, 255, 0.88);
+  --pill-border: rgba(0, 0, 0, 0.08);
+  --stroke-main: #111112;
+  --stroke-trail: rgba(17, 17, 18, 0.2);
+  --accent: #5e6ad2;
+  --ok: #24a148;
+  --err: #da1e28;
+  --shadow: rgba(0, 0, 0, 0.12);
+}
+:root[data-theme=dark] {
+  color-scheme: dark;
+  --bg: #0d0e10;
+  --fg: #f4f4f6;
+  --muted: #8c8d94;
+  --pill-bg: rgba(22, 23, 27, 0.85);
+  --pill-border: rgba(255, 255, 255, 0.12);
+  --stroke-main: #f4f4f6;
+  --stroke-trail: rgba(244, 244, 246, 0.25);
+  --accent: #7b88ff;
+  --ok: #42be65;
+  --err: #ff8389;
+  --shadow: rgba(0, 0, 0, 0.45);
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0;
+  min-height: 100%;
+  width: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+.preview-stage {
+  min-height: 350px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 18px;
+  position: relative;
+}
+
+/* Rauno Freiberg / Linear Minimal Continuous Capsule */
+.line-pill {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  height: 42px;
+  min-width: 240px;
+  max-width: 420px;
+  padding: 0 16px;
+  border-radius: 21px;
+  background: var(--pill-bg);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--pill-border);
+  box-shadow: 0 12px 28px -4px var(--shadow), 0 1px 3px rgba(0,0,0,0.05);
+  color: var(--fg);
+  gap: 14px;
+  user-select: none;
+  cursor: default;
+  transition: width 0.24s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s ease;
+  animation: line-appear 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes line-appear {
+  0% { opacity: 0; transform: scale(0.95) translateY(4px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.label-text {
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Continuous SVG Stage */
+.wave-canvas-wrap {
+  position: relative;
+  width: 80px;
+  height: 24px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.wave-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.wave-path-main {
+  fill: none;
+  stroke: var(--stroke-main);
+  stroke-width: 1.75px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: stroke 0.2s ease;
+}
+.wave-path-trail {
+  fill: none;
+  stroke: var(--stroke-trail);
+  stroke-width: 1.25px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.line-pill[data-state=transcribing] .wave-path-main { stroke: var(--accent); }
+.line-pill[data-state=transforming] .wave-path-main { stroke: var(--accent); }
+.line-pill[data-state=searching] .wave-path-main { stroke: #a855f7; }
+.line-pill[data-state=done] .wave-path-main { stroke: var(--ok); }
+.line-pill[data-state=failed] .wave-path-main { stroke: var(--err); }
+
+/* Reduced motion & pause */
+:root[data-paused=true] * { animation-play-state: paused !important; }
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="preview-stage">
+  <div class="line-pill" id="pill" data-state="listening">
+    <!-- Status Text -->
+    <span class="label-text" id="label">Listening</span>
+
+    <!-- Continuous Vector Wave Canvas -->
+    <div class="wave-canvas-wrap">
+      <svg class="wave-svg" viewBox="0 0 80 24" preserveAspectRatio="none">
+        <path class="wave-path-trail" id="path-trail" d="M 0 12 L 80 12" />
+        <path class="wave-path-main" id="path-main" d="M 0 12 L 80 12" />
+      </svg>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  var pill = document.getElementById('pill');
+  var label = document.getElementById('label');
+  var pathMain = document.getElementById('path-main');
+  var pathTrail = document.getElementById('path-trail');
+
+  var currentState = 'listening';
+  var currentLevel = 0.55;
+  var currentScenario = 'dictate';
+  var smoothedLevel = 0;
+  var isMotion = true;
+
+  var samples = {
+    dictate: '將呢個 function 改成 async。',
+    rewrite: 'I’ll get back to you tomorrow.',
+    search: '上網查下 exponential backoff。'
+  };
+
+  function updateState(state, scenario) {
+    currentState = state || 'listening';
+    if (scenario) currentScenario = scenario;
+    pill.setAttribute('data-state', currentState);
+
+    switch (currentState) {
+      case 'appear':
+      case 'listening':
+        label.textContent = 'Listening';
+        break;
+      case 'transcribing':
+        label.textContent = 'Transcribing';
+        break;
+      case 'transforming':
+        label.textContent = 'Transforming';
+        break;
+      case 'searching':
+        label.textContent = '上網查下…';
+        break;
+      case 'done':
+        label.textContent = samples[currentScenario] || 'Done';
+        break;
+      case 'failed':
+        label.textContent = 'Failed';
+        break;
+    }
+  }
+
+  function generateWaveD(width, height, amplitude, phase, harmonics, trailOffset) {
+    var midY = height / 2;
+    var points = 18;
+    var d = '';
+    var step = width / (points - 1);
+
+    for (var i = 0; i < points; i++) {
+      var x = i * step;
+      var normX = i / (points - 1);
+      // Windowing envelope: taper smooth at ends (Hanning window)
+      var windowVal = Math.sin(normX * Math.PI);
+      
+      var effPhase = phase - (trailOffset || 0);
+      var yOffset = Math.sin(normX * Math.PI * 3 + effPhase) * amplitude * windowVal;
+      if (harmonics) {
+        yOffset += Math.sin(normX * Math.PI * 6 - effPhase * 1.5) * (amplitude * 0.35) * windowVal;
+      }
+
+      var y = midY + yOffset;
+      d += (i === 0 ? 'M ' : ' L ') + x.toFixed(1) + ' ' + y.toFixed(1);
+    }
+    return d;
+  }
+
+  function tick(timestamp) {
+    if (!isMotion) {
+      requestAnimationFrame(tick);
+      return;
+    }
+
+    var t = timestamp ? timestamp * 0.003 : Date.now() * 0.003;
+    var targetLevel = (currentState === 'listening') ? currentLevel : 0.05;
+    var attack = 0.6;
+    var decay = 0.14;
+    smoothedLevel = smoothedLevel < targetLevel
+      ? smoothedLevel + attack * (targetLevel - smoothedLevel)
+      : smoothedLevel + decay * (targetLevel - smoothedLevel);
+
+    if (currentState === 'listening' || currentState === 'appear') {
+      var baseAmp = 1.2 + smoothedLevel * 8.5;
+      var phase = t * (2.8 + smoothedLevel * 3.5);
+      pathMain.setAttribute('d', generateWaveD(80, 24, baseAmp, phase, true, 0));
+      pathTrail.setAttribute('d', generateWaveD(80, 24, baseAmp * 0.7, phase, false, 0.45));
+    } else if (currentState === 'transcribing' || currentState === 'transforming' || currentState === 'searching') {
+      var procAmp = 2.4;
+      var procPhase = t * 5.0;
+      pathMain.setAttribute('d', generateWaveD(80, 24, procAmp, procPhase, false, 0));
+      pathTrail.setAttribute('d', generateWaveD(80, 24, procAmp * 0.5, procPhase, false, 0.5));
+    } else {
+      // Done or failed: flatline
+      pathMain.setAttribute('d', 'M 0 12 L 80 12');
+      pathTrail.setAttribute('d', 'M 0 12 L 80 12');
+    }
+
+    requestAnimationFrame(tick);
+  }
+
+  requestAnimationFrame(tick);
+
+  window.addEventListener('message', function(event) {
+    var m = event.data;
+    if (!m || m.type !== 'pill-state') return;
+
+    if (m.theme === 'light' || m.theme === 'dark') {
+      document.documentElement.dataset.theme = m.theme;
+    }
+    isMotion = (m.motion !== false && m.active !== false);
+    document.documentElement.dataset.paused = String(!isMotion);
+
+    if (typeof m.level === 'number' && isFinite(m.level)) {
+      currentLevel = Math.max(0, Math.min(1, m.level));
+    }
+
+    updateState(m.state, m.scenario);
+  });
+
+  if (window.parent !== window) {
+    window.parent.postMessage({ type: 'pill-ready', id: 'inflow-single-line' }, '*');
+  }
+})();
+</script>
+</body>
+</html>

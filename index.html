@@ -2,14 +2,14 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="比較不同 AI 廠商、模型與 effort 製作的收音介面。14 款即時 Listening Pill 設計、同步狀態預覽，以及可追溯的 prompt 與生成紀錄。">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; frame-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
+<meta name="description" content="比較不同 AI 廠商、模型與 effort 製作的收音介面。17 款即時 Listening Pill 設計、同步狀態預覽，以及可追溯的 prompt 與生成紀錄。">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; frame-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
 <title>Listening Pill — 收音介面設計比較</title>
 <link rel="stylesheet" href="assets/archive.css"><script type="module" src="assets/app.mjs"></script>
 </head>
 <body>
 <a class="skip" href="#collection">跳到設計作品</a>
-<header class="masthead wrap"><a class="wordmark" href="./"><span class="brand-mark" aria-hidden="true">◉</span> LISTENING PILL <span class="wordmark-note">DESIGN ARCHIVE</span></a><div><a class="source-link" href="demo.html" style="margin-right:12px;color:var(--accent);font-weight:600;">⭐ InFlow Default 演示 ↗</a><a class="source-link" href="https://github.com/uncle9x9/listening-pill-contact-sheet">GitHub ↗</a></div></header>
+<header class="masthead wrap"><a class="wordmark" href="./"><span class="brand-mark" aria-hidden="true">◉</span> LISTENING PILL <span class="wordmark-note">DESIGN ARCHIVE</span></a><div><a class="source-link" href="research.html" style="margin-right:12px;color:light-dark(#1a73e8,#56c98a);font-weight:600;">🔬 Deep Research &amp; Skills ↗</a><a class="source-link" href="demo.html" style="margin-right:12px;color:var(--accent);font-weight:600;">⭐ InFlow Default 演示 ↗</a><a class="source-link" href="https://github.com/uncle9x9/listening-pill-contact-sheet">GitHub ↗</a></div></header>
 <main class="wrap">
 <section class="intro" aria-labelledby="title"><div><p class="eyebrow">ONE INTERFACE. DIFFERENT MINDS.</p><h1 id="title">同樣聽你講，<br>唔同 AI 點樣設計？</h1><p class="lede">一個專注「收音介面」嘅作品庫。將唔同廠商、模型同 effort 做過嘅設計放埋一齊，睇動態、比狀態，再睇返背後嘅 prompt。</p></div><aside class="collection-note"><span class="note-kicker">首批收錄</span><p><strong id="total-designs">13</strong> 款介面 <span>／</span> <strong id="total-runs">2</strong> 次生成</p><div id="run-list"></div><a href="#about">關於呢個比較 ↗</a></aside></section>
 <section class="library" aria-label="設計篩選"><div class="library-heading"><h2>設計作品</h2><span id="result-count" role="status">正在載入作品…</span></div><div class="filters"><label>廠商<select id="provider"><option value="">所有廠商</option></select></label><label>模型<select id="model"><option value="">所有模型</option></select></label><label>Effort<select id="effort"><option value="">所有 Effort</option></select></label><button class="quiet-button" id="clear-filters" type="button">清除篩選</button></div></section>

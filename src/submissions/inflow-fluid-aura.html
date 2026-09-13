@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<title>InFlow Aura · 液態流體光暈</title>
+<style>
+:root {
+  color-scheme: light;
+  --bg: #f8fafc;
+  --fg: #0f172a;
+  --muted: #64748b;
+  --aura-cyan: rgba(56, 189, 248, 0.4);
+  --aura-purple: rgba(192, 132, 252, 0.45);
+  --aura-mint: rgba(45, 212, 191, 0.5);
+  --pill-shell: rgba(255, 255, 255, 0.85);
+  --pill-border: rgba(255, 255, 255, 0.6);
+  --shadow: rgba(15, 23, 42, 0.15);
+}
+:root[data-theme=dark] {
+  color-scheme: dark;
+  --bg: #090d16;
+  --fg: #f1f5f9;
+  --muted: #94a3b8;
+  --aura-cyan: rgba(56, 189, 248, 0.5);
+  --aura-purple: rgba(192, 132, 252, 0.55);
+  --aura-mint: rgba(45, 212, 191, 0.6);
+  --pill-shell: rgba(15, 23, 42, 0.88);
+  --pill-border: rgba(255, 255, 255, 0.15);
+  --shadow: rgba(0, 0, 0, 0.6);
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0;
+  min-height: 100%;
+  width: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+.preview-stage {
+  min-height: 350px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 18px;
+  position: relative;
+}
+
+/* Aura Glow Field Behind the Pill */
+.aura-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ambient-aura {
+  position: absolute;
+  inset: -14px -20px;
+  border-radius: 36px;
+  background: radial-gradient(circle at 20% 50%, var(--aura-cyan), transparent 60%),
+              radial-gradient(circle at 80% 50%, var(--aura-purple), transparent 60%),
+              radial-gradient(circle at 50% 50%, var(--aura-mint), transparent 70%);
+  filter: blur(16px);
+  opacity: 0.6;
+  transform: scale(0.95);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Fluid Glass Pill */
+.aura-pill {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  height: 44px;
+  min-width: 230px;
+  max-width: 400px;
+  padding: 0 16px;
+  border-radius: 22px;
+  background: var(--pill-shell);
+  backdrop-filter: blur(20px) saturate(190%);
+  -webkit-backdrop-filter: blur(20px) saturate(190%);
+  border: 1px solid var(--pill-border);
+  box-shadow: 0 16px 36px -6px var(--shadow);
+  color: var(--fg);
+  gap: 12px;
+  user-select: none;
+  cursor: default;
+  transition: width 0.28s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s ease;
+  animation: aura-appear 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes aura-appear {
+  0% { opacity: 0; transform: scale(0.92); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+/* Fluid Orb on Left */
+.fluid-orb {
+  position: relative;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #38bdf8, #a855f7);
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.8);
+  flex-shrink: 0;
+  animation: orb-spin 3s linear infinite;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+@keyframes orb-spin {
+  0% { transform: rotate(0deg) scale(0.95); }
+  50% { transform: rotate(180deg) scale(1.1); }
+  100% { transform: rotate(360deg) scale(0.95); }
+}
+
+.label-text {
+  flex: 1;
+  min-width: 0;
+  font-size: 13.5px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: -0.01em;
+}
+
+/* Fluid Waves */
+.fluid-wave {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  height: 24px;
+}
+.wave-dot {
+  width: 3.5px;
+  height: 18px;
+  border-radius: 2px;
+  background: linear-gradient(to top, #38bdf8, #2dd4bf);
+  transform-origin: center center;
+  transform: scaleY(0.2);
+  transition: opacity 0.2s ease;
+}
+
+/* Reduced motion */
+:root[data-paused=true] * { animation-play-state: paused !important; }
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="preview-stage">
+  <div class="aura-wrapper">
+    <!-- Fluid Glowing Aura -->
+    <div class="ambient-aura" id="aura"></div>
+
+    <div class="aura-pill" id="pill" data-state="listening">
+      <!-- Animated Fluid Orb -->
+      <div class="fluid-orb" id="orb" aria-hidden="true"></div>
+
+      <!-- Label -->
+      <span class="label-text" id="label">Listening</span>
+
+      <!-- Fluid Wave -->
+      <div class="fluid-wave" id="wave" aria-hidden="true">
+        <div class="wave-dot"></div>
+        <div class="wave-dot"></div>
+        <div class="wave-dot"></div>
+        <div class="wave-dot"></div>
+        <div class="wave-dot"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  var aura = document.getElementById('aura');
+  var pill = document.getElementById('pill');
+  var orb = document.getElementById('orb');
+  var label = document.getElementById('label');
+  var dots = document.querySelectorAll('.wave-dot');
+
+  var currentState = 'listening';
+  var currentLevel = 0.55;
+  var currentScenario = 'dictate';
+  var smoothedLevel = 0;
+  var isMotion = true;
+
+  var samples = {
+    dictate: '將呢個 function 改成 async。',
+    rewrite: 'I’ll get back to you tomorrow.',
+    search: '上網查下 exponential backoff。'
+  };
+
+  function updateState(state, scenario) {
+    currentState = state || 'listening';
+    if (scenario) currentScenario = scenario;
+    pill.setAttribute('data-state', currentState);
+
+    switch (currentState) {
+      case 'appear':
+      case 'listening':
+        label.textContent = 'Listening';
+        break;
+      case 'transcribing':
+        label.textContent = 'Transcribing…';
+        break;
+      case 'transforming':
+        label.textContent = 'Transforming…';
+        break;
+      case 'searching':
+        label.textContent = '上網查下…';
+        break;
+      case 'done':
+        label.textContent = samples[currentScenario] || '完成';
+        break;
+      case 'failed':
+        label.textContent = '辨識失敗';
+        break;
+    }
+  }
+
+  function tick(timestamp) {
+    if (!isMotion) {
+      requestAnimationFrame(tick);
+      return;
+    }
+
+    var t = timestamp ? timestamp * 0.003 : Date.now() * 0.003;
+    var targetLevel = (currentState === 'listening') ? currentLevel : 0.05;
+    var attack = 0.6;
+    var decay = 0.15;
+    smoothedLevel = smoothedLevel < targetLevel
+      ? smoothedLevel + attack * (targetLevel - smoothedLevel)
+      : smoothedLevel + decay * (targetLevel - smoothedLevel);
+
+    // Drive the ambient aura scale and radiance with voice!
+    var auraScale = 0.95 + smoothedLevel * 0.35;
+    var auraOpacity = 0.4 + smoothedLevel * 0.5;
+    aura.style.transform = 'scale(' + auraScale.toFixed(3) + ')';
+    aura.style.opacity = auraOpacity.toFixed(3);
+
+    // Drive fluid orb scale
+    var orbScale = 0.95 + smoothedLevel * 0.4;
+    orb.style.transform = 'scale(' + orbScale.toFixed(3) + ')';
+
+    // Wave dots
+    for (var i = 0; i < dots.length; i++) {
+      var waveIdle = Math.sin(t * 2.5 + i * 0.9) * 0.12 + 0.2;
+      var waveSpeech = smoothedLevel * (0.6 + Math.sin(t * 4.0 + i) * 0.4);
+      var scale = Math.max(waveIdle, waveSpeech);
+      dots[i].style.transform = 'scaleY(' + Math.min(1.0, scale).toFixed(3) + ')';
+    }
+
+    requestAnimationFrame(tick);
+  }
+
+  requestAnimationFrame(tick);
+
+  window.addEventListener('message', function(event) {
+    var m = event.data;
+    if (!m || m.type !== 'pill-state') return;
+
+    if (m.theme === 'light' || m.theme === 'dark') {
+      document.documentElement.dataset.theme = m.theme;
+    }
+    isMotion = (m.motion !== false && m.active !== false);
+    document.documentElement.dataset.paused = String(!isMotion);
+
+    if (typeof m.level === 'number' && isFinite(m.level)) {
+      currentLevel = Math.max(0, Math.min(1, m.level));
+    }
+
+    updateState(m.state, m.scenario);
+  });
+
+  if (window.parent !== window) {
+    window.parent.postMessage({ type: 'pill-ready', id: 'inflow-fluid-aura' }, '*');
+  }
+})();
+</script>
+</body>
+</html>

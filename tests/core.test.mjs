@@ -5,8 +5,8 @@ import {matches,modelLabel,effortLabel,cleanSelection,toggleSelection,speechLeve
 test('original ten and new three remain selectable by provider',()=>{
  const filter=provider=>catalog.concepts.filter(c=>matches(c,catalog.runs.find(r=>r.id===c.run_id),{provider}));
  assert.equal(filter('Anthropic').length,10);assert.equal(filter('OpenAI').length,3);
- assert.equal(filter('Google DeepMind').length,1);
- assert.equal(filter('').length,14);
+ assert.equal(filter('Google DeepMind').length,4);
+ assert.equal(filter('').length,17);
 });
 test('unknown metadata remains unknown, family is not an exact version',()=>{
  assert.equal(modelLabel({}), '未記錄');assert.equal(effortLabel({}), '未記錄');

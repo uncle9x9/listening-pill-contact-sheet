@@ -41,9 +41,9 @@ export const catalog = {
       "created_at": "2026-09-13",
       "recorded_at": "2026-09-13",
       "archive": "archives/inflow-default.html",
-      "prompt": "當我按住Option一走出來的時候,Listening後面冇了三個點點。還有,它嗰個動態,之前有六條包,而家變成三點,就硬吃不動。所以整個情況,UI覺得很奇怪。呢個是一個Bud來的,應該要立即收復它。否則我按下去,好像冇反應,不舒服。還有嗰個綠色的燈應該變成呼吸燈。就好像不斷地在聽",
-      "prompt_context": "修復 InFlow 預設收音膠囊（Default Listening Pill）。針對硬吃不動的三點問題，還原六條具備待機微律動與即時語音響應的立體波形，補回 Listening 後方的三顆動態脈衝點點，並將綠色狀態燈升級為平滑呼吸燈。技術原則遵循 Emil Kowalski 動畫工程指南（emilkowalski/skills 中的 emil-design-eng：非對稱 Attack/Decay 音訊包絡、相位差待機波、180ms 錯開點點脈衝、硬體加速 scaleY 合成）。",
-      "provenance": "由創辦人即時反饋並指定 Emil Kowalski 動畫標準，模型使用 Google DeepMind Gemini 3.8 Flash，推理努力度（Reasoning Effort）為 High，透過 Google Antigravity 實作於作品庫。",
+      "prompt": "當我按住Option一走出來的時候,Listening後面冇了三個點點。還有,它嗰個動態,之前有六條包,而家變成三點,就硬吃不動。所以整個情況,UI覺得很奇怪。呢個是一個Bud來的,應該要立即收復它。否則我按下去,好像冇反應,不舒服。還有嗰個綠色的燈應該變成呼吸燈。就好像不斷地在聽... 做完呢啲 research 之後，你可以將佢擠返喺個網站嗰度。呢個網站提供咗 research 呢個 skills，俾埋相關資訊。然後你就要運用呢啲資訊，製作出全新或者幾個唔同風格嘅內容，擠返落呢個網站度做比較。",
+      "prompt_context": "Deep Research 與多風格收音膠囊生成（Listening Pill Multi-Archetype Generation）。以 Google Antigravity + Gemini 3.8 Flash (High Reasoning Effort) 為核心，整合 Emil Kowalski 動畫工程、Rauno Freiberg 極簡向量律動、Teenage Engineering 工業 Hi-Fi 儀表與 Siri/液態光暈設計，自主研究並推演出 4 種截然不同的視覺與互動典範（Default 呼吸波、Tactile 機械音量計、Fluid Aura 液態流體光暈、Single-Line 極簡連續波），並將 Deep Research 知識庫與工作流完整沉澱於站點。",
+      "provenance": "創辦人即時反饋並觸發 Deep Research 工作流。模型採用 Google DeepMind Gemini 3.8 Flash，推理努力度（Reasoning Effort）為 High，透過 Google Antigravity 原生執行，運用 emilkowalski/skills、interaction-physics 及 deep-research 專業技能，產出 4 種風格提交作品及專屬 Research Dossier。",
       "reference": "https://github.com/emilkowalski/skills"
     }
   ],
@@ -253,6 +253,33 @@ export const catalog = {
       "description": "針對原版預設膠囊的缺陷修復與設計進化：將硬吃不動的三點還原為六條具備待機微波動態（Idle Wave）與音訊即時響應（Fast Attack / Smooth Decay）的立體波形；左側綠色狀態燈升級為柔和呼吸燈（Breathing LED Pulse）；「Listening」後方加入三顆錯開淡入淡出的動態點點，確保一按即有生動反饋，絕不給人「沒有反應」的凝結感。",
       "source_file": "src/submissions/inflow-default.html",
       "preview": "previews/inflow-default.html"
+    },
+    {
+      "id": "inflow-tactile-hifi",
+      "run_id": "antigravity-flow",
+      "name": "Tactile Hi-Fi · 機械音量計",
+      "tagline": "Teenage Engineering 工業風，8 段 LED 分立式峰值儀表與金屬 REC 狀態。",
+      "description": "致敬 Teenage Engineering TP-7 與經典錄音機的實體觸感：採用 8 階分立式 LED 峰值音量計（綠-黃-紅精準分段動態響應音量 dB 讀數）、物理 REC 指示燈與等寬工業字體，徹底打破傳統圓弧 HUD 的數位均質感，賦予聲音輸入極致的實體機械反饋。",
+      "source_file": "src/submissions/inflow-tactile-hifi.html",
+      "preview": "previews/inflow-tactile-hifi.html"
+    },
+    {
+      "id": "inflow-fluid-aura",
+      "run_id": "antigravity-flow",
+      "name": "Fluid Aura · 液態流體光暈",
+      "tagline": "環境氛圍光暈與液態能量核，說話時流光隨聲浪呼吸擴散。",
+      "description": "靈感來自 Siri 與新一代 AI 語音介面：膠囊背後設有環境徑向漫射光暈（Ambient Radial Aura），說話音量直接驅動光暈的擴散半徑與流光透明度；左側為旋轉流動的液態能量球（Fluid Orb），搭配 5 條彩色漸變流動聲柱，營造溫潤且充滿未來感的智慧聆聽氛圍。",
+      "source_file": "src/submissions/inflow-fluid-aura.html",
+      "preview": "previews/inflow-fluid-aura.html"
+    },
+    {
+      "id": "inflow-single-line",
+      "run_id": "antigravity-flow",
+      "name": "Single-Line · 極簡連續波",
+      "tagline": "Rauno & Linear 極簡美學，一筆連續單線向量軌跡，有聲音即起伏，無聲則歸於呼吸細線。",
+      "description": "致敬 Rauno Freiberg 與 Linear 的極簡向量工藝：捨棄多條柱狀波形，改以單條連續的 Catmull-Rom / 正弦平滑向量線（Single Vector Stroke）貫穿微型舞台；語音振幅驅動線條波幅與波動頻率，並帶有延遲的半透明光軌（Lagged Trail）形成景深；無聲時回歸一條有生命力的呼吸細線，優雅而不喧賓奪主。",
+      "source_file": "src/submissions/inflow-single-line.html",
+      "preview": "previews/inflow-single-line.html"
     }
   ]
 };
